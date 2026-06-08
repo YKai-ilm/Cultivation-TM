@@ -351,6 +351,15 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .bonus-row .ef .row { display:flex; justify-content:space-between; }
 .bonus-row .ef .row b { color:#b35a1f; font-weight:700; }
 .offline-mask { position:absolute; inset:0; background:rgba(0,0,0,0.55); z-index:90; display:flex; align-items:center; justify-content:center; }
+.life-warn { margin:10px 10px 0; background:linear-gradient(135deg,rgba(200,60,40,0.18),rgba(160,40,30,0.12)); border:1px solid rgba(192,57,43,0.55); color:#a8301f; padding:9px 12px; border-radius:10px; font-size:12.5px; text-align:center; font-weight:700; }
+.death-overlay { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 40%, rgba(40,20,30,0.92), rgba(8,6,10,0.98)); z-index:300; display:flex; align-items:center; justify-content:center; }
+.death-box { text-align:center; padding:0 24px; max-width:330px; }
+.death-title { font-size:30px; font-weight:800; letter-spacing:10px; color:#e8d8c0; text-shadow:0 0 20px rgba(200,120,80,0.6); margin-bottom:14px; }
+.death-sub { font-size:13px; color:#c8a890; margin-bottom:18px; letter-spacing:1px; }
+.death-stats { font-size:13px; color:#e6d6c2; line-height:2.0; background:rgba(255,255,255,0.05); border:1px solid rgba(200,160,120,0.25); border-radius:10px; padding:12px; margin-bottom:16px; }
+.death-poem { font-size:12px; color:#a89684; line-height:1.9; margin-bottom:22px; font-style:italic; }
+.death-btn { background:linear-gradient(180deg,#7a4a2a,#5a3018); color:#f3e2c8; border:1px solid #9a6a3a; border-radius:10px; padding:11px 28px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:2px; }
+.death-btn:hover { background:linear-gradient(180deg,#8a5a36,#6a3a1e); }
 .offline-panel { text-align:center; }
 .offline-title { color:#fff3d6; font-size:22px; font-weight:700; letter-spacing:6px; margin-bottom:28px; text-shadow:0 2px 8px rgba(255,150,50,0.6); }
 .offline-lotus-big { width:110px; height:110px; border-radius:50%; cursor:pointer; margin:0 auto; background:radial-gradient(circle at 50% 40%, #fff3d6, #e9b9d4 75%); border:3px solid #c98aae; box-shadow:0 0 32px rgba(255,220,180,0.7); display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:700; color:#8a3a6a; animation:offlinePulse 2.4s ease-in-out infinite; }
@@ -489,6 +498,9 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .bt-badges { font-size:9px; letter-spacing:1px; }
 .emini-nm .bt-badges { font-size:8px; }
 .emini-bar i { display:block; height:100%; background:linear-gradient(90deg,#e0584a,#f3a18f); }
+.emini.boss { padding:2px 5px; border-radius:6px; background:rgba(217,160,44,0.16); border:1px solid rgba(217,160,44,0.6); }
+.emini.boss .emini-nm { color:#a8761c; }
+.emini.boss .emini-bar i { background:linear-gradient(90deg,#b8861c,#f3c84a); }
 .bt-turn { text-align:center; font-size:11px; color:#7a6038; margin:2px 10px 4px; }
 .bt-turn b { color:#c0392b; font-size:13px; }
 .bt-auto { color:#b89248; }
@@ -1473,7 +1485,7 @@ const initialState = {
   xuanbing:0, zijing:0, juanzhou:0, baoxiang:0, autoSpells:[], equip:{}, bag:{gear:[]}, battleLocationName:null, battleLocationRealm:null, encounterMon:null, tribPillBuff:{}, neidan:{}, viewSect:null, viewCity:null,
   fazhen:{tier:2,gather:8,days:128,stored:0}, mine:{workers:3,maxWorkers:5,storage:42,capacity:200},
   offlineMode:false, wbgCat:'gongfa', wbgSold:{}, wbgRefreshTs:Date.now(),
-  daotong:3, daotongAlloc:{shitang:0}, shitang:{level:0,food:0,daotongUsed:0,lastFoodDay:0,exchangeMode:null,exchangeQty:1}, meijiu:0, wineStock:{}, facLevel:{},
+  bossCD:{}, daotong:3, daotongAlloc:{shitang:0}, shitang:{level:0,food:0,daotongUsed:0,lastFoodDay:0,exchangeMode:null,exchangeQty:1}, meijiu:0, wineStock:{}, facLevel:{},
 };
 let state = JSON.parse(JSON.stringify(initialState));
 const SAVE_KEY = 'xiuxian_save_v2';
@@ -1577,6 +1589,8 @@ function showToast(msg) { const c=document.getElementById('toast-container'); co
 function lpPerSec(){ let s=0; for (const id in state.gongfa){ const g=state.gongfa[id]; if(g.cat==='lingli') s+=g.bonus||0; } return s; }
 function speedBonus(){ let s=0; for (const id in state.gongfa){ const g=state.gongfa[id]; if(g.cat==='xiulian') s+=g.bonus||0; } return s; }
 function applyRealmStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var asf=1+(vb.allStatPct||0)/100; state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*60+vb.mpMax)*asf); state.lpMax=st.lp; state.epMax=st.ep; state.hp=state.hpMax; state.mp=state.mpMax; state.ep=state.epMax; }
+function triggerDeath(){ state.dead=true; state.deathInfo={ realm:getRealmName(), years:Math.floor(getDays()/365), totalQi:Math.floor(state.totalQi||0) }; window._btRunning=false; window._btStop=true; window._btAnim=false; MB=null; saveState(); render(); }
+function deathReset(){ state=JSON.parse(JSON.stringify(initialState)); refreshMaxStats(); saveState(); render(); }
 function refreshMaxStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var asf=1+(vb.allStatPct||0)/100; var fullH=(state.hp>=state.hpMax), fullM=(state.mp>=state.mpMax), fullL=(state.lp>=state.lpMax), fullE=(state.ep>=state.epMax); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*60+vb.mpMax)*asf); state.lpMax=st.lp; state.epMax=st.ep; if(fullH||state.hp>state.hpMax)state.hp=state.hpMax; if(fullM||state.mp>state.mpMax)state.mp=state.mpMax; if(fullL||state.lp>state.lpMax)state.lp=state.lpMax; if(state.ep>state.epMax)state.ep=state.epMax; }
 function claimGift(){
   if (state.giftClaimed) return;
@@ -1634,6 +1648,7 @@ function resumeCatchUp(){
 }
 function tick() {
   const realm = REALMS[state.realm];
+  if(state.dead){ return; }
   if (state.offlineMode) {
     const qiGain = (qiPerSecNow()+speedBonus())*OFFLINE_RATE;
     state.qi+=qiGain; state.totalQi+=qiGain; state.totalSeconds+=1;
@@ -1647,6 +1662,7 @@ function tick() {
   state.lp=Math.min(state.lpMax,(state.lp||0)+lpPerSec());
   if(state.currentTab!=='battle') state.ep=Math.min(state.epMax,(state.ep||0)+state.epMax*0.005);
   { var _d=getDays(); if(state.lastRegenDay===undefined) state.lastRegenDay=_d; if(_d>state.lastRegenDay){ var _dd=_d-state.lastRegenDay; var _drf=1+(vaultBonus().dailyRegenPct||0)/100; state.hp=Math.min(state.hpMax,(state.hp||0)+state.hpMax*0.05*_dd*_drf); state.mp=Math.min(state.mpMax,(state.mp||0)+state.mpMax*0.05*_dd*_drf); state.ep=Math.min(state.epMax,(state.ep||0)+state.epMax*0.05*_dd*_drf); state.lastRegenDay=_d; } }
+  if(!state.dead && state.realm<7 && lifeLeft()<=0){ triggerDeath(); return; }
   if(state.shitang && state.totalSeconds%5===0){ var _g=daotongAreaCount('shitang')*2; if(_g>0){ state.shitang.food=Math.min(shitangFoodMax(),(state.shitang.food||0)+_g); } }
   if(state.totalSeconds%5===0){ for(var _fa in FAC){ var _fc=FAC[_fa]; var _fg=daotongAreaCount(_fa)*_fc.rate; if(_fg>0){ state[_fc.res]=Math.min(facMax(_fa),(state[_fc.res]||0)+_fg); } } }
   if (Math.random()<0.05){ state.lingshi+=Math.max(1,Math.floor(realm.qiPerSec*0.1)); }
@@ -2342,7 +2358,22 @@ function positionStageAura(){
   var bg=document.querySelector('.stage-bg-img');
   if(state.currentTab==='main' && bg){ var fb=fr.getBoundingClientRect(), bb=bg.getBoundingClientRect(); var sc=(fb.width/400)||1; aura.style.display='block'; aura.style.left=((bb.left-fb.left)/sc)+'px'; aura.style.top=((bb.top-fb.top)/sc)+'px'; aura.style.width=(bb.width/sc)+'px'; aura.style.height=(bb.height/sc)+'px'; } else { aura.style.display='none'; }
 }
-function render() {
+function render(){
+  try { _renderCore(); }
+  catch(e){
+    try{ console.error('render error:', e); }catch(_){}
+    if(state.currentTab!=='main'){ try{ state.currentTab='main'; _renderCore(); return; }catch(e2){ try{console.error('render fallback error:',e2);}catch(_){} } }
+    var app=document.getElementById('app');
+    if(app){ app.innerHTML='<div style="padding:48px 24px;text-align:center;color:#5a3a1a;">'
+      +'<div style="font-size:18px;font-weight:800;margin-bottom:12px;">⚠️ 畫面載入發生問題</div>'
+      +'<div style="font-size:13px;line-height:1.7;margin-bottom:22px;color:#7a5a32;">已嘗試自動修復但仍失敗。建議先匯出存檔備份，再重置重來。</div>'
+      +'<button onclick="try{exportSave()}catch(_){}" style="display:block;width:100%;margin:8px 0;padding:12px;background:#4f9e44;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;">⬇️ 匯出存檔備份</button>'
+      +'<button onclick="if(window.confirm(\'確定重置？目前進度會清空（建議先匯出備份）\')){try{localStorage.removeItem(SAVE_KEY)}catch(_){}; location.reload();}" style="display:block;width:100%;margin:8px 0;padding:12px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;">🔄 重置並重新開始</button>'
+      +'<div style="font-size:11px;color:#aa8a60;margin-top:16px;word-break:break-all;">錯誤：'+((e&&e.message)?String(e.message).slice(0,140):'unknown')+'</div></div>';
+    }
+  }
+}
+function _renderCore() {
   const realm = REALMS[state.realm];
   const breakCost = realm.breakCost===Infinity ? Infinity : realm.breakCost*EXP_MULT;
   const breakPct = breakCost===Infinity ? 100 : Math.min(100, state.qi/breakCost*100);
@@ -2365,6 +2396,7 @@ function render() {
     + '</div>';
   html += '<div class="content-scroll">';
   if (state._offlineGain) { html += '<div class="offline-banner">🌙 閉關 '+Math.floor(state._offlineSec/60)+' 分鐘，得靈氣 '+fmt(state._offlineGain)+'</div>'; delete state._offlineGain; delete state._offlineSec; }
+  if (!state.dead && state.realm<7 && lifeLeft()<=10) { html += '<div class="life-warn">⚠️ 壽元將盡，僅餘 '+lifeLeft()+' 載！速服丹藥／突破增壽，否則壽盡身死道消。</div>'; }
   if (state.currentTab==='main') {
     html += '<div class="action-strip"><div class="strip-label">'+(isTrib?'⚡修為':'🔥修為')+'</div>'
       + '  <div class="strip-bar"><div class="strip-fill '+(canBreak?(isBigCross?'trib':'ready'):'')+'" style="width:'+breakPct+'%"></div><div class="strip-num">'+(breakCost===Infinity?'已臻化境':fmt(state.qi)+' / '+fmt(breakCost))+'</div></div>'
@@ -2803,7 +2835,7 @@ function render() {
     html +=   '</div>';
     html +=   '<div class="bt-vs">VS</div>';
     html +=   '<div class="bt-side bt-side-r">';
-    html +=     '<div class="bt-bars bt-bars-r"><div class="bt-name" id="bt-ename">'+((MB&&MB.mons)?(MB.mons[MB.cur].name+_stBadges(MB.mons[MB.cur].st)):mon.name)+'</div>';
+    html +=     '<div class="bt-bars bt-bars-r"><div class="bt-name" id="bt-ename">'+((MB&&MB.mons)?((MB.mons[MB.cur].tpl.boss?(MB.mons[MB.cur].tpl.ic+' '):'')+MB.mons[MB.cur].name+_stBadges(MB.mons[MB.cur].st)):mon.name)+'</div>';
     html +=       '<div class="bt-bar hp"><i id="bt-ehp" style="width:'+_eHp.toFixed(0)+'%"></i><span>氣血</span><b class="bt-bv" id="bt-ehpv">'+((MB&&MB.mons)?fmt(Math.max(0,Math.floor(MB.mons[MB.cur].hp))):'')+'</b></div>';
     html +=       '<div class="bt-bar mp"><i style="width:100%"></i><span>法力</span></div>';
     html +=       '<div class="bt-bar ep"><i style="width:0%"></i><span>精力</span></div></div>';
@@ -2812,7 +2844,7 @@ function render() {
     html += '</div>';
     if(MB && MB.mons && MB.mons.length>1){
       html += '<div class="bt-emini">';
-      MB.mons.forEach(function(m,i){ var pct=Math.max(0,m.hp/m.max*100); html += '<div class="emini'+(!m.alive?' dead':'')+(i===MB.cur?' cur':'')+'" id="bt-ecell-'+i+'"><div class="emini-nm">'+m.name+_stBadges(m.st)+'</div><div class="emini-bar"><i id="bt-emini-'+i+'" style="width:'+pct.toFixed(0)+'%"></i></div></div>'; });
+      MB.mons.forEach(function(m,i){ var pct=Math.max(0,m.hp/m.max*100); html += '<div class="emini'+(!m.alive?' dead':'')+(i===MB.cur?' cur':'')+(m.tpl.boss?' boss':'')+'" id="bt-ecell-'+i+'"><div class="emini-nm">'+(m.tpl.boss?(m.tpl.ic+' '):'')+m.name+_stBadges(m.st)+'</div><div class="emini-bar"><i id="bt-emini-'+i+'" style="width:'+pct.toFixed(0)+'%"></i></div></div>'; });
       html += '</div>';
     }
     // ── 戰鬥訊息 ──
@@ -2846,6 +2878,7 @@ function render() {
   if (state.resetPending) { html += '<div class="info-modal" onclick="resetCancel()"><div class="im-box" onclick="event.stopPropagation()" style="width:280px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#c0392b;margin-bottom:8px;">⚠️ 重新開始</div><div style="font-size:13px;color:#5a3a1a;line-height:1.8;margin-bottom:16px;">確定要重新開始嗎？<br>所有進度將永久消失！</div><div style="display:flex;gap:10px;justify-content:center;"><button class="item-btn" style="background:#c0392b;color:#fff;padding:9px 22px;" onclick="resetConfirm()">確定重置</button><button class="item-btn" style="background:#999;color:#fff;padding:9px 22px;" onclick="resetCancel()">取消</button></div></div></div>'; }
   if (state.savePending) { html += '<div class="info-modal" onclick="closeSaveMenu()"><div class="im-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#8a4a1f;margin-bottom:6px;">💾 存檔備份</div><div style="font-size:12px;color:#7a5a32;line-height:1.7;margin-bottom:14px;">匯出可把目前進度存成檔案保管；匯入會以檔案覆蓋現有進度（覆蓋前建議先匯出備份）。</div><input type="file" id="save-import-input" accept="application/json,.json" style="display:none" onchange="importSaveFile(this)"><div style="display:flex;flex-direction:column;gap:9px;"><button class="item-btn" style="background:#4f9e44;color:#fff;padding:10px;" onclick="exportSave()">⬇️ 匯出存檔（下載檔案）</button><button class="item-btn" style="background:#c8a050;color:#fff;padding:10px;" onclick="document.getElementById(\'save-import-input\').click()">⬆️ 匯入存檔（讀取檔案）</button><button class="item-btn" style="background:#999;color:#fff;padding:8px;" onclick="closeSaveMenu()">關閉</button></div></div></div>'; }
   if (state.offlineMode) { html += '<div class="offline-mask"><div class="offline-panel"><div class="offline-title">離 線 修 練</div><div class="offline-lotus-big" onclick="toggleOfflineMode()"><div class="lo-ic">🪷</div><div class="lo-tx">點此<br>恢復</div></div><div class="offline-rate-hint">修練效率 10%</div></div></div>'; }
+  if (state.dead) { var _di=state.deathInfo||{}; html += '<div class="death-overlay"><div class="death-box"><div class="death-title">身 死 道 消</div><div class="death-sub">壽元耗盡，一縷道魂歸於天地。</div><div class="death-stats">境界　'+(_di.realm||'—')+'<br>享年　'+fmt(_di.years||0)+' 載<br>畢生修為　'+fmt(_di.totalQi||0)+'</div><div class="death-poem">塵歸塵，土歸土，<br>大道無情，輪迴有常。</div><button class="death-btn" onclick="deathReset()">🔄 重新轉世</button></div></div>'; }
   if (_spellOpen && state.currentTab==='battle') { html += '<div class="spell-picker"><div class="sp-box"><div class="sp-title">📿 選擇攻擊功法</div><div class="sp-list">';
     spellPool().forEach(function(s,i){ html += '<div class="sp-item'+(_spellSel===i?' sel':'')+'" onclick="selectSpell('+i+')"><div class="sp-ic">'+s.ic+'</div><div class="sp-tx"><div class="sp-nm">'+s.name+'</div><div class="sp-ds">'+s.desc+'</div></div></div>'; });
     html += '</div><div class="sp-btns"><button class="sp-cancel" onclick="closeSpellPicker()">取消</button></div></div></div>'; }
@@ -2879,7 +2912,7 @@ loadState();
 refreshMaxStats();
 render();
 fitFrame();
-setInterval(tick, 1000);
+setInterval(function(){ try{ tick(); }catch(e){ try{console.error('tick error:',e);}catch(_){}} }, 1000);
 document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
 document.addEventListener('dblclick', function(e){ e.preventDefault(); });
 document.addEventListener('visibilitychange', function(){ if (document.hidden) { state.lastTick=Date.now(); saveState(); } else { resumeCatchUp(); } });
@@ -2984,6 +3017,7 @@ function selectMapLocation(name){
   if(loc.t==='宗門'){ state.sectFrom='map'; state.viewSect=loc.n; state.sectArea=null; state.currentTab='sectview'; render(); return; }
   if(loc.t==='中立'){ state.viewCity=loc.n; state.currentTab='cityview'; render(); return; }
   if(state.realm<loc.r){ showToast(loc.n+' · 境界不足，需 '+REALMS[loc.r].name+'('+ '尚需突破' +')'); return; }
+  if(_isBossLoc(loc.n)){ if(!state.bossCD) state.bossCD={}; var _cd=(state.bossCD[loc.n]||0)-getDays(); if(_cd>0){ showToast(loc.n+' BOSS 重創未復，尚需 '+_cd+' 日'); return; } }
   state.battleLocationName=loc.n; state.battleLocationRealm=loc.r;
   var _pool=MONSTERS.filter(function(m){return m.loc===loc.n;}); state.encounterMon=_pool.length?_pool[Math.floor(Math.random()*_pool.length)]:null;
   window._btRunning=false; window._btAnim=false;
@@ -3009,15 +3043,26 @@ function _mPool(){
   var rp=MONSTERS.filter(function(m){return m.realm===r;}); if(rp.length) return rp;
   return [MONSTERS[MONSTERS.length-1]];
 }
+var BOSS_META={ '海龍祖宮':{name:'滄瀾海龍祖',ic:'🐉',life:10}, '極北冰原':{name:'玄冰魔龍',ic:'🐲',life:12}, '九天仙庭':{name:'弑仙魔尊',ic:'👹',life:15} };
+function _isBossLoc(nm){ return !!(nm&&BOSS_META[nm]); }
+function _buildBoss(pool, locName){
+  var meta=BOSS_META[locName]||{name:'兇獸之王',ic:'👑',life:10};
+  var base=pool.slice().sort(function(a,b){return (b.hp||0)-(a.hp||0);})[0]||pool[0];
+  return { realm:base.realm, name:meta.name, ic:meta.ic, boss:true, bossLife:meta.life, loc:locName,
+    hp:Math.round(base.hp*15), atk:Math.round(base.atk*2.0), def:Math.round(base.def*1.6), xiuwei:Math.round((base.xiuwei||0)*10),
+    reward:{ lingshi:Math.round(((base.reward&&base.reward.lingshi)||100)*8), shengwang:Math.round(((base.reward&&base.reward.shengwang)||5)*8) } };
+}
 function mbStart(){
-  var p=playerCombat(); var cnt=mbEnemyCount(); var pool=_mPool();
-  var picks=[]; for(var i=0;i<cnt;i++){ picks.push(pool[Math.floor(Math.random()*pool.length)]); }
-  var nc={}; picks.forEach(function(m){ nc[m.name]=(nc[m.name]||0)+1; });
-  var seen={}; var mons=picks.map(function(m){ var nm=m.name; if(nc[m.name]>1){ seen[m.name]=(seen[m.name]||0)+1; nm=m.name+seen[m.name]; } return {tpl:m, name:nm, hp:m.hp, max:m.hp, alive:true, st:[]}; });
-  MB={ mons:mons, cur:0, count:cnt, p:p, php:state.hp, pmax:state.hpMax, mon:mons[0].tpl, mhp:mons[0].hp, mmax:mons[0].max, round:0, shield:0, over:false, busy:false, pst:[] };
+  var p=playerCombat(); var pool=_mPool(); var nm=state.battleLocationName; var isBoss=_isBossLoc(nm);
+  var tpls=[];
+  if(isBoss){ tpls.push(_buildBoss(pool,nm)); for(var k=0;k<2;k++){ tpls.push(pool[Math.floor(Math.random()*pool.length)]); } }
+  else { var cnt=mbEnemyCount(); for(var i=0;i<cnt;i++){ tpls.push(pool[Math.floor(Math.random()*pool.length)]); } }
+  var nc={}; tpls.forEach(function(m){ nc[m.name]=(nc[m.name]||0)+1; });
+  var seen={}; var mons=tpls.map(function(m){ var nm2=m.name; if(nc[m.name]>1){ seen[m.name]=(seen[m.name]||0)+1; nm2=m.name+seen[m.name]; } return {tpl:m, name:nm2, hp:m.hp, max:m.hp, alive:true, st:[]}; });
+  MB={ mons:mons, cur:0, count:mons.length, p:p, php:state.hp, pmax:state.hpMax, mon:mons[0].tpl, mhp:mons[0].hp, mmax:mons[0].max, round:0, shield:0, over:false, busy:false, pst:[], boss:isBoss, bossSummoned:0 };
   state.battleLog=[]; var box=document.getElementById('bt-msg'); if(box) box.innerHTML='';
   setBar('bt-php',state.hp/state.hpMax*100); setBar('bt-pmp',state.mp/state.mpMax*100); setBar('bt-pep',state.ep/state.epMax*100); setBar('bt-ehp',100); var rn=document.getElementById('bt-rn'); if(rn) rn.textContent='0';
-  bmPush('⚔️ 遭遇 '+mons.map(function(x){return x.name;}).join('、')+'！','info');
+  bmPush(isBoss?('👑 【BOSS】'+mons[0].tpl.ic+' '+mons[0].name+' 率眾現身！'):('⚔️ 遭遇 '+mons.map(function(x){return x.name;}).join('、')+'！'),'info');
   if(!window._btAnim) render();
 }
 function _anyAliveE(){ if(!MB||!MB.mons) return false; for(var i=0;i<MB.mons.length;i++) if(MB.mons[i].alive) return true; return false; }
@@ -3083,9 +3128,11 @@ function _playerHit(kind,opt){
 function _enemyHit(idx){
   if(!MB||!MB.mons[idx]||!MB.mons[idx].alive) return; _focusE(idx);
   var m=MB.mons[idx], mon=m.tpl, p=MB.p; var rc=gongfaReact();
+  if(MB.boss && mon.boss && MB.round>0 && MB.round%3===0){ var _ae=MB.mons.filter(function(x){return x.alive;}).length; if(_ae<5){ var _mp=_mPool(); var _mm=_mp[Math.floor(Math.random()*_mp.length)]; MB.bossSummoned=(MB.bossSummoned||0)+1; MB.mons.push({tpl:_mm, name:_mm.name+'·援'+MB.bossSummoned, hp:_mm.hp, max:_mm.hp, alive:true, st:[]}); bmPush('👑 '+m.name+' 召喚援軍：'+_mm.name+'！','bad'); } }
+  var _bossAura=(MB.boss && !mon.boss && MB.mons.some(function(x){return x.alive&&x.tpl.boss;}));
   if(rc.missChance>0 && Math.random()<rc.missChance){ var oth=[]; for(var oi=0;oi<MB.mons.length;oi++){ if(oi!==idx&&MB.mons[oi].alive) oth.push(oi); } if(oth.length){ var tj=oth[Math.floor(Math.random()*oth.length)]; var om=MB.mons[tj]; var fd=Math.max(1,Math.floor(mon.atk*(0.6+Math.random()*0.4))); om.hp-=fd; setBar('bt-emini-'+tj,om.hp/om.max*100); if(tj===MB.cur) setBar('bt-ehp',om.hp/om.max*100); bmPush('🌑 暗影侵蝕！'+m.name+' 誤傷 '+om.name+'，造成 '+fmt(fd)+' 傷害','good'); if(om.hp<=0) _killEnemy(tj); return; } }
   if(Math.random()<p.dodge){ bmPush('　道友身形一閃，避開 '+m.name+' 的攻擊','info'); return; }
-  var red=p.dmgRed+(MB.shield>=2?0.3:0); var mdmg=Math.max(1,Math.floor(mon.atk*(1-Math.min(0.85,red))*(0.8+Math.random()*0.4))); MB.php-=mdmg; state.hp=Math.max(0,Math.floor(MB.php)); setBar('bt-php', MB.php/MB.pmax*100); bmPush('👹 '+m.name+' 攻擊，道友受 '+fmt(mdmg)+' 傷害','bad');
+  var red=p.dmgRed+(MB.shield>=2?0.3:0); var mdmg=Math.max(1,Math.floor(mon.atk*(1-Math.min(0.85,red))*(0.8+Math.random()*0.4))); if(_bossAura) mdmg=Math.floor(mdmg*1.3); MB.php-=mdmg; state.hp=Math.max(0,Math.floor(MB.php)); setBar('bt-php', MB.php/MB.pmax*100); bmPush('👹 '+m.name+' 攻擊，道友受 '+fmt(mdmg)+' 傷害','bad');
   if(m.alive){
     if(rc.reflectPct>0){ var rf=Math.max(1,Math.floor(mdmg*rc.reflectPct/100)); m.hp-=rf; setBar('bt-emini-'+idx,m.hp/m.max*100); if(idx===MB.cur) setBar('bt-ehp',m.hp/m.max*100); bmPush('🛡️ 厚土反彈，'+m.name+' 受 '+fmt(rf)+' 反傷','good'); if(m.hp<=0){ _killEnemy(idx); return; } }
     if(rc.paralyzeChance>0 && Math.random()<rc.paralyzeChance){ _addStatus(m.st,'paralyze',1,0); bmPush('💫 雷紋反制，'+m.name+' 被麻痺！','good'); }
@@ -3097,7 +3144,8 @@ function _enemyHit(idx){
 var STAT_DEF={ burn:{nm:'灼燒',ic:'🔥',dot:true}, poison:{nm:'中毒',ic:'☠️',dot:true,stack:true}, shock:{nm:'電麻',ic:'⚡',dot:true}, freeze:{nm:'凍結',ic:'❄️',ctrl:true}, paralyze:{nm:'麻痺',ic:'💫',ctrl:true} };
 function _addStatus(arr,type,turns,val){ if(!arr) return; var def=STAT_DEF[type]; var ex=null; for(var i=0;i<arr.length;i++){ if(arr[i].type===type){ ex=arr[i]; break; } } if(ex){ if(def&&def.stack) ex.stacks=(ex.stacks||1)+1; ex.turns=Math.max(ex.turns,turns); ex.val=Math.max(ex.val||0,val||0); } else { arr.push({type:type,turns:turns,val:val||0,stacks:1}); } }
 function _stBadges(arr){ if(!arr||!arr.length) return ''; var s=''; for(var i=0;i<arr.length;i++){ var d=STAT_DEF[arr[i].type]; if(d) s+=d.ic; } return s?(' <span class="bt-badges">'+s+'</span>'):''; }
-function _killEnemy(idx){ var m=MB.mons[idx]; if(!m||!m.alive) return; m.hp=0; m.alive=false; setBar('bt-emini-'+idx,0); var ec=document.getElementById('bt-ecell-'+idx); if(ec){ ec.classList.add('dead'); ec.classList.remove('cur'); } var g=_grantKillReward(m.tpl); bmPush('✅ 擊敗 '+m.name+'！'+g,'good'); addLog('【歷練】擊敗 '+m.name+'：'+g,'great'); }
+function _killEnemy(idx){ var m=MB.mons[idx]; if(!m||!m.alive) return; m.hp=0; m.alive=false; setBar('bt-emini-'+idx,0); var ec=document.getElementById('bt-ecell-'+idx); if(ec){ ec.classList.add('dead'); ec.classList.remove('cur'); } var g=_grantKillReward(m.tpl); bmPush('✅ 擊敗 '+m.name+'！'+g,'good'); addLog('【歷練】擊敗 '+m.name+'：'+g,'great');
+  if(m.tpl.boss){ var _bl=m.tpl.bossLife||10; state.shouyuan+=_bl; if(!state.bossCD) state.bossCD={}; if(state.battleLocationName) state.bossCD[state.battleLocationName]=getDays()+60; bmPush('🌟 誅殺 BOSS！壽元 +'+_bl+' 載，此地 60 日內不再出現','great'); addLog('【BOSS】誅殺 '+m.name+'，壽元+'+_bl,'great'); } }
 function _tickPStatus(){ if(!MB.pst||!MB.pst.length) return false; var skip=false,dot=0; MB.pst.forEach(function(st){ var d=STAT_DEF[st.type]; if(!d) return; if(d.dot){ var dd=Math.max(1,Math.floor((st.val||1)*(st.stacks||1))); dot+=dd; bmPush(d.ic+' 道友'+d.nm+'，受 '+fmt(dd)+' 持續傷害'+((st.stacks>1)?'（'+st.stacks+'層）':''),'bad'); } if(d.ctrl) skip=true; }); if(dot>0){ MB.php-=dot; state.hp=Math.max(0,Math.floor(MB.php)); setBar('bt-php',MB.php/MB.pmax*100); } if(skip) bmPush('💫 道友受制，本回合無法行動！','info'); for(var i=MB.pst.length-1;i>=0;i--){ MB.pst[i].turns--; if(MB.pst[i].turns<=0) MB.pst.splice(i,1); } return skip; }
 function _tickEStatus(idx){ var m=MB.mons[idx]; if(!m.st||!m.st.length) return false; var skip=false,dot=0; m.st.forEach(function(st){ var d=STAT_DEF[st.type]; if(!d) return; if(d.dot){ var dd=Math.max(1,Math.floor((st.val||1)*(st.stacks||1))); dot+=dd; bmPush(d.ic+' '+m.name+' '+d.nm+'，受 '+fmt(dd)+' 持續傷害'+((st.stacks>1)?'（'+st.stacks+'層）':''),'good'); } if(d.ctrl) skip=true; }); if(dot>0){ m.hp-=dot; setBar('bt-emini-'+idx,m.hp/m.max*100); if(idx===MB.cur) setBar('bt-ehp',m.hp/m.max*100); } if(m.hp<=0){ _killEnemy(idx); for(var k=m.st.length-1;k>=0;k--){ m.st[k].turns--; if(m.st[k].turns<=0) m.st.splice(k,1); } return true; } if(skip) bmPush('🧊 '+m.name+' 受制，無法行動！','info'); for(var j=m.st.length-1;j>=0;j--){ m.st[j].turns--; if(m.st[j].turns<=0) m.st.splice(j,1); } return skip; }
 function mbEnsure(){ if(!MB || MB.over) mbStart(); }

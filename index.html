@@ -1833,8 +1833,16 @@ function holdFire(btn){ if(btn && btn.onclick){ try{ btn.onclick.call(btn); }cat
 function holdStart(btn){
   if(window._holdT){clearTimeout(window._holdT);window._holdT=null;}
   if(window._holdI){clearInterval(window._holdI);window._holdI=null;}
-  holdFire(btn);                 // 立即 +1（或 -1）
   window._suppressClick=true;    // 避免 mouseup 後的自然 click 重複觸發
+  // 直接把「停止」綁在被點的按鈕本身：render() 會讓此按鈕脫離 DOM，
+  // iOS 的 touchend 仍派發到原按鈕，綁在它身上才收得到（綁 document 會漏接）。
+  try{
+    btn.addEventListener('touchend', holdStop, {once:true});
+    btn.addEventListener('touchcancel', holdStop, {once:true});
+    btn.addEventListener('mouseup', holdStop, {once:true});
+    btn.addEventListener('mouseleave', holdStop, {once:true});
+  }catch(e){}
+  holdFire(btn);                 // 立即 +1（或 -1）
   window._holdT=setTimeout(function(){
     window._holdI=setInterval(function(){ holdFire(btn); }, 100);
   }, 2000);

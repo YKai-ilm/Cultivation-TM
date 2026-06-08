@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#e9dcc0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>修仙·問道</title>
 <style>
 * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -1493,6 +1496,7 @@ const initialState = {
 };
 let state = JSON.parse(JSON.stringify(initialState));
 const SAVE_KEY = 'xiuxian_save_v2';
+const GAME_VERSION = '2026-06-08';
 function saveState() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e) {} }
 function loadState() {
   try {
@@ -3025,7 +3029,7 @@ function _renderCore() {
   html += '</div>';
   if (_suzhiPop && state.currentTab==='shuxing') { html += '<div class="info-modal" onclick="closeSuzhiPop()"><div class="im-box" onclick="event.stopPropagation()"><div class="im-head">升階數值<span class="im-x" onclick="closeSuzhiPop()">✕</span></div>'+suzhiPopHTML()+'</div></div>'; }
   if (state.resetPending) { html += '<div class="info-modal" onclick="resetCancel()"><div class="im-box" onclick="event.stopPropagation()" style="width:280px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#c0392b;margin-bottom:8px;">⚠️ 重新開始</div><div style="font-size:13px;color:#5a3a1a;line-height:1.8;margin-bottom:16px;">確定要重新開始嗎？<br>所有進度將永久消失！</div><div style="display:flex;gap:10px;justify-content:center;"><button class="item-btn" style="background:#c0392b;color:#fff;padding:9px 22px;" onclick="resetConfirm()">確定重置</button><button class="item-btn" style="background:#999;color:#fff;padding:9px 22px;" onclick="resetCancel()">取消</button></div></div></div>'; }
-  if (state.savePending) { html += '<div class="info-modal" onclick="closeSaveMenu()"><div class="im-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#8a4a1f;margin-bottom:6px;">💾 存檔備份</div><div style="font-size:12px;color:#7a5a32;line-height:1.7;margin-bottom:14px;">匯出可把目前進度存成檔案保管；匯入會以檔案覆蓋現有進度（覆蓋前建議先匯出備份）。</div><input type="file" id="save-import-input" accept="application/json,.json" style="display:none" onchange="importSaveFile(this)"><div style="display:flex;flex-direction:column;gap:9px;"><button class="item-btn" style="background:#4f9e44;color:#fff;padding:10px;" onclick="exportSave()">⬇️ 匯出存檔（下載檔案）</button><button class="item-btn" style="background:#c8a050;color:#fff;padding:10px;" onclick="document.getElementById(\'save-import-input\').click()">⬆️ 匯入存檔（讀取檔案）</button><button class="item-btn" style="background:#999;color:#fff;padding:8px;" onclick="closeSaveMenu()">關閉</button></div></div></div>'; }
+  if (state.savePending) { html += '<div class="info-modal" onclick="closeSaveMenu()"><div class="im-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#8a4a1f;margin-bottom:6px;">💾 存檔備份</div><div style="font-size:12px;color:#7a5a32;line-height:1.7;margin-bottom:14px;">匯出可把目前進度存成檔案保管；匯入會以檔案覆蓋現有進度（覆蓋前建議先匯出備份）。</div><input type="file" id="save-import-input" accept="application/json,.json" style="display:none" onchange="importSaveFile(this)"><div style="display:flex;flex-direction:column;gap:9px;"><button class="item-btn" style="background:#4f9e44;color:#fff;padding:10px;" onclick="exportSave()">⬇️ 匯出存檔（下載檔案）</button><button class="item-btn" style="background:#c8a050;color:#fff;padding:10px;" onclick="document.getElementById(\'save-import-input\').click()">⬆️ 匯入存檔（讀取檔案）</button><button class="item-btn" style="background:#999;color:#fff;padding:8px;" onclick="closeSaveMenu()">關閉</button></div><div style="font-size:10px;color:#b09a78;margin-top:10px;">版本 '+GAME_VERSION+'</div></div></div>'; }
   if (state.offlineMode) { html += '<div class="offline-mask"><div class="offline-panel"><div class="offline-title">離 線 修 練</div><div class="offline-lotus-big" onclick="toggleOfflineMode()"><div class="lo-ic">🪷</div><div class="lo-tx">點此<br>恢復</div></div><div class="offline-rate-hint">修練效率 10%</div></div></div>'; }
   if (state.dead) { var _di=state.deathInfo||{}; html += '<div class="death-overlay"><div class="death-box"><div class="death-title">身 死 道 消</div><div class="death-sub">壽元耗盡，一縷道魂歸於天地。</div><div class="death-stats">境界　'+(_di.realm||'—')+'<br>享年　'+fmt(_di.years||0)+' 載<br>畢生修為　'+fmt(_di.totalQi||0)+'</div><div class="death-poem">塵歸塵，土歸土，<br>大道無情，輪迴有常。</div><button class="death-btn" onclick="deathReset()">🔄 重新轉世</button></div></div>'; }
   if (_spellOpen && state.currentTab==='battle') { var _spool=spellPool(); html += '<div class="spell-picker"><div class="sp-box">';

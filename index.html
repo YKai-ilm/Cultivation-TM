@@ -1364,7 +1364,12 @@ const STAT_TABLE = [
 ];
 const SCROLLS = {
   lianqi: {name:'練氣決', ic:'📖', cat:'xiulian', desc:'新手上路', eff:'修煉效率 +10/秒', bonus:10},
-  linglijue: {name:'靈力決', ic:'📘', cat:'lingli', desc:'靈力型功法', eff:'靈力生成 +2/秒', bonus:2}
+  linglijue: {name:'靈力決', ic:'📘', cat:'lingli', desc:'靈力型功法', eff:'靈力生成 +2/秒', bonus:2},
+  jiuxiao: {name:'九霄劍訣', ic:'📒', cat:'xiulian', desc:'劍修利器', eff:'修練效率 +50/秒', bonus:50},
+  tiegu:    {name:'鐵骨拳',   ic:'📕', cat:'waigong', desc:'外功·剛猛拳法', eff:'剛猛外功·金系單體破甲',   gf:'gf_jin_1_waigong_1'},
+  xuanyin:  {name:'玄陰體訣', ic:'📕', cat:'neigong', desc:'內功·護體心法', eff:'護體內功·寒冰減傷',     gf:'gf_bing_1_neigong_1'},
+  jindandr: {name:'金丹妙訣', ic:'📒', cat:'neigong', desc:'內功·淬鍊金丹', eff:'護體內功·厚土防禦反彈', gf:'gf_tu_3_neigong_2'},
+  wuxiang:  {name:'無相劍典', ic:'📙', cat:'waigong', desc:'外功·頂階劍訣', eff:'頂階外功·風系範圍攻擊', gf:'gf_feng_4_waigong_4'}
 };
 // ===== 功法生成系統（11 屬性 × 4 類型；每屬性每境界 16 個=4×4）=====
 const GF_TYPES=[{k:'xiulian',nm:'修練型',ic:'📕'},{k:'waigong',nm:'外功型',ic:'⚔️'},{k:'neigong',nm:'內功型',ic:'🛡️'},{k:'lingli',nm:'靈力型',ic:'📘'}];
@@ -1570,6 +1575,7 @@ function loadState() {
     if (state.fazhen.kstore === undefined) state.fazhen.kstore = 0;
     if (!state.jiayuan) state.jiayuan = {plots:[{c:null,d:0},{c:null,d:0},{c:null,d:0},{c:null,d:0}],fishLast:0,lastCatch:''};
     if (!state.jiayuan.plots || state.jiayuan.plots.length<4) state.jiayuan.plots=[{c:null,d:0},{c:null,d:0},{c:null,d:0},{c:null,d:0}];
+    for(var _gid in state.gongfa){ var _sg=SCROLLS[_gid]; if(_sg){ var _gg=state.gongfa[_gid]; if(_gg.cat===undefined||_gg.cat===null) _gg.cat=_sg.cat; if(typeof _gg.bonus!=='number'||isNaN(_gg.bonus)) _gg.bonus=_sg.bonus; } }
     if (!state._llNerf13){ if(state.gongfa){ for(var _lid in state.gongfa){ var _lg=state.gongfa[_lid]; if(_lg&&_lg.cat==='lingli') _lg.bonus=Math.max(1,Math.round((_lg.bonus||0)/3)); } } state._llNerf13=true; }
     if (state.mine === undefined) state.mine = {level:0,puppets:5,workers:3,storage:42,exchangeMode:null,exchangeQty:1};
     if (state.mine.level===undefined) state.mine.level=0;
@@ -1670,11 +1676,14 @@ function claimGift(){
 }
 function useScroll(id){
   const own=state.scrolls[id]||0; if (own<=0) return;
-  if (state.gongfa[id]){ showToast(SCROLLS[id].name+' 已習得'); return; }
-  state.scrolls[id]=own-1; if (state.scrolls[id]<=0) delete state.scrolls[id];
   const s=SCROLLS[id];
-  state.gongfa[id]={cat:s.cat, name:s.name, ic:s.ic, level:1, bonus:s.bonus, upgradeUsed:false, eff:s.eff, realm:(s.minRealm||0)};
-  addLog('【功法】習得 '+s.name+'（'+s.eff+'）','great'); showToast(s.name+' 已習得！'); refreshMaxStats(); saveState(); render();
+  if(!s){ showToast('此功法暫無法習得（資料缺失）'); return; }
+  var tid = s.gf || id;
+  if (state.gongfa[tid]){ showToast(s.name+' 已習得'); return; }
+  state.scrolls[id]=own-1; if (state.scrolls[id]<=0) delete state.scrolls[id];
+  if(s.gf){ var p=s.gf.split('_'); var d=gfDesc(p[1],parseInt(p[2]),p[3],parseInt(p[4]),1); state.gongfa[s.gf]={cat:d.cat, name:s.name, ic:s.ic, level:1, bonus:d.bonus||0, upgradeUsed:false, elem:d.elem, realm:parseInt(p[2]), idx:parseInt(p[4]), eff:d.eff}; }
+  else { state.gongfa[id]={cat:s.cat, name:s.name, ic:s.ic, level:1, bonus:s.bonus, upgradeUsed:false, eff:s.eff, realm:(s.minRealm||0)}; }
+  addLog('【功法】習得 '+s.name,'great'); showToast(s.name+' 已習得！'); refreshMaxStats(); saveState(); render();
 }
 function scrollSellPrice(id){ var p=(''+id).split('_'); if(p[0]==='gf'&&p.length>=5){ var d=gfParse(id); return d?Math.max(100,Math.round(gfLearnCost(d)*0.4)):500; } return 1000; }
 function _scrollCount(id){ return (state.scrolls&&state.scrolls[id])||0; }
@@ -2616,11 +2625,11 @@ function _renderCore() {
     const ekeys=Object.keys(state.elixirs).filter(k=>state.elixirs[k]>0);
     html += '<div class="panel"><div class="panel-title">💊 丹藥</div>';
     if (ekeys.length===0) html += '<div style="font-size:12px;color:#9a8458;text-align:center;padding:8px;">尚無丹藥，去洞府煉製</div>';
-    else { html += '<div class="grid5">'; ekeys.forEach(k=>{ const e=ELIXIRS.find(x=>x.id===k),own=state.elixirs[k],q=qtyOf(k),act=state.activePop===k?' active':'';
+    else { html += '<div class="grid5">'; ekeys.forEach(k=>{ const e=ELIXIRS.find(x=>x.id===k); if(!e) return; const own=state.elixirs[k],q=qtyOf(k),act=state.activePop===k?' active':'';
       html += '<div class="cell5 usable'+act+'" data-id="'+k+'" onmouseenter="enterCell(\''+k+'\')" onmouseleave="leaveCell(\''+k+'\')" onclick="toggleCell(\''+k+'\')"><div class="ci">🧪</div><div class="cn">'+e.name+'</div><div class="ce">×'+own+'</div><div class="pop" onclick="event.stopPropagation()"><div class="qty"><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+k+'\',-1)">−</button><input type="number" class="qn num-input" inputmode="numeric" min="1" value="'+q+'" onchange="setQtyAbs(\''+k+'\',this.value)" onkeydown="if(event.key===&apos;Enter&apos;)this.blur()" onclick="event.stopPropagation();this.select()" style="font-size:12px;width:36px;" /><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+k+'\',1)">＋</button></div><button class="use-btn" onclick="event.stopPropagation();consumeElixir(\''+k+'\')">使用</button><button class="use-btn" style="background:#c8a050;" onclick="event.stopPropagation();sellElixir(\''+k+'\')" title="售價 '+fmt(elixirSellPrice(k))+' 靈石/顆">售出</button></div><div class="info-pop">'+e.effect+'</div></div>'; }); html += '</div>'; }
     html += '</div>';
     const skeys=Object.keys(state.scrolls).filter(k=>state.scrolls[k]>0);
-    if (skeys.length>0){ html += '<div class="panel"><div class="panel-title">📖 功法書</div><div class="grid5">'; skeys.forEach(k=>{ const s=SCROLLS[k],pid='s_'+k,act=state.activePop===pid?' active':'';
+    if (skeys.length>0){ html += '<div class="panel"><div class="panel-title">📖 功法書</div><div class="grid5">'; skeys.forEach(k=>{ const s=SCROLLS[k]; if(!s) return; const pid='s_'+k,act=state.activePop===pid?' active':'';
       html += '<div class="cell5 usable'+act+'" data-id="'+pid+'" onmouseenter="enterCell(\''+pid+'\')" onmouseleave="leaveCell(\''+pid+'\')" onclick="scrollCellClick(\''+k+'\')"><div class="ci">'+s.ic+'</div><div class="cn">'+s.name+'</div><div class="ce">×'+state.scrolls[k]+'</div><div class="pop" onclick="event.stopPropagation()"><button class="use-btn" onclick="event.stopPropagation();useScroll(\''+k+'\')">習得</button></div><div class="info-pop">'+(s.eff||'學會此功法')+'</div></div>'; }); html += '</div></div>'; }
     // 裝備囊：依 9 部位分排，每排可橫向多件（4-5/排）
     var _bagArr=(state.bag&&state.bag.gear)||[];
@@ -2646,7 +2655,7 @@ function _renderCore() {
     const akeys=Object.keys(state.artifacts).filter(k=>state.artifacts[k]);
     html += '<div class="panel"><div class="panel-title">⚔️ 法寶</div><div class="grid5">';
     if (akeys.length===0) html += '<div style="grid-column:1/-1;text-align:center;color:#9a8458;font-size:12px;padding:8px;">尚無法寶</div>';
-    else akeys.forEach(k=>{ const a=ARTIFACTS.find(x=>x.id===k); html += '<div class="cell5" title="'+a.effect+'"><div class="ci">⚔️</div><div class="cn">'+a.name+'</div><div class="ce tier-'+a.tier+'">'+a.tier+'</div></div>'; });
+    else akeys.forEach(k=>{ const a=ARTIFACTS.find(x=>x.id===k); if(!a) return; html += '<div class="cell5" title="'+a.effect+'"><div class="ci">⚔️</div><div class="cn">'+a.name+'</div><div class="ce tier-'+a.tier+'">'+a.tier+'</div></div>'; });
     html += '</div></div>';
   }
   if (state.currentTab==='log') {

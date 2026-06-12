@@ -29,7 +29,7 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .res-col { flex-shrink:0; display:flex; flex-direction:column; justify-content:center; gap:3px; font-size:12px; }
 .res-row { display:flex; align-items:center; gap:4px; white-space:nowrap; }
 .res-row .ic { width:14px; text-align:center; }
-.res-row .rv { font-weight:700; color:#3a2a16; min-width:56px; text-align:right; }
+.res-row .rv { font-weight:700; color:#3a2a16; min-width:96px; text-align:right; margin-left:auto; }
 .res-row .rk { color:#7a6038; }
 .side-banners { display:flex; flex-direction:column; gap:4px; flex-shrink:0; }
 .banner-btn { writing-mode:vertical-rl; text-orientation:upright; letter-spacing:1px; font-size:12px; font-weight:700; color:#fff; background:linear-gradient(180deg,#c2622e,#9c3f1c); border:1px solid #e0a06a; border-radius:6px; padding:4px 3px; cursor:pointer; }
@@ -141,6 +141,7 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .kv-row { display:flex; justify-content:space-between; gap:10px; min-width:54px; white-space:nowrap; }
 .kv-row .kl { font-weight:500; opacity:0.7; }
 .grid5 { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.cur-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
 .cell5 { position:relative; text-align:center; background:rgba(255,255,255,0.55); border:1px solid rgba(160,120,70,0.3); border-radius:8px; padding:6px 2px 8px; }
 .cell5 .ci { font-size:20px; height:28px; display:flex; align-items:center; justify-content:center; }
 .cell5 .ci img { width:20px; height:20px; object-fit:contain; display:block; }
@@ -478,11 +479,11 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .sa-ic { font-size:19.2px; line-height:1; }
 .sa-nm { font-size:11.2px; font-weight:800; color:#5a3a1a; margin-top:4px; }
 .sa-ds { font-size:8.8px; color:#9a7a48; margin-top:2px; line-height:1.4; }
-.ts-mask{ position:absolute; inset:0; background:rgba(0,0,0,0.45); z-index:75; }
-.task-sheet{ position:absolute; left:0; right:0; bottom:0; z-index:76; background:linear-gradient(180deg,#fbf4e2,#efe2c2); border-top:2px solid #b89248; border-radius:16px 16px 0 0; box-shadow:0 -6px 24px rgba(0,0,0,0.35); max-height:78%; display:flex; flex-direction:column; padding:12px 12px 14px; }
+.ts-mask{ position:absolute; inset:0; background:rgba(0,0,0,0.4); z-index:75; border-radius:14px; }
+.task-sheet{ position:absolute; left:6px; right:6px; top:48px; z-index:76; background:linear-gradient(180deg,#fbf4e2,#efe2c2); border:2px solid #b89248; border-radius:14px; box-shadow:0 8px 28px rgba(0,0,0,0.4); max-height:calc(100% - 56px); display:flex; flex-direction:column; padding:12px 12px 14px; }
 .ts-head{ font-size:16px; font-weight:800; color:#7a3a1f; text-align:center; position:relative; margin-bottom:8px; }
 .ts-x{ position:absolute; right:4px; top:0; cursor:pointer; color:#9a7a48; font-size:18px; }
-.ts-scroll{ overflow-y:auto; flex:1; }
+.ts-scroll{ overflow-y:auto; flex:0 1 auto; min-height:0; }
 .ts-cat{ margin-bottom:8px; border:1px solid rgba(160,120,70,0.25); border-radius:8px; overflow:hidden; }
 .ts-cat-h{ display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:rgba(200,160,80,0.14); font-size:13px; font-weight:700; color:#6a4420; cursor:pointer; }
 .ts-arr{ font-size:11px; color:#9a7a48; }
@@ -500,6 +501,29 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .q-rw{ font-size:11px; color:#3a8a4a; }
 .q-claim{ background:#3a8a4a; color:#fff; padding:4px 14px; font-size:11px; }
 .q-sub{ font-size:12px; font-weight:700; color:#7a5a28; margin:8px 2px 5px; }
+.tab-cat-h{ cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+.tab-arr{ font-size:11px; color:#9a7a48; font-weight:400; }
+.cur-stepwrap{ display:flex; justify-content:center; margin-top:6px; }
+.cur-step{ display:inline-flex; align-items:center; border:1px solid rgba(160,120,70,0.4); border-radius:5px; overflow:hidden; }
+.cur-sbtn{ width:14px; height:18px; border:none; background:rgba(230,210,160,0.65); color:#6a4a1a; font-size:9px; font-weight:700; line-height:1; cursor:pointer; padding:0; }
+.cur-sbtn:active{ background:rgba(214,191,128,0.9); }
+.cur-snum{ min-width:36px; padding:0 2px; text-align:center; font-size:10px; font-weight:700; color:#5a4628; }
+.cur-sph{ width:14px; height:18px; display:inline-block; background:rgba(230,210,160,0.28); }
+.loc-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+.loc-item{ display:flex; justify-content:space-between; align-items:center; gap:6px; padding:8px 10px; background:rgba(255,255,255,0.5); border:1px solid rgba(160,120,70,0.3); border-radius:7px; cursor:pointer; }
+.loc-item:active{ background:rgba(240,230,200,0.75); }
+.loc-nm{ font-size:13px; font-weight:700; color:#3a2a16; }
+.loc-rk{ font-size:11px; color:#9a7a48; white-space:nowrap; text-align:right; line-height:1.4; }
+.exch-row{ display:flex; align-items:center; gap:8px; padding:6px 2px; border-bottom:1px solid rgba(160,120,70,0.15); }
+.exch-ic{ font-size:18px; width:22px; text-align:center; }
+.exch-nm{ flex:1; font-size:13px; font-weight:600; }
+.exch-v{ font-size:13px; font-weight:700; min-width:58px; text-align:right; }
+.exch-btns{ display:flex; gap:5px; min-width:66px; justify-content:flex-end; }
+.ch-story{ font-size:11px; color:#6a5232; line-height:1.7; margin:3px 0 6px; padding:6px 8px; background:rgba(200,160,80,0.08); border-radius:5px; border-left:3px solid #c8a050; }
+.ch-objs{ margin:2px 0 4px; }
+.ch-obj{ font-size:11px; color:#5a4628; line-height:1.7; }
+.ch-ok{ color:#3a8a4a; font-weight:700; }
+.ch-no{ color:#b08a50; }
 
 .info-modal { position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:70; }
 .im-box { width:300px; max-height:80%; overflow-y:auto; background:linear-gradient(180deg,#fbf4e2,#efe2c2); border:1px solid #b89248; border-radius:14px; padding:14px; box-shadow:0 8px 30px rgba(0,0,0,0.4); }
@@ -1462,8 +1486,7 @@ function buyGongfaBook(elemK,r,typeK,i){
   if(state.gongfa[d.id]){ showToast('已學習'); return; }
   if(((state.scrolls&&state.scrolls[d.id])||0)>0){ showToast('已購入，至儲物習得'); return; }
   if(state.realm<r){ showToast('境界不足，需 '+REALMS[r].name); return; }
-  var cost=gfLearnCost(d); if(!canAfford(cost)){ showToast('靈石不足，需 '+fmt(cost)); return; }
-  payLingshi(cost);
+  var cost=gfLearnCost(d); if(!state._payGo){ if(!canAffordTier(cost)){ showToast('財富不足'); return; } return askBuyConfirm(cost,'buyGongfaBook',[elemK,r,typeK,i],'功法書《'+d.name+'》'); } if(!payByTier(cost)){ showToast('財富不足'); return; }
   SCROLLS[d.id]={name:d.name,ic:d.ic,cat:d.cat,desc:'功法閣購入',eff:d.eff,bonus:d.bonus};
   if(!state.scrolls) state.scrolls={};
   state.scrolls[d.id]=(state.scrolls[d.id]||0)+1;
@@ -1524,7 +1547,7 @@ function _gfCardHTML(d){
   h+='<div class="gf-act" onclick="event.stopPropagation()">';
   if(ow){ h+='<button class="gf-btn owned-l" disabled>已學習</button>'; }
   else if(booked){ h+='<button class="gf-btn pend" disabled>已買待學</button>'; }
-  else { h+='<button class="gf-btn learn" onclick="buyGongfaBook(\''+d.elem+'\','+d.realm+',\''+d.cat+'\','+d.idx+')">靈石　'+fmt(gfLearnCost(d))+'</button>'; }
+  else { h+='<button class="gf-btn learn" onclick="buyGongfaBook(\''+d.elem+'\','+d.realm+',\''+d.cat+'\','+d.idx+')">'+costDisp(gfLearnCost(d))+'</button>'; }
   h+='</div><div class="gf-pop">'+d.eff+'</div></div>';
   return h;
 }
@@ -1620,6 +1643,7 @@ function loadState() {
     ['tiegu','xuanyin','jindandr','wuxiang'].forEach(function(_sid){ var _sc=SCROLLS[_sid]; if(!_sc||!_sc.gf) return; var _lg=state.gongfa[_sid]; if(_lg){ if(!state.gongfa[_sc.gf]){ var _pp=_sc.gf.split('_'); var _lv=_lg.level||1; var _dd=gfDesc(_pp[1],parseInt(_pp[2]),_pp[3],parseInt(_pp[4]),_lv); state.gongfa[_sc.gf]={cat:_dd.cat,name:_sc.name,ic:_sc.ic,level:_lv,bonus:_dd.bonus||0,upgradeUsed:false,elem:_dd.elem,realm:parseInt(_pp[2]),idx:parseInt(_pp[4]),eff:_dd.eff}; } delete state.gongfa[_sid]; } });
     for(var _gid in state.gongfa){ var _sg=SCROLLS[_gid]; if(_sg){ var _gg=state.gongfa[_gid]; if(_gg.cat===undefined||_gg.cat===null) _gg.cat=_sg.cat; if(_sg.bonus && (typeof _gg.bonus!=='number'||isNaN(_gg.bonus)||_gg.bonus<=0)) _gg.bonus=_sg.bonus; } }
     gfHealthCheck();
+    state.exchWork=null;
     if (!state._llNerf13){ if(state.gongfa){ for(var _lid in state.gongfa){ var _lg=state.gongfa[_lid]; if(_lg&&_lg.cat==='lingli') _lg.bonus=Math.max(1,Math.round((_lg.bonus||0)/3)); } } state._llNerf13=true; }
     if (state.mine === undefined) state.mine = {level:0,puppets:5,workers:3,storage:42,exchangeMode:null,exchangeQty:1};
     if (state.mine.level===undefined) state.mine.level=0;
@@ -1709,9 +1733,66 @@ function canAfford(cost){ cost=Math.floor(cost||0); if(cost<=0) return true; var
 function ensureLow(need){ need=Math.floor(need); if(getCoin('lingshi')>=need) return true; var guard=0; while(getCoin('lingshi')<need && guard++<500){ var j=-1; for(var x=1;x<CUR.length;x++){ if(getCoin(CUR[x].k)>0){ j=x; break; } } if(j<0) return false; var per=1; for(var y=1;y<=j;y++) per*=CUR[y].per; var deficit=need-getCoin('lingshi'); var cnt=Math.min(getCoin(CUR[j].k), Math.max(1,Math.ceil(deficit/per))); setCoin(CUR[j].k,getCoin(CUR[j].k)-cnt); setCoin(CUR[j-1].k,getCoin(CUR[j-1].k)+cnt*CUR[j].per); } return getCoin('lingshi')>=need; }
 function payLingshi(cost){ cost=Math.floor(cost||0); if(cost<=0) return true; if(!canAfford(cost)) return false; ensureLow(cost); if(getCoin('lingshi')<cost) return false; state.lingshi-=cost; normalizeWallet(); return true; }
 function lingshiDisp(){ for(var i=CUR.length-1;i>=0;i--){ var n=getCoin(CUR[i].k); if(n>0) return fmt(n)+' '+CUR[i].nm; } return '0 下品靈石'; }
+/* ===== 分階計價 + 購買確認 + 找零手續費 ===== */
+var CHANGE_FEE=8;
+function tierPer(i){ var p=1; for(var k=1;k<=i;k++) p*=CUR[k].per; return p; }
+function costTier(cost){ cost=Math.floor(cost||0); var T=0; for(var i=0;i<CUR.length;i++){ if(cost/tierPer(i)>=10000) T=i+1; else break; } if(T>CUR.length-1)T=CUR.length-1; return T; }
+function qCost(cost){ cost=Math.floor(cost||0); if(cost<=0)return 0; var T=costTier(cost); var p=tierPer(T); return Math.max(p, Math.round(cost/p)*p); }
+function costDisp(cost){ var c=qCost(cost); if(c<=0) return '0 '+CUR[0].nm; var T=costTier(c); var p=tierPer(T); return fmt(Math.round(c/p))+' '+CUR[T].nm; }
+function tierWealthLE(T){ var t=0; for(var i=0;i<=T;i++) t+=getCoin(CUR[i].k)*tierPer(i); return t; }
+function totalWealth(){ var t=0; for(var i=0;i<CUR.length;i++) t+=getCoin(CUR[i].k)*tierPer(i); return t; }
+function canAffordTier(cost){ return totalWealth()>=qCost(cost); }
+function payPreview(cost){
+  var c=qCost(cost); var T=costTier(c); var payTier=CUR[T].nm;
+  if(c<=0) return {ok:true,clean:true,disp:costDisp(c),payTier:payTier};
+  if(totalWealth()<c) return {ok:false,disp:costDisp(c),payTier:payTier};
+  var clean=tierWealthLE(T)>=c;
+  if(clean) return {ok:true,clean:true,disp:costDisp(c),payTier:payTier};
+  var rem=c, snap={}; CUR.forEach(function(cu){ snap[cu.k]=getCoin(cu.k); });
+  for(var i=T;i>=0;i--){ var pv=tierPer(i); var use=Math.min(snap[CUR[i].k], Math.floor(rem/pv)); snap[CUR[i].k]-=use; rem-=use*pv; }
+  var acc=0, broke=[];
+  for(var j=T+1;j<CUR.length && acc<rem;j++){ var pv2=tierPer(j); while(snap[CUR[j].k]>0 && acc<rem){ snap[CUR[j].k]--; acc+=pv2; if(broke.indexOf(CUR[j].nm)<0)broke.push(CUR[j].nm); } }
+  var change=acc-rem, Tm1=T-1, changeUnits=0, fee=0, changeTier=(Tm1>=0?CUR[Tm1].nm:CUR[0].nm);
+  if(change>0){ var ptm1=tierPer(Tm1>=0?Tm1:0); var u=Math.floor(change/ptm1); fee=u-Math.floor(u*(1-CHANGE_FEE/100)); changeUnits=u-fee; }
+  return {ok:true,clean:false,disp:costDisp(c),payTier:payTier,broke:broke,changeUnits:changeUnits,changeTier:changeTier,fee:fee};
+}
+function payByTier(cost){
+  var c=qCost(cost); if(c<=0) return true; if(totalWealth()<c) return false;
+  var T=costTier(c), rem=c;
+  for(var i=T;i>=0;i--){ var pv=tierPer(i); var have=getCoin(CUR[i].k); var use=Math.min(have, Math.floor(rem/pv)); if(use>0){ setCoin(CUR[i].k, have-use); rem-=use*pv; } }
+  if(rem>0){ var acc=0; for(var j=T+1;j<CUR.length && acc<rem;j++){ var pv2=tierPer(j); while(getCoin(CUR[j].k)>0 && acc<rem){ setCoin(CUR[j].k, getCoin(CUR[j].k)-1); acc+=pv2; } } var change=acc-rem; var Tm1=T-1; if(change>0){ if(Tm1<0){ state.lingshi=(state.lingshi||0)+change; } else { var ptm1=tierPer(Tm1); var u=Math.floor(change/ptm1); u=Math.floor(u*(1-CHANGE_FEE/100)); setCoin(CUR[Tm1].k, getCoin(CUR[Tm1].k)+u); } } }
+  normalizeWallet(); return true;
+}
+function askBuyConfirm(cost,fn,args,title){ state.buyConfirm={fn:fn,args:args,title:title,pv:payPreview(cost)}; render(); }
+function confirmBuyCancel(){ state.buyConfirm=null; render(); }
+function confirmBuyOK(){ var b=state.buyConfirm; if(!b){ return; } state.buyConfirm=null; state._payGo=true; try{ window[b.fn].apply(null,b.args); }finally{ state._payGo=false; } }
+function buyConfirmHTML(){ var b=state.buyConfirm; if(!b) return ''; var pv=b.pv;
+  var h='<div class="info-modal" onclick="confirmBuyCancel()"><div class="im-box" onclick="event.stopPropagation()" style="width:300px;">';
+  h+='<div class="im-head">🛒 確認購買<span class="im-x" onclick="confirmBuyCancel()">✕</span></div>';
+  h+='<div style="font-size:13px;font-weight:700;color:#2a1f12;text-align:center;margin-bottom:3px;">'+b.title+'</div>';
+  h+='<div style="font-size:13px;color:#8a4a1f;text-align:center;margin-bottom:10px;">定價 '+pv.disp+'</div>';
+  if(!pv.ok){ h+='<div style="font-size:12px;color:#c0392b;text-align:center;margin-bottom:12px;">財富不足，無法購買。</div><button class="item-btn" style="background:#999;color:#fff;padding:9px;width:100%;" onclick="confirmBuyCancel()">關閉</button></div></div>'; return h; }
+  if(pv.clean){ h+='<div style="background:rgba(80,160,90,0.10);border-radius:6px;padding:9px 11px;font-size:12px;color:#3a7a3a;line-height:1.7;margin-bottom:12px;">✔ 以「'+pv.payTier+'」及以下足額支付，<b>無手續費</b>。</div>'; }
+  else { h+='<div style="background:rgba(200,160,80,0.14);border-radius:6px;padding:9px 11px;font-size:12px;color:#8a5a20;line-height:1.8;margin-bottom:12px;">⚠ 缺少剛好的「'+pv.payTier+'」幣，需破開 <b>'+pv.broke.join('、')+'</b>。<br>找零 <b>'+fmt(pv.changeUnits)+' '+pv.changeTier+'</b>（扣 '+CHANGE_FEE+'% 手續費，損失約 '+fmt(pv.fee)+' '+pv.changeTier+'）。<br><span style="color:#9a7a48;">可取消，先到換幣櫃台備零錢更划算。</span></div>'; }
+  h+='<div style="display:flex;gap:8px;"><button class="item-btn" style="background:#3a8a4a;color:#fff;padding:9px;flex:1;" onclick="confirmBuyOK()">確認購買</button><button class="item-btn" style="background:#999;color:#fff;padding:9px;flex:1;" onclick="confirmBuyCancel()">取消</button></div>';
+  h+='</div></div>'; return h; }
+
+/* ===== 換幣暫存（按兌幣才生效；取消或離開還原） ===== */
+function ensureExchWork(ctx){ if(!state.exchWork || state.exchWork.ctx!==ctx){ state.exchWork={ctx:ctx, lingshi:Math.floor(state.lingshi||0), coin:JSON.parse(JSON.stringify(state.coin||{}))}; } }
+function ewGet(k){ var w=state.exchWork; if(!w) return getCoin(k); return k==='lingshi'?Math.floor(w.lingshi||0):Math.floor((w.coin&&w.coin[k])||0); }
+function ewSet(k,v){ var w=state.exchWork; if(!w) return; v=Math.max(0,Math.floor(v)); if(k==='lingshi') w.lingshi=v; else { if(!w.coin)w.coin={}; w.coin[k]=v; } }
+function exchUp(i,fee){ if(!state.exchWork) return; var lo=CUR[i],hi=CUR[i+1]; var need=Math.ceil(hi.per/(1-fee/100)); var have=ewGet(lo.k); var cnt=Math.floor(have/need); if(cnt<=0){ showToast('需 '+fmt(need)+' '+lo.nm+' 兌 1 '+hi.nm); return; } ewSet(lo.k, have-cnt*need); ewSet(hi.k, ewGet(hi.k)+cnt); render(); }
+function exchDown(i,fee){ if(!state.exchWork) return; var hi=CUR[i],lo=CUR[i-1]; if(ewGet(hi.k)<=0){ showToast('沒有 '+hi.nm); return; } var got=Math.floor(hi.per*(1-fee/100)); ewSet(hi.k, ewGet(hi.k)-1); ewSet(lo.k, ewGet(lo.k)+got); render(); }
+function exchDirty(){ var w=state.exchWork; if(!w) return false; if(Math.floor(w.lingshi||0)!==Math.floor(state.lingshi||0)) return true; for(var i=1;i<CUR.length;i++){ if((((w.coin||{})[CUR[i].k])||0)!==getCoin(CUR[i].k)) return true; } return false; }
+function commitExch(){ var w=state.exchWork; if(!w) return; if(!exchDirty()){ showToast('未做任何兌換'); return; } state.lingshi=Math.floor(w.lingshi||0); state.coin=JSON.parse(JSON.stringify(w.coin||{})); normalizeWallet(); state.exchWork=null; addLog('【換幣】兌換完成','good'); showToast('兌換完成'); saveState(); render(); }
+function cancelExch(){ state.exchWork=null; render(); }
+
 function exchangeUpFee(i,fee){ if(i>=CUR.length-1) return; var lo=CUR[i], hi=CUR[i+1]; var need=Math.ceil(hi.per/(1-fee/100)); var have=getCoin(lo.k); var cnt=Math.floor(have/need); if(cnt<=0){ showToast('需 '+fmt(need)+' '+lo.nm+'（含'+fee+'%手續費）兌 1 '+hi.nm); return; } setCoin(lo.k, have-cnt*need); setCoin(hi.k, getCoin(hi.k)+cnt); showToast('兌 +'+fmt(cnt)+' '+hi.nm+'（手續費 '+fee+'%）'); saveState(); render(); }
 function exchangeDownFee(i,fee){ if(i<=0) return; var hi=CUR[i], lo=CUR[i-1]; if(getCoin(hi.k)<=0){ showToast('沒有 '+hi.nm); return; } var got=Math.floor(hi.per*(1-fee/100)); setCoin(hi.k, getCoin(hi.k)-1); setCoin(lo.k, getCoin(lo.k)+got); showToast('兌開 1 '+hi.nm+' 換 '+fmt(got)+' '+lo.nm+'（手續費 '+fee+'%）'); saveState(); render(); }
-function currencyCounterHTML(fee,who,bare){ var h=''; if(bare){ h+='<div style="font-weight:700;color:#6a4420;font-size:12px;margin:2px 2px 6px;">💱 '+(who||'櫃台掌門')+'</div>'; } else { h+='<div class="panel"><div class="panel-title">💱 '+(who||'櫃台掌門')+' · 換幣</div>'; } h+='<div style="font-size:11px;color:#9a8458;margin:0 4px 7px;">手續費 '+fee+'%　·　▲ 兌上一階　▼ 兌下一階</div><div class="wallet">'; CUR.forEach(function(cu,i){ var n=getCoin(cu.k); h+='<div class="wal-row"><span class="wal-ic">'+cu.ic+'</span><span class="wal-nm" style="color:'+cu.col+';">'+cu.nm+'</span><span class="wal-v">'+fmt(n)+'</span><span class="wal-btn">'+(i<CUR.length-1?'<button onclick="exchangeUpFee('+i+','+fee+')">▲</button>':'')+(i>0?'<button onclick="exchangeDownFee('+i+','+fee+')">▼</button>':'')+'</span></div>'; }); h+='</div>'; if(!bare) h+='</div>'; return h; }
+function currencyCounterHTML(fee,who,bare){ who=who||'櫃台掌門'; ensureExchWork(who); var h=''; if(bare){ h+='<div style="font-weight:700;color:#6a4420;font-size:12px;margin:2px 2px 4px;">💱 '+who+'</div>'; } else { h+='<div class="panel"><div class="panel-title">💱 '+who+' · 換幣</div>'; } h+='<div style="font-size:11px;color:#9a8458;margin:0 4px 7px;">手續費 '+fee+'%　·　＋ 兌上一階、－ 兌下一階（按「兌幣」才生效）</div><div class="cur-grid">'; CUR.forEach(function(cu,i){ var n=ewGet(cu.k); h+='<div class="cell5"><div class="ci">'+cu.ic+'</div><div class="cn" style="color:'+cu.col+';">'+cu.nm+'</div><div class="cur-stepwrap"><span class="cur-step">'+(i>0?'<button class="cur-sbtn" onclick="exchDown('+i+','+fee+')">－</button>':'<span class="cur-sph"></span>')+'<span class="cur-snum">'+fmt(n)+'</span>'+(i<CUR.length-1?'<button class="cur-sbtn" onclick="exchUp('+i+','+fee+')">＋</button>':'<span class="cur-sph"></span>')+'</span></div></div>'; }); h+='</div>'; var dirty=exchDirty(); h+='<div style="display:flex;gap:8px;margin-top:11px;"><button class="item-btn" style="flex:1;background:'+(dirty?'#3a8a4a':'#c2c2c2')+';color:#fff;padding:10px;font-size:13px;" onclick="commitExch()">✅ 兌幣</button><button class="item-btn" style="flex:1;background:#c08a8a;color:#fff;padding:10px;font-size:13px;" onclick="cancelExch()">取消</button></div>'; if(!bare) h+='</div>'; return h; }
+function openExch(fee,who){ state.exchOpen={fee:fee,who:who}; render(); }
+function closeExch(){ state.exchOpen=null; render(); }
+function exchModalHTML(){ var e=state.exchOpen; if(!e) return ''; var fee=e.fee; var h='<div class="info-modal" onclick="closeExch()"><div class="im-box" onclick="event.stopPropagation()" style="width:310px;">'; h+='<div class="im-head">💱 '+(e.who||'換幣')+'<span class="im-x" onclick="closeExch()">✕</span></div>'; h+='<div style="font-size:11px;color:#9a8458;margin:0 2px 9px;text-align:center;">手續費 '+fee+'%　·　▲ 兌上一階　▼ 兌下一階</div><div class="exch-list">'; CUR.forEach(function(cu,i){ var n=getCoin(cu.k); h+='<div class="exch-row"><span class="exch-ic">'+cu.ic+'</span><span class="exch-nm" style="color:'+cu.col+';">'+cu.nm+'</span><span class="exch-v">'+fmt(n)+'</span><span class="exch-btns">'+(i<CUR.length-1?'<button class="cur-btn" onclick="exchangeUpFee('+i+','+fee+')" title="兌上一階">▲</button>':'<span class="cur-ph"></span>')+(i>0?'<button class="cur-btn" onclick="exchangeDownFee('+i+','+fee+')" title="兌下一階">▼</button>':'<span class="cur-ph"></span>')+'</span></div>'; }); h+='</div><button class="item-btn" style="background:#8a4a1f;color:#fff;padding:10px;width:100%;margin-top:11px;" onclick="closeExch()">完成</button></div></div>'; return h; }
 function exchangeUp(i){ if(i>=CUR.length-1) return; var lo=CUR[i], hi=CUR[i+1], per=hi.per; var have=getCoin(lo.k); var cnt=Math.floor(have/per); if(cnt<=0){ showToast('需 '+fmt(per)+' '+lo.nm+' 才能兌 1 '+hi.nm); return; } setCoin(lo.k, have-cnt*per); setCoin(hi.k, getCoin(hi.k)+cnt); showToast('兌換 +'+fmt(cnt)+' '+hi.nm); saveState(); render(); }
 function exchangeDown(i){ if(i<=0) return; var hi=CUR[i], lo=CUR[i-1], per=hi.per; if(getCoin(hi.k)<=0){ showToast('沒有 '+hi.nm); return; } setCoin(hi.k, getCoin(hi.k)-1); setCoin(lo.k, getCoin(lo.k)+per); showToast('兌開 1 '+hi.nm+' → '+fmt(per)+' '+lo.nm); saveState(); render(); }
 function toggleMusic(){ state.musicOn=!state.musicOn; window._audioReady=true; saveState(); updateBGM(); render(); showToast(state.musicOn?'🎵 音樂開':'🔇 已靜音'); }
@@ -1843,7 +1924,7 @@ function tick() {
     var _oreAdd=(mineVeinRate('xuantie')+mineVeinRate('longjing'))*_sc;
     if(_oreAdd>0) state.kuangshi=(state.kuangshi||0)+_oreAdd;
     state.mine.lastDay=_md; } }
-  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&!_editing) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
+  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&state.currentTab!=='tasks'&&!_editing&&!_taskSheet) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
 }
 function triggerEvent() {
   let ev = EVENTS[Math.floor(Math.random()*EVENTS.length)];
@@ -2257,7 +2338,7 @@ function claimTask(uid){
     if((state[t.res]||0)<t.amt){ showToast('資源不足'); return; }
     state[t.res]-=t.amt;
   } else if(!_taskDone(t)){ showToast('委託尚未完成'); return; }
-  var msg=_grantTaskReward(t.reward, t.sectId||state.sect); if(Math.random()<0.25){ state.gxCard=(state.gxCard||0)+1; msg+='、宗門貢獻卓越卡+1'; }
+  var msg=_grantTaskReward(t.reward, t.sectId||state.sect); if(Math.random()<0.25){ state.gxCard=(state.gxCard||0)+1; msg+='、宗門貢獻卓越卡+1'; } state.sectTaskDone=(state.sectTaskDone||0)+1; if(!state.sectDoneList)state.sectDoneList=[]; state.sectDoneList.unshift(t.name); if(state.sectDoneList.length>30)state.sectDoneList.pop();
   state.sectTasks.active.splice(i,1);
   addLog('【接待所】完成委託：'+t.name+'（'+msg+'）','good'); showToast('委託完成！'+msg); saveState(); render();
 }
@@ -2363,12 +2444,36 @@ var _taskSheet=false, _taskCatOpen={main:true,side:false,sect:false};
 function openTaskSheet(){ _taskSheet=true; render(); }
 function closeTaskSheet(){ _taskSheet=false; render(); }
 function toggleTaskCat(c){ _taskCatOpen[c]=!_taskCatOpen[c]; render(); }
+var _tabCatOpen={main:true,side:false,sect:false,done:false};
+function toggleTabCat(c){ _tabCatOpen[c]=!_tabCatOpen[c]; render(); }
 function gotoTaskTab(){ _taskSheet=false; state.currentTab='tasks'; render(); }
 function grantQ(rw){ var a=[]; if(rw.lingshi){ gainLingshi(rw.lingshi); a.push('靈石+'+fmt(rw.lingshi)); } if(rw.weiwang){ state.weiwang=(state.weiwang||0)+rw.weiwang; a.push('威望+'+rw.weiwang); } if(rw.shengwang){ state.shengwang=(state.shengwang||0)+rw.shengwang; a.push('聲望+'+rw.shengwang); } return a.join('、'); }
 function rwText(rw){ var a=[]; if(rw.lingshi)a.push('靈石+'+fmt(rw.lingshi)); if(rw.weiwang)a.push('威望+'+rw.weiwang); if(rw.shengwang)a.push('聲望+'+rw.shengwang); return a.join('、'); }
 function mainQuests(){ var a=[]; for(var r=1;r<REALMS.length;r++){ a.push({id:'m'+r, realm:r, name:'證道 · '+REALMS[r].name+'境', desc:'修為突破至「'+REALMS[r].name+'」境界', rw:{lingshi:Math.round(2000*Math.pow(4,r-1)), weiwang:r*r*100}}); } return a; }
 function mqStatus(q){ if(state.mainClaimed&&state.mainClaimed[q.id]) return 'done'; return state.realm>=q.realm?'claim':'lock'; }
 function claimMain(id){ var q=mainQuests().filter(function(x){return x.id===id;})[0]; if(!q||mqStatus(q)!=='claim'){ showToast('尚未達成'); return; } if(!state.mainClaimed)state.mainClaimed={}; state.mainClaimed[id]=true; var g=grantQ(q.rw); addLog('【主線】'+q.name+'：'+g,'great'); showToast('主線任務達成！'+g); saveState(); render(); }
+/* ===== 主線劇情任務線（章節 · 故事 · 多重目標 · 循序解鎖） ===== */
+var MAIN_STORY=[
+ {id:'c1', name:'初入仙途', story:'你本是凡塵俗子，一場奇遇令靈根覺醒，自此踏上問道長生之路。', objs:[{t:'修為突破至「煉氣」境', d:function(){return state.realm>=1;}}], rw:{lingshi:5000}},
+ {id:'c2', name:'仙緣引路', story:'散修如浮萍，朝不保夕。唯有投身宗門，方得傳承庇佑。', objs:[{t:'拜入任一宗門', d:function(){return !!state.sect;}},{t:'習得首門功法', d:function(){return state.gongfa&&Object.keys(state.gongfa).length>=1;}}], rw:{lingshi:10000,weiwang:200}},
+ {id:'c3', name:'築基大道', story:'築基乃修士分水嶺。凝練己身、廣納功法，方能更進一步。', objs:[{t:'修為突破至「築基」境', d:function(){return state.realm>=2;}},{t:'習得功法滿 3 門', d:function(){return state.gongfa&&Object.keys(state.gongfa).length>=3;}}], rw:{lingshi:30000,weiwang:500}},
+ {id:'c4', name:'初試鋒芒', story:'紙上得來終覺淺。唯有歷練廝殺，方知自身斤兩。', objs:[{t:'歷練累計擊敗 100 名敵手', d:function(){return (state.killTotal||0)>=100;}},{t:'裝備任一件裝備', d:function(){return state.equip&&Object.keys(state.equip).length>=1;}}], rw:{lingshi:60000,weiwang:800}},
+ {id:'c5', name:'金丹結成', story:'十年苦修，一朝結丹。宗門器重，委以重任。', objs:[{t:'修為突破至「金丹」境', d:function(){return state.realm>=3;}},{t:'完成宗門委託 5 次', d:function(){return (state.sectTaskDone||0)>=5;}}], rw:{lingshi:150000,weiwang:1500,card:1}},
+ {id:'c6', name:'元嬰出世', story:'元嬰出竅，神識通玄。威名漸顯，引四方矚目。', objs:[{t:'修為突破至「元嬰」境', d:function(){return state.realm>=4;}},{t:'威望累積達 5000', d:function(){return (state.weiwang||0)>=5000;}}], rw:{lingshi:500000,weiwang:3000}},
+ {id:'c7', name:'化神問道', story:'化神之境，已近仙途。煉就法寶傍身，問鼎更高之道。', objs:[{t:'修為突破至「化神」境', d:function(){return state.realm>=5;}},{t:'鍛成任一件法寶', d:function(){return state.artifacts&&Object.keys(state.artifacts).length>=1;}}], rw:{lingshi:2000000,weiwang:8000}},
+ {id:'c8', name:'渡劫飛升', story:'天劫將至，渡之則飛升成仙，敗之則形神俱滅。此乃問道終途。', objs:[{t:'修為突破至「渡劫」境', d:function(){return state.realm>=6;}}], rw:{lingshi:10000000,weiwang:20000}}
+];
+function curChapterIdx(){ for(var i=0;i<MAIN_STORY.length;i++){ if(!(state.mainClaimed&&state.mainClaimed[MAIN_STORY[i].id])) return i; } return -1; }
+function chReady(ch){ for(var i=0;i<ch.objs.length;i++){ var ok=false; try{ok=ch.objs[i].d();}catch(e){} if(!ok) return false; } return true; }
+function claimStory(id){ var idx=curChapterIdx(); if(idx<0) return; var ch=MAIN_STORY[idx]; if(ch.id!==id){ showToast('需依序完成'); return; } if(!chReady(ch)){ showToast('章節目標尚未達成'); return; } if(!state.mainClaimed)state.mainClaimed={}; state.mainClaimed[id]=true; var g=grantQ(ch.rw); if(ch.rw.card){ state.gxCard=(state.gxCard||0)+ch.rw.card; g+='、宗門貢獻卓越卡+'+ch.rw.card; } addLog('【主線】'+ch.name+' 完成：'+g,'great'); showToast('主線推進！'+ch.name); saveState(); render(); }
+function _claimBtnS(id){ return '<button class="item-btn q-claim" onclick="claimStory(\''+id+'\')">領取</button>'; }
+function _chapCard(ch,i){ var claimed=state.mainClaimed&&state.mainClaimed[ch.id]; var cur=(curChapterIdx()===i); var locked=!claimed&&!cur;
+ var badge=claimed?'已完成':cur?(chReady(ch)?'可領取':'進行中'):'未解鎖'; var col=claimed?'#9a9a9a':cur?(chReady(ch)?'#3a8a4a':'#c8a050'):'#b0a080';
+ var h='<div class="q-card"><div class="q-top"><span class="q-name">第'+(i+1)+'章 · '+ch.name+'</span><span class="q-badge" style="background:'+col+';">'+badge+'</span></div>';
+ if(!locked){ h+='<div class="ch-story">'+ch.story+'</div><div class="ch-objs">'; ch.objs.forEach(function(o){ var ok=false; try{ok=o.d();}catch(e){} h+='<div class="ch-obj">'+(ok?'<span class="ch-ok">✔</span>':'<span class="ch-no">○</span>')+' '+o.t+'</div>'; }); h+='</div>'; }
+ h+='<div class="q-bot"><span class="q-rw">獎勵：'+rwText(ch.rw)+(ch.rw.card?'、卓越卡+'+ch.rw.card:'')+'</span>'+((cur&&chReady(ch))?_claimBtnS(ch.id):'')+'</div></div>';
+ return h; }
+
 var SIDE_QUESTS=[
  {id:'s_sect', name:'拜入宗門', desc:'加入任一宗門勢力', rw:{lingshi:3000}, done:function(){return !!state.sect;}},
  {id:'s_gongfa', name:'功法在身', desc:'習得任一門功法', rw:{lingshi:4000}, done:function(){return state.gongfa&&Object.keys(state.gongfa).length>0;}},
@@ -2384,15 +2489,16 @@ function sqStatus(q){ if(state.sideClaimed&&state.sideClaimed[q.id]) return 'don
 function claimSide(id){ var q=SIDE_QUESTS.filter(function(x){return x.id===id;})[0]; if(!q||sqStatus(q)!=='claim'){ showToast('尚未達成'); return; } if(!state.sideClaimed)state.sideClaimed={}; state.sideClaimed[id]=true; var g=grantQ(q.rw); addLog('【支線】'+q.name+'：'+g,'good'); showToast('支線任務達成！'+g); saveState(); render(); }
 function _qCard(name,desc,badge,col,rw,btn){ return '<div class="q-card"><div class="q-top"><span class="q-name">'+name+'</span><span class="q-badge" style="background:'+col+';">'+badge+'</span></div><div class="q-desc">'+desc+'</div><div class="q-bot"><span class="q-rw">'+(rw?'獎勵：'+rw:'')+'</span>'+(btn||'')+'</div></div>'; }
 function _claimBtn(fn){ return '<button class="item-btn q-claim" onclick="'+fn+'">領取</button>'; }
-function mainCurHTML(){ var qs=mainQuests(), h='', shownLock=false; for(var i=0;i<qs.length;i++){ var st=mqStatus(qs[i]); if(st==='claim'){ h+=_qCard(qs[i].name,qs[i].desc,'可領取','#3a8a4a',rwText(qs[i].rw),_claimBtn('claimMain(\''+qs[i].id+'\')')); } else if(st==='lock'&&!shownLock){ h+=_qCard(qs[i].name,qs[i].desc,'進行中','#c8a050',rwText(qs[i].rw),''); shownLock=true; } } return h||'<div class="ts-empty">主線任務已全數完成。</div>'; }
+function mainCurHTML(){ var idx=curChapterIdx(); if(idx<0) return '<div class="ts-empty">主線任務已全數完成，道途圓滿。</div>'; return _chapCard(MAIN_STORY[idx],idx); }
 function sideCurHTML(){ var h=''; for(var i=0;i<SIDE_QUESTS.length;i++){ var q=SIDE_QUESTS[i], st=sqStatus(q); if(st==='done') continue; h+=_qCard(q.name,q.desc, st==='claim'?'可領取':'進行中', st==='claim'?'#3a8a4a':'#c8a050', rwText(q.rw), st==='claim'?_claimBtn('claimSide(\''+q.id+'\')'):''); } return h||'<div class="ts-empty">支線任務皆已完成。</div>'; }
 function sectCurHTML(){ _ensureTaskState(); if(!state.sect) return '<div class="ts-empty">尚未拜入宗門。</div>'; var act=state.sectTasks.active||[]; if(act.length===0) return '<div class="ts-empty">無在辦委託，<span class="ts-link" onclick="closeTaskSheet();gotoTasks()">前往接待所</span>接取。</div>'; var h=''; act.forEach(function(t){ h+=_taskCard(t,true); }); return h; }
 function _tsCat(c,label,inner){ var open=_taskCatOpen[c]; return '<div class="ts-cat"><div class="ts-cat-h" onclick="toggleTaskCat(\''+c+'\')"><span>'+label+'</span><span class="ts-arr">'+(open?'▲':'▼')+'</span></div>'+(open?'<div class="ts-cat-body">'+inner+'</div>':'')+'</div>'; }
-function taskSheetHTML(){ var h='<div class="ts-mask" onclick="closeTaskSheet()"></div><div class="task-sheet" onclick="event.stopPropagation()"><div class="ts-head">📋 任務<span class="ts-x" onclick="closeTaskSheet()">✕</span></div><div class="ts-scroll">'; h+=_tsCat('main','📖 主線任務',mainCurHTML()); h+=_tsCat('side','🗺️ 支線任務',sideCurHTML()); h+=_tsCat('sect','🏯 宗門任務',sectCurHTML()); h+='</div><div class="ts-foot"><button class="ts-detail" onclick="gotoTaskTab()">📋 任務明細總表</button></div></div>'; return h; }
+function taskSheetHTML(){ var h='<div class="ts-mask" onclick="event.stopPropagation();closeTaskSheet()"></div><div class="task-sheet" onclick="event.stopPropagation()"><div class="ts-head">📋 任務<span class="ts-x" onclick="closeTaskSheet()">✕</span></div><div class="ts-scroll">'; h+=_tsCat('main','📖 主線任務',mainCurHTML()); h+=_tsCat('side','🗺️ 支線任務',sideCurHTML()); h+=_tsCat('sect','🏯 宗門任務',sectCurHTML()); h+='</div><div class="ts-foot"><button class="ts-detail" onclick="gotoTaskTab()">📋 任務明細總表</button></div></div>'; return h; }
 function tasksTabHTML(){ var h='<div class="back-bar" onclick="state.currentTab=\'main\';render()">⟵ 返回　📋 任務明細總表</div>';
- h+='<div class="panel"><div class="panel-title">📖 主線任務</div>'; mainQuests().forEach(function(q){ var st=mqStatus(q); var badge=st==='done'?'已完成':st==='claim'?'可領取':'未達成'; var col=st==='done'?'#9a9a9a':st==='claim'?'#3a8a4a':'#b08a50'; h+=_qCard(q.name,q.desc,badge,col,rwText(q.rw), st==='claim'?_claimBtn('claimMain(\''+q.id+'\')'):''); }); h+='</div>';
- h+='<div class="panel"><div class="panel-title">🗺️ 支線任務</div>'; SIDE_QUESTS.forEach(function(q){ var st=sqStatus(q); var badge=st==='done'?'已完成':st==='claim'?'可領取':'未達成'; var col=st==='done'?'#9a9a9a':st==='claim'?'#3a8a4a':'#b08a50'; h+=_qCard(q.name,q.desc,badge,col,rwText(q.rw), st==='claim'?_claimBtn('claimSide(\''+q.id+'\')'):''); }); h+='</div>';
- h+='<div class="panel"><div class="panel-title">🏯 宗門任務</div>'; _ensureTaskState(); if(!state.sect){ h+='<div class="ts-empty">尚未拜入宗門，<span class="ts-link" onclick="switchTab(\'sect\')">前往拜入</span>。</div>'; } else { var act=state.sectTasks.active||[]; var bd=state.sectTasks.board||[]; if(act.length){ h+='<div class="q-sub">在辦委託（'+act.length+'/3）</div>'; act.forEach(function(t){ h+=_taskCard(t,true); }); } else { h+='<div class="ts-empty">目前無在辦委託。</div>'; } if(bd.length){ h+='<div class="q-sub">委託榜</div>'; bd.forEach(function(t){ h+=_taskCard(t,false); }); } h+='<div style="text-align:center;margin-top:8px;"><span class="ts-link" onclick="gotoTasks()">前往接待所換榜／歇息</span></div>'; } h+='</div>';
+ var oM=_tabCatOpen.main; h+='<div class="panel"><div class="panel-title tab-cat-h" onclick="toggleTabCat(\'main\')">📖 主線任務<span class="tab-arr">'+(oM?'▲':'▼')+'</span></div>'; if(oM){ var anyM=false; MAIN_STORY.forEach(function(ch,i){ if(state.mainClaimed&&state.mainClaimed[ch.id]) return; anyM=true; h+=_chapCard(ch,i); }); if(!anyM) h+='<div class="ts-empty">主線任務皆已完成。</div>'; } h+='</div>';
+ var oS=_tabCatOpen.side; h+='<div class="panel"><div class="panel-title tab-cat-h" onclick="toggleTabCat(\'side\')">🗺️ 支線任務<span class="tab-arr">'+(oS?'▲':'▼')+'</span></div>'; if(oS){ var anyS=false; SIDE_QUESTS.forEach(function(q){ var st=sqStatus(q); if(st==='done') return; anyS=true; var badge=st==='claim'?'可領取':'未達成'; var col=st==='claim'?'#3a8a4a':'#b08a50'; h+=_qCard(q.name,q.desc,badge,col,rwText(q.rw), st==='claim'?_claimBtn('claimSide(\''+q.id+'\')'):''); }); if(!anyS) h+='<div class="ts-empty">支線任務皆已完成。</div>'; } h+='</div>';
+ var oZ=_tabCatOpen.sect; h+='<div class="panel"><div class="panel-title tab-cat-h" onclick="toggleTabCat(\'sect\')">🏯 宗門任務<span class="tab-arr">'+(oZ?'▲':'▼')+'</span></div>'; if(oZ){ _ensureTaskState(); if(!state.sect){ h+='<div class="ts-empty">尚未拜入宗門，<span class="ts-link" onclick="switchTab(\'sect\')">前往拜入</span>。</div>'; } else { var act=state.sectTasks.active||[]; var bd=state.sectTasks.board||[]; if(act.length){ h+='<div class="q-sub">在辦委託（'+act.length+'/3）</div>'; act.forEach(function(t){ h+=_taskCard(t,true); }); } else { h+='<div class="ts-empty">目前無在辦委託。</div>'; } if(bd.length){ h+='<div class="q-sub">委託榜</div>'; bd.forEach(function(t){ h+=_taskCard(t,false); }); } h+='<div style="text-align:center;margin-top:8px;"><span class="ts-link" onclick="gotoTasks()">前往接待所換榜／歇息</span></div>'; } } h+='</div>';
+ var oD=_tabCatOpen.done; h+='<div class="panel"><div class="panel-title tab-cat-h" onclick="toggleTabCat(\'done\')">✅ 完成任務<span class="tab-arr">'+(oD?'▲':'▼')+'</span></div>'; if(oD){ var hm='',dm=false; MAIN_STORY.forEach(function(ch,i){ if(state.mainClaimed&&state.mainClaimed[ch.id]){ dm=true; hm+=_chapCard(ch,i); } }); h+='<div class="q-sub">📖 主線</div>'+(dm?hm:'<div class="ts-empty">尚無</div>'); var hs='',ds=false; SIDE_QUESTS.forEach(function(q){ if(state.sideClaimed&&state.sideClaimed[q.id]){ ds=true; hs+=_qCard(q.name,q.desc,'已完成','#9a9a9a',rwText(q.rw),''); } }); h+='<div class="q-sub">🗺️ 支線</div>'+(ds?hs:'<div class="ts-empty">尚無</div>'); h+='<div class="q-sub">🏯 宗門</div>'; var dz=state.sectTaskDone||0; if(dz>0){ h+='<div style="font-size:12px;color:#5a4628;line-height:1.8;padding:2px 4px 4px;">累計完成宗門委託 <b>'+dz+'</b> 件'+((state.sectDoneList&&state.sectDoneList.length)?'<br><span style="color:#7a6038;font-size:11px;">近期：'+state.sectDoneList.slice(0,12).join('、')+'</span>':'')+'</div>'; } else { h+='<div class="ts-empty">尚無</div>'; } } h+='</div>';
  return h; }
 
 /* ===== 雲跡商人（接待所，每50年來駐30年，需宗門貢獻卓越卡，手續費1%） ===== */
@@ -2472,15 +2578,16 @@ function seekDaolu() {
   state.daolu=pick.id; state.qingyuan=10;
   addLog('【道侶】與 '+pick.name+' 結為道侶','great'); showToast('結為道侶'); render(); saveState();
 }
-function setWbgCat(id) { state.wbgCat=id; render(); }
+function setWbgCat(id) { state.exchWork=null; state.wbgCat=id; render(); }
 function buyShopItem(cat, id) {
   const item=(WBG_SHOP[cat]||[]).find(x=>x.id===id); if(!item) return;
   const cur=item.cur||'lingshi', curName=CUR_INFO[cur].name;
   if (state.realm<item.minRealm) return showToast('境界不足');
-  if ((state[cur]||0)<item.cost) return showToast(curName+'不足，需 '+fmt(item.cost));
   const soldKey=cat+':'+id, sold=state.wbgSold[soldKey]||0;
   if (sold>=item.limit) return showToast('本週已售罄');
-  state[cur]-=item.cost; state.wbgSold[soldKey]=sold+1;
+  if(cur==='lingshi'){ if(!state._payGo){ if(!canAffordTier(item.cost)) return showToast('財富不足'); return askBuyConfirm(item.cost,'buyShopItem',[cat,id],item.name); } if(!payByTier(item.cost)) return showToast('財富不足'); }
+  else { if((state[cur]||0)<item.cost) return showToast(curName+'不足，需 '+fmt(item.cost)); state[cur]-=item.cost; }
+  state.wbgSold[soldKey]=sold+1;
   if (item.kind==='scroll'){ state.scrolls[id]=(state.scrolls[id]||0)+1; if(!SCROLLS[id]){ const cm={'修練':'xiulian','外功':'waigong','內功':'neigong','靈力':'lingli'}; SCROLLS[id]={name:item.name,ic:item.ic,cat:cm[item.tier]||'xiulian',desc:'萬寶閣購入',eff:item.name,bonus:0}; } }
   else if (item.kind==='elixir'){ state.elixirs[id]=(state.elixirs[id]||0)+1; }
   else if (item.kind==='artifact'){ state.artifacts[id]=true; if(id==='feijian')state.zhanli+=100; if(id==='jiebao')state.zhanli+=800; if(id==='zhuxian')state.zhanli+=50000; }
@@ -2524,7 +2631,7 @@ function exportSave(){ try{ saveState(); var data=localStorage.getItem(SAVE_KEY)
 function importSaveFile(input){ var f=input&&input.files&&input.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(e){ try{ var obj=JSON.parse(e.target.result); if(!obj||typeof obj!=='object'||obj.realm===undefined){ showToast('存檔格式不符，未匯入'); return; } localStorage.setItem(SAVE_KEY, JSON.stringify(obj)); showToast('已匯入存檔，重新載入中…'); setTimeout(function(){ location.reload(); },600); }catch(err){ showToast('匯入失敗：檔案無法解析'); } }; rd.readAsText(f); }
 function setShuxingTab(t){ state.shuxingTab=t; _suzhiPop=null; render(); }
 function _edRow(l,v,k){ return '<div class="ed-row"><span style="display:inline-flex;align-items:center;">'+l+(k?' <span class="attr-q" onclick="event.stopPropagation();toggleAttrInfo(\''+k+'\')">?</span>':'')+'</span><b>'+v+'</b></div>'; }
-function switchTab(name) { _taskSheet=false; _suzhiPop=null; if(state.currentTab==='battle' && name!=='battle'){ state.battleLog=[]; state.battleReports=[]; state.lastBattle=null; MB=null; window._btRunning=false; window._btAnim=false; _spellOpen=false; _spellSel=null; _cfgOpen=false; _cfgCat=null; _tgtPick=null; } if(name!=='battle'&&name!=='map'){ state.battleLocationRealm=null; state.battleLocationName=null; state.encounterMon=null; } if(name!=='sectview'){ state.viewSect=null; } if(name!=='cityview'){ state.viewCity=null; state.cityArea=null; } if(name!=='map'){ _locPickerOpen=false; } if(name!=='sect'&&name!=='sectview'){ state.sectJoinPending=null; state.sectLeavePending=false; } state.currentTab=name; render(); }
+function switchTab(name) { state.exchWork=null; _taskSheet=false; _suzhiPop=null; if(state.currentTab==='battle' && name!=='battle'){ state.battleLog=[]; state.battleReports=[]; state.lastBattle=null; MB=null; window._btRunning=false; window._btAnim=false; _spellOpen=false; _spellSel=null; _cfgOpen=false; _cfgCat=null; _tgtPick=null; } if(name!=='battle'&&name!=='map'){ state.battleLocationRealm=null; state.battleLocationName=null; state.encounterMon=null; } if(name!=='sectview'){ state.viewSect=null; } if(name!=='cityview'){ state.viewCity=null; state.cityArea=null; } if(name!=='map'){ _locPickerOpen=false; } if(name!=='sect'&&name!=='sectview'){ state.sectJoinPending=null; state.sectLeavePending=false; } state.currentTab=name; render(); }
 function drinkWine(id){ const w=WINES.find(x=>x.id===id); if(!w) return; if(state.realm<w.minRealm) return showToast('境界不足'); if(!canAfford(w.cost.lingshi)) return showToast('靈石不足'); payLingshi(w.cost.lingshi);
   if(id==='tushu'){ state.ep=Math.min(state.epMax,state.ep+200); state.wuxing+=1; }
   if(id==='qionghua'){ state.ep=Math.min(state.epMax,state.ep+1000); state.wuxing+=3; }
@@ -2748,7 +2855,7 @@ function _renderCore() {
     const stat=(cls,ic,cur,max)=>'<div class="'+cls+'"><div class="'+ic[1]+'">'+ic[0]+'</div><div class="'+ic[2]+'">'+kv('現有',Math.floor(cur).toLocaleString())+kv('上限',Math.floor(max).toLocaleString())+'</div></div>';
     html += '<div class="stage" onclick="stageClickCoord(event)">'+'<div class="stage-bg-img"></div>'+petals()
       + '<div class="stage-icons-left"><div class="stage-icon" onclick="switchTab(\'shuxing\')">👤<span>屬性</span></div><div class="stage-icon" onclick="switchTab(\'map\')">🗺️<span>歷練</span></div><div class="stage-icon" onclick="restAtInn()" title="在修仙界投宿客棧或尋找休息地點，扣除靈石2000，可恢復血量、法力、精力">🏨<span>恢復</span></div></div>'
-      + '<div class="stage-icons"><div class="stage-icon" onclick="openTaskSheet()">📋<span>任務</span></div><div class="stage-icon" onclick="switchTab(\'jiayuan\')">🏡<span>家園</span></div><div class="stage-icon" onclick="openSaveMenu()">💾<span>存檔</span></div><div class="stage-icon" onclick="toggleMusic()">'+(state.musicOn?'🎵':'🔇')+'<span>'+(state.musicOn?'音樂':'靜音')+'</span></div><div class="stage-icon" onclick="resetGame()">🔄<span>重置</span></div></div>'
+      + '<div class="stage-icons"><div class="stage-icon" onclick="openTaskSheet()">📋<span>任務</span></div><div class="stage-icon" onclick="switchTab(\'jiayuan\')">🏡<span>家園</span></div><div class="stage-icon" onclick="openSaveMenu()">💾<span>存檔</span></div><div class="stage-icon" onclick="toggleMusic()">'+(state.musicOn?'🎵':'🔇')+'<span>'+(state.musicOn?'音樂':'靜音')+'</span></div><div class="stage-icon" onclick="resetGame()">🔄<span>重置</span></div></div>'+(_taskSheet?taskSheetHTML():'')
       + figureSVG()
       + '<div class="dantian-btn '+(canBreak?'ready':'')+'" onclick="tryBreakthrough()" title="點此突破"></div>'
       + '<div class="stage-eff">當前修煉效率：'+fmt(qiPerSecNow()+speedBonus())+' / 秒'+(boosted?' ✨×2':'')+'</div>'
@@ -2757,11 +2864,10 @@ function _renderCore() {
       + '<div class="stage-log">'+recent+'</div></div>';
   }
   if (state.currentTab==='store') {
-    html += '<div class="panel"><div class="panel-title">💰 錢袋</div><div class="wallet">';
-    CUR.forEach(function(cu,i){ var n=getCoin(cu.k); html += '<div class="wal-row"><span class="wal-ic">'+cu.ic+'</span><span class="wal-nm" style="color:'+cu.col+';">'+cu.nm+'</span><span class="wal-v">'+fmt(n)+'</span><span class="wal-btn">'+''+'</span></div>'; });
+    html += '<div class="panel"><div class="panel-title">💰 錢袋</div><div class="grid5">';
+    CUR.forEach(function(cu,i){ var n=getCoin(cu.k); var _cid='cur_'+cu.k; var _rt=(i>0?(fmt(cu.per)+' '+CUR[i-1].nm+' = 1 '+cu.nm):'最基礎貨幣單位'); html += '<div class="cell5 usable'+(state.activePop===_cid?' active':'')+'" data-id="'+_cid+'" onclick="toggleCell('+"'"+_cid+"'"+')"><div class="ci">'+cu.ic+'</div><div class="cn" style="color:'+cu.col+';">'+cu.nm+'</div><div class="cv">'+fmt(n)+'</div><div class="info-pop">'+_rt+'</div></div>'; });
     html += '</div></div>';
     html += '<div class="panel"><div class="panel-title">🏛️ 洞府材料</div><div class="grid5">'
-      + '<div class="cell5 usable'+(state.activePop==="m_lingshi"?" active":"")+'" data-id="m_lingshi" onclick="toggleCell(\'m_lingshi\')"><div class="ci">💎</div><div class="cn">靈石</div><div class="cv">'+lingshiDisp()+'</div><div class="info-pop">修練／購買／升級 通用貨幣</div></div>'
       + '<div class="cell5 usable'+(state.activePop==="m_lingcao"?" active":"")+'" data-id="m_lingcao" onclick="toggleCell(\'m_lingcao\')"><div class="ci">🌿</div><div class="cn">靈草</div><div class="cv">'+state.lingcao+'</div><div class="info-pop">煉丹主材料</div></div>'
       + '<div class="cell5 usable'+(state.activePop==="m_kuangshi"?" active":"")+'" data-id="m_kuangshi" onclick="toggleCell(\'m_kuangshi\')"><div class="ci">⛏️</div><div class="cn">礦石</div><div class="cv">'+state.kuangshi+'</div><div class="info-pop">煉器／法陣升級 材料</div></div>'
       + ((state.xuanbing||0)>0?'<div class="cell5 usable'+(state.activePop==="m_xuanbing"?" active":"")+'" data-id="m_xuanbing" onclick="toggleCell(\'m_xuanbing\')"><div class="ci"><img class="loot-img" src="images/drop_玄冰.png"></div><div class="cn">玄冰</div><div class="cv">'+state.xuanbing+'</div><div class="info-pop">煉器／煉丹高階材料</div></div>':'')
@@ -2965,7 +3071,7 @@ function _renderCore() {
     html += '</div><div class="wbg-main">';
     if(cat==='gongfa'){ html += '<div style="grid-column:1/-1;">'+gongfaCatalogHTML()+'</div>'; }
     else { if(cat==='huangou') html += '<div style="grid-column:1/-1;">'+currencyCounterHTML(5,'換購閣掌門')+'</div>'; (WBG_SHOP[cat]||[]).forEach(function(it){ const soldKey=cat+':'+it.id; const sold=state.wbgSold[soldKey]||0; const cur=it.cur||'lingshi'; const lack=state.realm<it.minRealm||(state[cur]||0)<it.cost||sold>=it.limit; const remaining=it.limit-sold;
-      html += '<div class="wbg-card '+(lack?'lack':'')+'" title="'+(it.eff||'')+'" '+(lack?'':'onclick="buyShopItem(\''+cat+'\',\''+it.id+'\')"')+'><div class="wbg-ic">'+it.ic+'</div><div class="wbg-name">'+it.name+'</div>'+(it.tier?'<div class="wbg-tier tier-'+it.tier+'">'+it.tier+'</div>':'')+'<div class="wbg-limit">限購 <b>'+remaining+'/'+it.limit+'</b></div><div class="wbg-price">'+CUR_INFO[cur].ic+' '+fmt(it.cost)+'</div></div>'; }); }
+      html += '<div class="wbg-card '+(lack?'lack':'')+'" title="'+(it.eff||'')+'" '+(lack?'':'onclick="buyShopItem(\''+cat+'\',\''+it.id+'\')"')+'><div class="wbg-ic">'+it.ic+'</div><div class="wbg-name">'+it.name+'</div>'+(it.tier?'<div class="wbg-tier tier-'+it.tier+'">'+it.tier+'</div>':'')+'<div class="wbg-limit">限購 <b>'+remaining+'/'+it.limit+'</b></div><div class="wbg-price">'+(cur==='lingshi'?costDisp(it.cost):CUR_INFO[cur].ic+' '+fmt(it.cost))+'</div></div>'; }); }
     html += '</div></div>';
   }
   if (state.currentTab==='kuangshan') {
@@ -3098,6 +3204,12 @@ function _renderCore() {
     html += '<div style="font-size:12px;color:#7a6038;line-height:1.7;">浩瀚無垠，萬族林立。宗門爭鋒，秘境無數。道友自行探索。</div>';
     if(state.realm===0){ html += '<div class="panel"><div class="panel-title">🌱 村野小徑</div><div style="font-size:12px;color:#7a6038;margin-bottom:6px;">新手歷練 · 凡人境妖獸（野兔/山豬/青蛇/青狼）</div><button class="action-btn act-green" onclick="selectMapLocation(\'村野小徑\')">⚔️ 進入</button></div>'; }
     html += '<button class="action-btn" onclick="openLocationPicker()">⚔️ 入境歷練 · 選擇歷練地點</button>';
+    html += '<div class="panel"><div class="panel-title">🏯 宗門</div><div class="loc-grid">';
+    MAP_LOCATIONS.filter(function(l){return l.t==='宗門';}).forEach(function(l){ html += '<div class="loc-item" onclick="selectMapLocation(\''+l.n+'\')"><span class="loc-nm">'+l.n+'</span><span class="loc-rk">全功能<br>'+REALMS[l.r].name+'境</span></div>'; });
+    html += '</div></div>';
+    html += '<div class="panel"><div class="panel-title">🏙️ 中立城鎮</div><div class="loc-grid">';
+    MAP_LOCATIONS.filter(function(l){return l.t==='中立';}).forEach(function(l){ html += '<div class="loc-item" onclick="selectMapLocation(\''+l.n+'\')"><span class="loc-nm">'+l.n+'</span><span class="loc-rk">全功能'+(l.r>=0?'<br>'+REALMS[l.r].name+'境':'')+'</span></div>'; });
+    html += '</div></div>';
     if (_locPickerOpen){
       html += '<div class="loc-picker" onclick="closeLocationPicker()"><div class="lp-box" onclick="event.stopPropagation()"><div class="lp-title">⚔️ 選擇歷練地點</div><div class="lp-list">';
       var fightable=MAP_LOCATIONS.filter(function(l){return l.t!=='宗門'&&l.t!=='中立';});
@@ -3315,7 +3427,8 @@ function _renderCore() {
   if (state._attrInfo && ATTR_INFO[state._attrInfo]) { var _ai=ATTR_INFO[state._attrInfo];
     html += '<div class="info-modal" onclick="closeAttrInfo()"><div class="im-box" onclick="event.stopPropagation()" style="width:280px;"><div style="font-size:15px;font-weight:800;color:#8a4a1f;text-align:center;margin-bottom:10px;">'+_ai.n+'</div><div style="font-size:12px;color:#5a3a1a;line-height:1.8;"><b style="color:#b3771f;">累積來源：</b>'+_ai.s+'<br><b style="color:#3a6abf;">影響：</b>'+_ai.e+'<br><span style="color:#9a8458;font-size:11px;">☆ 參數不列舉（屬遊戲建置資料）</span></div><button class="item-btn" style="background:#999;color:#fff;padding:8px;margin-top:12px;width:100%;" onclick="closeAttrInfo()">關閉</button></div></div>';
   }
-  if(_taskSheet){ html += taskSheetHTML(); }
+  if(state.buyConfirm){ html += buyConfirmHTML(); }
+  if(state.exchOpen){ html += exchModalHTML(); }
   if (state.savePending) { html += '<div class="info-modal" onclick="closeSaveMenu()"><div class="im-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#8a4a1f;margin-bottom:6px;">💾 存檔備份</div><div style="font-size:12px;color:#7a5a32;line-height:1.7;margin-bottom:14px;">匯出可把目前進度存成檔案保管；匯入會以檔案覆蓋現有進度（覆蓋前建議先匯出備份）。</div><input type="file" id="save-import-input" accept="application/json,.json" style="display:none" onchange="importSaveFile(this)"><div style="display:flex;flex-direction:column;gap:9px;"><button class="item-btn" style="background:#4f9e44;color:#fff;padding:10px;" onclick="exportSave()">⬇️ 匯出存檔（下載檔案）</button><button class="item-btn" style="background:#c8a050;color:#fff;padding:10px;" onclick="document.getElementById(\'save-import-input\').click()">⬆️ 匯入存檔（讀取檔案）</button><button class="item-btn" style="background:#999;color:#fff;padding:8px;" onclick="closeSaveMenu()">關閉</button></div><div style="font-size:10px;color:#b09a78;margin-top:10px;">版本 '+GAME_VERSION+'</div></div></div>'; }
   if (state.offlineMode) { html += '<div class="offline-mask"><div class="offline-panel"><div class="offline-title">離 線 修 練</div><div class="offline-lotus-big" onclick="toggleOfflineMode()"><div class="lo-ic">🪷</div><div class="lo-tx">點此<br>恢復</div></div><div class="offline-rate-hint">修練效率 10%</div></div></div>'; }
   if (state.dead) { var _di=state.deathInfo||{}; html += '<div class="death-overlay"><div class="death-box"><div class="death-title">身 死 道 消</div><div class="death-sub">壽元耗盡，一縷道魂歸於天地。</div><div class="death-stats">境界　'+(_di.realm||'—')+'<br>享年　'+fmt(_di.years||0)+' 載<br>畢生修為　'+fmt(_di.totalQi||0)+'</div><div class="death-poem">塵歸塵，土歸土，<br>大道無情，輪迴有常。</div><button class="death-btn" onclick="deathReset()">🔄 重新轉世</button></div></div>'; }
@@ -3506,8 +3619,8 @@ function selectMapLocation(name){
   state.currentTab='battle';
   mbStart();
 }
-function enterCityArea(id){ if(id==='lord'||id==='shop'){ state.cityArea=id; render(); return; } var nm=({post:'驛站',apprz:'鑑寶閣',craft:'藝匠坊',tav:'酒樓'})[id]; showToast(nm+' · 尚未開放'); }
-function enterSectArea(id){ state.sectArea=id; state.sectJoinPending=null; state.sectLeavePending=false; render(); }
+function enterCityArea(id){ state.exchWork=null; if(id==='lord'||id==='shop'){ state.cityArea=id; render(); return; } var nm=({post:'驛站',apprz:'鑑寶閣',craft:'藝匠坊',tav:'酒樓'})[id]; showToast(nm+' · 尚未開放'); }
+function enterSectArea(id){ state.exchWork=null; state.sectArea=id; state.sectJoinPending=null; state.sectLeavePending=false; render(); }
 function _mMon(){
   if(state.encounterMon) return state.encounterMon;
   var nm=state.battleLocationName;

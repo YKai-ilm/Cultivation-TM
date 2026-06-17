@@ -1504,10 +1504,10 @@ function buyGongfaBook(elemK,r,typeK,i){
   if(state.gongfa[d.id]){ showToast('已學習'); return; }
   if(((state.scrolls&&state.scrolls[d.id])||0)>0){ showToast('已購入，至儲物習得'); return; }
   if(state.realm<r){ showToast('境界不足，需 '+REALMS[r].name); return; }
-  if((state.gfBuyRound||0)>=1){ showToast('本輪限購 1 本功法，待進貨刷新'); return; } var cost=gfLearnCost(d); if(!state._payGo){ if(!canAffordTier(cost)){ showToast('財富不足'); return; } return askBuyConfirm(cost,'buyGongfaBook',[elemK,r,typeK,i],'功法書《'+d.name+'》'); } if(!payByTier(cost)){ showToast('財富不足'); return; }
+  var _isLow=(state.gfStockLow||[]).indexOf(d.id)>=0; if(_isLow && (state.gfBuyRound||0)>=1){ showToast('庫存（低階特賣）每輪限購 1 本，待刷新'); return; } var cost=gfLearnCost(d); if(!state._payGo){ if(!canAffordTier(cost)){ showToast('財富不足'); return; } return askBuyConfirm(cost,'buyGongfaBook',[elemK,r,typeK,i],'功法書《'+d.name+'》'); } if(!payByTier(cost)){ showToast('財富不足'); return; }
   SCROLLS[d.id]={name:d.name,ic:d.ic,cat:d.cat,desc:'書卷鋪購入',eff:d.eff,bonus:d.bonus};
   if(!state.scrolls) state.scrolls={};
-  state.scrolls[d.id]=(state.scrolls[d.id]||0)+1; state.gfBuyRound=(state.gfBuyRound||0)+1;
+  state.scrolls[d.id]=(state.scrolls[d.id]||0)+1; if(_isLow) state.gfBuyRound=(state.gfBuyRound||0)+1;
   addLog('【萬寶閣】購入功法書《'+d.name+'》（至儲物習得）','good'); showToast('購入《'+d.name+'》，至儲物習得'); saveState(); render();
 }
 function _lingliMlOf(id,g){ var base; if(id==='linglijue'){ base=250; } else { var p=(''+id).split('_'); base=(p[0]==='gf'&&p.length>=5)?100*Math.pow(5,parseInt(p[2])):100; } return Math.round(base*gfLvMult((g&&g.level)||1)); }
@@ -1624,7 +1624,7 @@ const initialState = {
 let state = JSON.parse(JSON.stringify(initialState));
 const SAVE_KEY = 'xiuxian_save_v2';
 const GAME_VERSION = '2026-06-11';
-const RESET_TAG = '2026-06-15a';  /* 改此值並重新部署＝全體玩家下次載入強制重置（封測用） */
+const RESET_TAG = '2026-06-16a';  /* 改此值並重新部署＝全體玩家下次載入強制重置（封測用） */
 const RESET_MODE = 'fresh';  /* 'fresh'=清空全新檔；'baseline'=套用下方基準狀態（集體回到指定起點） */
 var BASELINE_STATE = { realm:1, subRealm:0, qi:0, totalQi:0, lingshi:5000, lingcao:20, kuangshi:10, giftClaimed:false };  /* baseline 模式時，重置後套用這些覆蓋值（其餘為全新預設）；可自訂 */
 function applyBaseline(){ try{ var b=JSON.parse(JSON.stringify(BASELINE_STATE)); for(var k in b){ state[k]=b[k]; } addLog('【封測】已套用基準狀態','great'); }catch(e){} }

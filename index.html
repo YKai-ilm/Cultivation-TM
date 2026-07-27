@@ -143,7 +143,7 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .grid5 { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
 .cur-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
 .store-tabs { position:sticky; top:0; z-index:6; display:flex; flex-wrap:wrap; gap:4px; padding:6px 4px; margin:-4px -2px 6px; background:rgba(247,238,214,0.96); border-radius:10px; }
-.store-tab { flex:1 1 auto; min-width:56px; padding:6px 8px; border-radius:8px; font-size:12px; font-weight:700; background:rgba(255,255,255,0.6); border:1px solid rgba(160,120,70,0.3); color:#6a4f28; cursor:pointer; white-space:nowrap; }
+.store-tab { flex:1 1 auto; min-width:0; padding:6px 4px; border-radius:8px; font-size:12px; font-weight:700; background:rgba(255,255,255,0.6); border:1px solid rgba(160,120,70,0.3); color:#6a4f28; cursor:pointer; white-space:nowrap; }
 .store-tab.active { background:#8a4a1f; color:#fff; border-color:#8a4a1f; }
 .store-empty { grid-column:1/-1; text-align:center; color:#9a8458; font-size:12px; padding:16px 8px; }
 .cell5 { position:relative; text-align:center; background:rgba(255,255,255,0.55); border:1px solid rgba(160,120,70,0.3); border-radius:8px; padding:6px 2px 8px; }
@@ -2202,7 +2202,7 @@ function scrollSellChangeQty(d){ scrollSellSetQty((state.scrollSellQty||1)+d); }
 function sellScroll(){ var id=state.scrollPop; if(!id) return; var s=SCROLLS[id]; var mx=_scrollCount(id); var n=Math.min(state.scrollSellQty||1, mx); if(n<=0) return; var price=scrollSellPrice(id)*n; state.scrolls[id]-=n; if(state.scrolls[id]<=0) delete state.scrolls[id]; gainLingshi(price); showToast('售《'+(s?s.name:'功法書')+'》×'+n+'，靈石 +'+fmt(price)); if(_scrollCount(id)<=0) state.scrollPop=null; else state.scrollSellQty=1; saveState(); render(); }
 function scrollCellClick(id){ if(state.gongfa[id]){ openScrollPop(id); } else { toggleCell('s_'+id); } }
 function setStoreCat(c){ state.storeCat=c; state.activePop=null; render(); }
-function _storeTabBar(sc){ var tabs=[['wallet','💰錢袋'],['mats','🏛️材料'],['neidan','💠內丹'],['elixir','💊丹藥'],['scroll','📖功法書'],['gear','🎒裝備'],['artifact','⚔️法寶']]; var h='<div class="store-tabs">'; tabs.forEach(function(t){ h+='<button class="store-tab'+(sc===t[0]?' active':'')+'" onclick="setStoreCat(\''+t[0]+'\')">'+t[1]+'</button>'; }); h+='</div>'; return h; }
+function _storeTabBar(sc){ var tabs=[['wallet','錢袋'],['mats','材料'],['neidan','內丹'],['elixir','丹藥'],['scroll','功法書'],['gear','裝備'],['artifact','法寶']]; var h='<div class="store-tabs">'; tabs.forEach(function(t){ h+='<button class="store-tab'+(sc===t[0]?' active':'')+'" onclick="setStoreCat(\''+t[0]+'\')">'+t[1]+'</button>'; }); h+='</div>'; return h; }
 function qtyOf(id){ const own=_ownOf(id); let q=state.useQty[id]||1; if(q>own)q=own; if(q<1)q=1; return q; }
 function _cell(id){ return document.querySelector('.cell5[data-id="'+id+'"]'); }
 function showGfDetail(id){ state.gfDetail=id; state.activePop=null; render(); }

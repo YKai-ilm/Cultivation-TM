@@ -1872,6 +1872,7 @@ function loadState() {
     if (state.autoSpells === undefined) state.autoSpells = [];
     if (state.autoNeigong === undefined) state.autoNeigong = [];
     if (!state.coin) state.coin = {};
+    state.lingshi=Math.floor(state.lingshi||0); for(var _ck in state.coin){ state.coin[_ck]=Math.floor(state.coin[_ck]||0); } if(typeof normalizeWallet==='function') normalizeWallet();
     if (!state._ngSeeded){ var _ng=[]; for(var _nid in state.gongfa){ if(state.gongfa[_nid]&&state.gongfa[_nid].cat==='neigong'){ _ng.push(_nid); if(_ng.length>=5) break; } } state.autoNeigong=_ng; state._ngSeeded=true; }
     { var _ngv={}, _wgv={}; for(var _gid in (state.gongfa||{})){ var _gg=state.gongfa[_gid]; if(!_gg) continue; if(_gg.cat==='neigong') _ngv[_gid]=1; if(_gg.cat==='waigong') _wgv[_gg.name]=1; } if(Array.isArray(state.autoNeigong)) state.autoNeigong=state.autoNeigong.filter(function(x){return _ngv[x];}); if(Array.isArray(state.autoSpells)) state.autoSpells=state.autoSpells.filter(function(x){return _wgv[x];}); }
     if (state.equip === undefined) state.equip = {};
@@ -2687,7 +2688,7 @@ function _grantTaskReward(rw,sectId){
   if(rw.contrib){ if(!state.sectContrib) state.sectContrib={}; state.sectContrib[sectId]=(state.sectContrib[sectId]||0)+rw.contrib; a.push('貢獻+'+rw.contrib); }
   if(rw.shengwang){ state.shengwang=(state.shengwang||0)+rw.shengwang; a.push('聲望+'+rw.shengwang); }
   if(rw.weiwang){ state.weiwang=(state.weiwang||0)+rw.weiwang; a.push('威望+'+rw.weiwang); }
-  if(rw.lingshi){ state.lingshi=(state.lingshi||0)+rw.lingshi; a.push(costDisp(rw.lingshi)); }
+  if(rw.lingshi){ gainLingshi(rw.lingshi||0); a.push(costDisp(rw.lingshi)); }
   if(rw.xiuwei){ state.qi=(state.qi||0)+rw.xiuwei; state.totalQi=(state.totalQi||0)+rw.xiuwei; a.push('修為+'+fmt(rw.xiuwei)); }
   return a.join('、');
 }

@@ -142,6 +142,10 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .kv-row .kl { font-weight:500; opacity:0.7; }
 .grid5 { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
 .cur-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.store-tabs { position:sticky; top:0; z-index:6; display:flex; flex-wrap:wrap; gap:4px; padding:6px 4px; margin:-4px -2px 6px; background:rgba(247,238,214,0.96); border-radius:10px; }
+.store-tab { flex:1 1 auto; min-width:56px; padding:6px 8px; border-radius:8px; font-size:12px; font-weight:700; background:rgba(255,255,255,0.6); border:1px solid rgba(160,120,70,0.3); color:#6a4f28; cursor:pointer; white-space:nowrap; }
+.store-tab.active { background:#8a4a1f; color:#fff; border-color:#8a4a1f; }
+.store-empty { grid-column:1/-1; text-align:center; color:#9a8458; font-size:12px; padding:16px 8px; }
 .cell5 { position:relative; text-align:center; background:rgba(255,255,255,0.55); border:1px solid rgba(160,120,70,0.3); border-radius:8px; padding:6px 2px 8px; }
 .cell5 .ci { font-size:20px; height:28px; display:flex; align-items:center; justify-content:center; }
 .cell5 .ci img { width:20px; height:20px; object-fit:contain; display:block; }
@@ -2189,7 +2193,7 @@ function useScroll(id){
   else { state.gongfa[id]={cat:s.cat, name:s.name, ic:s.ic, level:1, bonus:s.bonus, upgradeUsed:false, eff:s.eff, realm:(s.minRealm||0)}; }
   addLog('【功法】習得 '+s.name,'great'); showToast(s.name+' 已習得！'); refreshMaxStats(); saveState(); render();
 }
-function scrollSellPrice(id){ var p=(''+id).split('_'); if(p[0]==='gf'&&p.length>=5){ var d=gfParse(id); return d?Math.max(100,Math.round(gfLearnCost(d)*0.8)):500; } return 1000; }
+function scrollSellPrice(id){ var p=(''+id).split('_'); if(p[0]==='gf'&&p.length>=5){ var d=gfParse(id); return d?Math.max(100,Math.round(gfLearnCost(d)*0.8)):500; } var _it=(WBG_SHOP&&WBG_SHOP.gongfa||[]).filter(function(x){return x.id===id;})[0]; if(_it&&_it.cost) return Math.max(100,Math.round(_it.cost*0.8)); return 1000; }
 function _scrollCount(id){ return (state.scrolls&&state.scrolls[id])||0; }
 function openScrollPop(id){ state.gearPop=null; state.scrollPop=id; state.scrollSellQty=1; render(); }
 function closeScrollPop(){ state.scrollPop=null; render(); }
@@ -2197,6 +2201,8 @@ function scrollSellSetQty(v){ var n=parseInt(v)||1; if(n<1)n=1; var mx=_scrollCo
 function scrollSellChangeQty(d){ scrollSellSetQty((state.scrollSellQty||1)+d); }
 function sellScroll(){ var id=state.scrollPop; if(!id) return; var s=SCROLLS[id]; var mx=_scrollCount(id); var n=Math.min(state.scrollSellQty||1, mx); if(n<=0) return; var price=scrollSellPrice(id)*n; state.scrolls[id]-=n; if(state.scrolls[id]<=0) delete state.scrolls[id]; gainLingshi(price); showToast('售《'+(s?s.name:'功法書')+'》×'+n+'，靈石 +'+fmt(price)); if(_scrollCount(id)<=0) state.scrollPop=null; else state.scrollSellQty=1; saveState(); render(); }
 function scrollCellClick(id){ if(state.gongfa[id]){ openScrollPop(id); } else { toggleCell('s_'+id); } }
+function setStoreCat(c){ state.storeCat=c; state.activePop=null; render(); }
+function _storeTabBar(sc){ var tabs=[['wallet','💰錢袋'],['mats','🏛️材料'],['neidan','💠內丹'],['elixir','💊丹藥'],['scroll','📖功法書'],['gear','🎒裝備'],['artifact','⚔️法寶']]; var h='<div class="store-tabs">'; tabs.forEach(function(t){ h+='<button class="store-tab'+(sc===t[0]?' active':'')+'" onclick="setStoreCat(\''+t[0]+'\')">'+t[1]+'</button>'; }); h+='</div>'; return h; }
 function qtyOf(id){ const own=_ownOf(id); let q=state.useQty[id]||1; if(q>own)q=own; if(q<1)q=1; return q; }
 function _cell(id){ return document.querySelector('.cell5[data-id="'+id+'"]'); }
 function showGfDetail(id){ state.gfDetail=id; state.activePop=null; render(); }
@@ -2285,7 +2291,7 @@ function tick() {
     if(_oreAdd>0) state.kuangshi=(state.kuangshi||0)+_oreAdd;
     state.mine.lastDay=_md; } }
   if(state.encPending){ state.encPending=false; rollEncounter(true); } else { rollEncounter(false); }
-  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&state.currentTab!=='tasks'&&!_editing&&!_taskSheet) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
+  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&state.currentTab!=='tasks'&&!_editing&&!_taskSheet&&!_guideOpen) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
 }
 function triggerEvent() {
   let ev = EVENTS[Math.floor(Math.random()*EVENTS.length)];
@@ -3248,9 +3254,14 @@ function _renderCore() {
       + '<div class="stage-log">'+recent+'</div></div>';
   }
   if (state.currentTab==='store') {
+    var _sc=state.storeCat||'wallet';
+    html += _storeTabBar(_sc);
+    if(_sc==='wallet'){
     html += '<div class="panel"><div class="panel-title">💰 錢袋</div><div class="grid5">';
     CUR.forEach(function(cu,i){ var n=getCoin(cu.k); var _cid='cur_'+cu.k; var _rt=(i>0?(fmt(cu.per)+' '+CUR[i-1].nm+' = 1 '+cu.nm):'最基礎貨幣單位'); html += '<div class="cell5 usable'+(state.activePop===_cid?' active':'')+'" data-id="'+_cid+'" onclick="toggleCell('+"'"+_cid+"'"+')"><div class="ci">'+cu.ic+'</div><div class="cn" style="color:'+cu.col+';">'+cu.nm+'</div><div class="cv">'+fmt(n)+'</div><div class="info-pop">'+_rt+'</div></div>'; });
     html += '</div></div>';
+    }
+    if(_sc==='mats'){
     html += '<div class="panel"><div class="panel-title">🏛️ 洞府材料</div><div class="grid5">'
       + '<div class="cell5 usable'+(state.activePop==="m_lingcao"?" active":"")+'" data-id="m_lingcao" onclick="toggleCell(\'m_lingcao\')"><div class="ci">🌿</div><div class="cn">靈草</div><div class="cv">'+state.lingcao+'</div><div class="info-pop">煉丹主材料</div></div>'
       + '<div class="cell5 usable'+(state.activePop==="m_kuangshi"?" active":"")+'" data-id="m_kuangshi" onclick="toggleCell(\'m_kuangshi\')"><div class="ci">⛏️</div><div class="cn">礦石</div><div class="cv">'+state.kuangshi+'</div><div class="info-pop">煉器／法陣升級 材料</div></div>'
@@ -3259,23 +3270,30 @@ function _renderCore() {
       + ((state.juanzhou||0)>0?'<div class="cell5 usable"onclick="openJuanzhou()"><div class="ci"><img class="loot-img" src="images/drop_功法卷軸.png"></div><div class="cn">功法卷軸</div><div class="cv">×'+state.juanzhou+'</div><div class="loot-open">開啟</div><div class="info-pop">點擊開啟，得隨機功法書</div></div>':'')
       + ((state.baoxiang||0)>0?'<div class="cell5 usable"onclick="openBaoxiang()"><div class="ci"><img class="loot-img" src="images/drop_寶箱.png"></div><div class="cn">寶箱</div><div class="cv">×'+state.baoxiang+'</div><div class="loot-open">開啟</div><div class="info-pop">點擊開啟，得隨機獎勵</div></div>':'')
  + '</div></div>';
+    }
+    if(_sc==='neidan'){
     var _nd=state.neidan||{}; if(typeof _nd==="object"&&Object.keys(_nd).length){
       html += '<div class="panel"><div class="panel-title">💠 內丹</div><div class="grid5">';
       Object.keys(_nd).forEach(function(nm){ var c=_nd[nm]; if(c<=0) return; var mon=MONSTERS.filter(function(m){return m.name===nm;})[0]; var gain=mon?Math.floor((mon.xiuwei||0)/10):0; var pid='nd_'+nm; var q=qtyOf(pid); var act=state.activePop===pid?' active':''; var eff='使用得修為 +'+fmt(gain)+'/顆（敵人精華）';
         html += '<div class="cell5 usable'+act+'" data-id="'+pid+'" onmouseenter="enterCell(\''+pid+'\')" onmouseleave="leaveCell(\''+pid+'\')" onclick="toggleCell(\''+pid+'\')"><div class="ci"><img class="loot-img" src="images/drop_丹藥.png"></div><div class="cn">'+nm+'內丹</div><div class="ce">×'+c+'</div><div class="pop" onclick="event.stopPropagation()"><div class="qty"><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+pid+'\',-1)">−</button><input type="number" class="qn num-input" inputmode="numeric" min="1" value="'+q+'" onchange="setQtyAbs(\''+pid+'\',this.value)" onkeydown="if(event.key===&apos;Enter&apos;)this.blur()" onclick="event.stopPropagation();this.select()" style="font-size:12px;width:36px;" /><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+pid+'\',1)">＋</button></div><button class="use-btn" onclick="event.stopPropagation();useNeidanWithQty(\''+nm+'\')">使用</button><button class="use-btn" style="background:#c8a050;" onclick="event.stopPropagation();sellNeidan(\''+nm+'\')" title="售價 '+costDisp(neidanSellPrice(nm))+'/顆">售出</button></div><div class="info-pop">'+eff+'</div></div>';
       });
       html += '</div></div>';
+    } else { html += '<div class="panel"><div class="panel-title">💠 內丹</div><div class="store-empty">目前無內丹</div></div>'; }
     }
+    if(_sc==='elixir'){
     const ekeys=Object.keys(state.elixirs).filter(k=>state.elixirs[k]>0);
     html += '<div class="panel"><div class="panel-title">💊 丹藥</div>';
     if (ekeys.length===0) html += '<div style="font-size:12px;color:#9a8458;text-align:center;padding:8px;">尚無丹藥，去洞府煉製</div>';
     else { html += '<div class="grid5">'; ekeys.forEach(k=>{ const e=ELIXIRS.find(x=>x.id===k); if(!e) return; const own=state.elixirs[k],q=qtyOf(k),act=state.activePop===k?' active':'';
       html += '<div class="cell5 usable'+act+'" data-id="'+k+'" onmouseenter="enterCell(\''+k+'\')" onmouseleave="leaveCell(\''+k+'\')" onclick="toggleCell(\''+k+'\')"><div class="ci">🧪</div><div class="cn">'+e.name+'</div><div class="ce">×'+own+'</div><div class="pop" onclick="event.stopPropagation()"><div class="qty"><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+k+'\',-1)">−</button><input type="number" class="qn num-input" inputmode="numeric" min="1" value="'+q+'" onchange="setQtyAbs(\''+k+'\',this.value)" onkeydown="if(event.key===&apos;Enter&apos;)this.blur()" onclick="event.stopPropagation();this.select()" style="font-size:12px;width:36px;" /><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+k+'\',1)">＋</button></div><button class="use-btn" onclick="event.stopPropagation();consumeElixir(\''+k+'\')">使用</button><button class="use-btn" style="background:#c8a050;" onclick="event.stopPropagation();sellElixir(\''+k+'\')" title="售價 '+costDisp(elixirSellPrice(k))+'/顆">售出</button></div><div class="info-pop">'+e.effect+'</div></div>'; }); html += '</div>'; }
     html += '</div>';
+    }
+    if(_sc==='scroll'){
     const skeys=Object.keys(state.scrolls).filter(k=>state.scrolls[k]>0);
     if (skeys.length>0){ html += '<div class="panel"><div class="panel-title">📖 功法書</div><div class="grid5">'; skeys.forEach(k=>{ const s=SCROLLS[k]; if(!s) return; const pid='s_'+k,act=state.activePop===pid?' active':'';
-      html += '<div class="cell5 usable'+act+'" data-id="'+pid+'" onmouseenter="enterCell(\''+pid+'\')" onmouseleave="leaveCell(\''+pid+'\')" onclick="scrollCellClick(\''+k+'\')"><div class="ci">'+s.ic+'</div><div class="cn">'+s.name+'</div><div class="ce">×'+state.scrolls[k]+'</div><div class="pop" onclick="event.stopPropagation()"><button class="use-btn" onclick="event.stopPropagation();useScroll(\''+k+'\')">習得</button></div><div class="info-pop">'+(s.eff||'學會此功法')+'</div></div>'; }); html += '</div></div>'; }
-    // 裝備囊：依 9 部位分排，每排可橫向多件（4-5/排）
+      html += '<div class="cell5 usable'+act+'" data-id="'+pid+'" onmouseenter="enterCell(\''+pid+'\')" onmouseleave="leaveCell(\''+pid+'\')" onclick="scrollCellClick(\''+k+'\')"><div class="ci">'+s.ic+'</div><div class="cn">'+s.name+'</div><div class="ce">×'+state.scrolls[k]+'</div><div class="pop" onclick="event.stopPropagation()"><button class="use-btn" onclick="event.stopPropagation();useScroll(\''+k+'\')">習得</button><button class="use-btn" style="background:#c8a050;" onclick="event.stopPropagation();openScrollPop(\''+k+'\')" title="售 "+costDisp(scrollSellPrice(k))+"/本">出售</button></div><div class="info-pop">'+(s.eff||'學會此功法')+'</div></div>'; }); html += '</div></div>'; } else { html += '<div class="panel"><div class="panel-title">📖 功法書</div><div class="store-empty">目前無功法書</div></div>'; }
+    }
+    if(_sc==='gear'){
     var _bagArr=(state.bag&&state.bag.gear)||[];
     var _bagCnt={}; _bagArr.forEach(function(id){ _bagCnt[id]=(_bagCnt[id]||0)+1; });
     var _equipSet={}; for(var _sl in (state.equip||{})){ if(state.equip[_sl]) _equipSet[state.equip[_sl]]=_sl; }
@@ -3297,12 +3315,15 @@ function _renderCore() {
         html += '</div></div>';
       });
       html += '</div>';
+    } else { html += '<div class="panel"><div class="panel-title">🎒 裝備囊</div><div class="store-empty">目前無裝備</div></div>'; }
     }
+    if(_sc==='artifact'){
     const akeys=Object.keys(state.artifacts).filter(k=>state.artifacts[k]);
     html += '<div class="panel"><div class="panel-title">⚔️ 法寶</div><div class="grid5">';
     if (akeys.length===0) html += '<div style="grid-column:1/-1;text-align:center;color:#9a8458;font-size:12px;padding:8px;">尚無法寶</div>';
     else akeys.forEach(k=>{ const a=ARTIFACTS.find(x=>x.id===k); if(!a) return; html += '<div class="cell5" title="'+a.effect+'"><div class="ci">⚔️</div><div class="cn">'+a.name+'</div><div class="ce tier-'+a.tier+'">'+a.tier+'</div></div>'; });
     html += '</div></div>';
+    }
   }
   if (state.currentTab==='log') {
     html += '<div class="panel"><div class="panel-title">📜 道途 · 見聞記事</div><div class="log-list">';

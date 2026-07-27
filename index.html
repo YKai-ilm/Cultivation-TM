@@ -145,6 +145,8 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .store-tabs { position:sticky; top:0; z-index:6; display:flex; flex-wrap:wrap; gap:4px; padding:6px 4px; margin:-4px -2px 6px; background:rgba(247,238,214,0.96); border-radius:10px; }
 .store-tab { flex:1 1 auto; min-width:0; padding:6px 4px; border-radius:8px; font-size:12px; font-weight:700; background:rgba(255,255,255,0.6); border:1px solid rgba(160,120,70,0.3); color:#6a4f28; cursor:pointer; white-space:nowrap; }
 .store-tab.active { background:#8a4a1f; color:#fff; border-color:#8a4a1f; }
+.rank-btn { padding:3px 8px; border-radius:7px; font-size:11px; font-weight:700; background:rgba(138,74,31,0.10); border:1px solid rgba(138,74,31,0.35); color:#7a4a1a; cursor:pointer; white-space:nowrap; }
+.rank-btn:hover { background:rgba(138,74,31,0.2); }
 .store-empty { grid-column:1/-1; text-align:center; color:#9a8458; font-size:12px; padding:16px 8px; }
 .cell5 { position:relative; text-align:center; background:rgba(255,255,255,0.55); border:1px solid rgba(160,120,70,0.3); border-radius:8px; padding:6px 2px 8px; }
 .cell5 .ci { font-size:20px; height:28px; display:flex; align-items:center; justify-content:center; }
@@ -2278,7 +2280,6 @@ function tick() {
     if(state.shitang){ var _g=daotongAreaCount('shitang')*2*_pdd; if(_g>0) state.shitang.food=Math.min(shitangFoodMax(),(state.shitang.food||0)+_g); }
     for(var _fa in FAC){ var _fc=FAC[_fa]; var _fg=daotongAreaCount(_fa)*_fc.rate*_pdd; if(_fg>0) state[_fc.res]=Math.min(facMax(_fa),(state[_fc.res]||0)+_fg); }
     state.prodLastDay=_pd; } }
-  if (Math.random()<0.05){ gainLingshi(Math.max(1,Math.floor(realm.qiPerSec*0.1))); }
   if (Math.random()<0.04) state.shengwang+=Math.max(1,Math.floor(realm.qiPerSec*0.05));
   if (Math.random()<0.025){ var _lcp=(vaultBonus().lingcaoPct||0)/100; state.lingcao += (Math.random()<_lcp?2:1); }
   if (Math.random()<0.018) state.kuangshi+=1;
@@ -2652,7 +2653,13 @@ function _ensureTaskState(){
   if(!state.sectTasks||typeof state.sectTasks!=='object') state.sectTasks={board:[],active:[]};
   if(!Array.isArray(state.sectTasks.board)) state.sectTasks.board=[];
   if(!Array.isArray(state.sectTasks.active)) state.sectTasks.active=[];
+  if(state.sectTasks.lastFill===undefined) state.sectTasks.lastFill=null;
+  if(state.sectTasks.refreshDate===undefined) state.sectTasks.refreshDate=null;
+  if(state.sectTasks.refreshUsed===undefined) state.sectTasks.refreshUsed=0;
 }
+function _realDateKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+var TASK_BOARD_MAX=5, TASK_REFRESH_MAX=3;
+function _dailyTaskFill(){ _ensureTaskState(); var dk=_realDateKey(); if(state.sectTasks.lastFill!==dk){ state.sectTasks.lastFill=dk; while(state.sectTasks.board.length<TASK_BOARD_MAX){ state.sectTasks.board.push(_mkTask(state.realm)); } state.sectTasks.refreshDate=dk; state.sectTasks.refreshUsed=0; } }
 function _mkTask(r){
   var uid='t'+Date.now().toString(36)+Math.floor(Math.random()*1000);
   var roll=Math.floor(Math.random()*4);
@@ -2671,8 +2678,8 @@ function _mkTask(r){
   return {uid:uid,type:'timed',icon:'🧘',days:days,name:'閉關苦修 '+days+' 天',desc:'為宗門潛修 '+days+' 天，靜候功成。',
           reward:{contrib:5+r*2, xiuwei:xw}};
 }
-function rollTaskBoard(){ _ensureTaskState(); var b=[]; for(var i=0;i<4;i++){ b.push(_mkTask(state.realm)); } state.sectTasks.board=b; }
-function refreshTaskBoard(){ rollTaskBoard(); showToast('委託榜已刷新'); saveState(); render(); }
+function rollTaskBoard(){ _ensureTaskState(); var b=[]; for(var i=0;i<TASK_BOARD_MAX;i++){ b.push(_mkTask(state.realm)); } state.sectTasks.board=b; }
+function refreshTaskBoard(){ _ensureTaskState(); var dk=_realDateKey(); if(state.sectTasks.refreshDate!==dk){ state.sectTasks.refreshDate=dk; state.sectTasks.refreshUsed=0; } if((state.sectTasks.refreshUsed||0)>=TASK_REFRESH_MAX){ showToast('今日換榜已達 '+TASK_REFRESH_MAX+' 次上限，明日 00:00 重置'); return; } var n=state.sectTasks.board.length; if(n<=0){ showToast('榜上已無剩餘委託（每日 00:00 補滿至 '+TASK_BOARD_MAX+'）'); return; } var b=[]; for(var i=0;i<n;i++) b.push(_mkTask(state.realm)); state.sectTasks.board=b; state.sectTasks.refreshUsed=(state.sectTasks.refreshUsed||0)+1; showToast('委託榜已換（'+state.sectTasks.refreshUsed+'/'+TASK_REFRESH_MAX+'）'); saveState(); render(); }
 function acceptTask(uid){
   _ensureTaskState();
   if(!state.sect){ showToast('需先拜入宗門'); return; }
@@ -2766,7 +2773,7 @@ function _taskCard(t,active){
 }
 function renderInnBoard(_sid,_sObj,_isMember,_contrib){
   _ensureTaskState();
-  var h='<div class="panel"><div class="panel-title">🛏️ 接待所 · '+_sObj.name+(_isMember?'（本宗｜貢獻 '+_contrib+'）':'（外門訪客）')+'</div>';
+  var h='<div class="panel"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span>🛏️ 接待所 · '+_sObj.name+(_isMember?'（本宗｜貢獻 '+_contrib+'）':'（外門訪客）')+'</span>'+((_isMember&&yunjiPresent())?'<button class="item-btn" style="background:#8a6a2a;color:#fff;padding:3px 10px;font-size:11px;flex:none;white-space:nowrap;" onclick="openYunjiModal()">🐫 雲跡商人</button>':'')+'</div>';
   if(!_isMember){
     if(state.sect){
       var _cur=_sectById(state.sect);
@@ -2787,15 +2794,15 @@ function renderInnBoard(_sid,_sObj,_isMember,_contrib){
     h+='</div></div>';
     return h;
   }
-  if(state.sectTasks.board.length===0 && state.sectTasks.active.length===0) rollTaskBoard();
+  _dailyTaskFill();
   h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(80,160,90,0.08);border-radius:6px;margin-bottom:10px;">';
   h+='<div style="flex:1;font-size:12px;color:#5a3a1a;">🛌 歇息片刻，回滿氣血／法力／精力</div>';
   h+='<button class="item-btn" style="background:#3a8a4a;color:#fff;padding:6px 14px;font-size:12px;" onclick="sectRest()">歇息</button></div>';
-  h+=yunjiMerchantHTML();
+  h+=yunjiModalHTML();
   h+='<div style="font-size:12px;font-weight:700;color:#7a5a28;margin:6px 2px;">📋 在辦委託（'+state.sectTasks.active.length+'/3）</div>';
   if(state.sectTasks.active.length===0){ h+='<div style="font-size:11px;color:#9a7a48;padding:2px 6px 6px;">目前沒有在辦委託。</div>'; }
   state.sectTasks.active.forEach(function(t){ h+=_taskCard(t,true); });
-  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 2px 4px;"><div style="font-size:12px;font-weight:700;color:#7a5a28;">📜 委託榜</div><button class="item-btn" style="background:#c8a050;color:#fff;padding:3px 10px;font-size:11px;" onclick="refreshTaskBoard()">🔄 換榜</button></div>';
+  var _rleft=Math.max(0,TASK_REFRESH_MAX-(state.sectTasks.refreshUsed||0)); h+='<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 2px 2px;"><div style="font-size:12px;font-weight:700;color:#7a5a28;">📜 委託榜</div><button class="item-btn" style="background:'+(_rleft>0?'#c8a050':'#b7b7b7')+';color:#fff;padding:3px 10px;font-size:11px;" onclick="refreshTaskBoard()">🔄 換榜 '+_rleft+'/'+TASK_REFRESH_MAX+'</button></div><div style="font-size:10px;color:#9a7a48;margin:0 2px 6px;">每日 00:00（真實時間）自動補滿至 '+TASK_BOARD_MAX+' 個；換榜每日限 '+TASK_REFRESH_MAX+' 次，僅重擲榜上剩餘委託。</div>';
   if(state.sectTasks.board.length===0){ h+='<div style="font-size:11px;color:#9a7a48;padding:2px 6px;">委託榜已空，點「換榜」刷新。</div>'; }
   state.sectTasks.board.forEach(function(t){ h+=_taskCard(t,false); });
   if(state.sectLeavePending){
@@ -2911,6 +2918,25 @@ function yunjiMerchantHTML(){
   }
   return h;
 }
+function openYunjiModal(){ state.yunjiModal=true; render(); }
+function closeYunjiModal(){ state.yunjiModal=null; render(); }
+function yunjiModalHTML(){
+  if(!state.yunjiModal) return '';
+  var inCyc=yunjiYear()%50;
+  var h='<div class="info-modal" onclick="closeYunjiModal()"><div class="im-box" onclick="event.stopPropagation()" style="width:330px;">';
+  h+='<div class="im-head">🐫 雲跡商人'+(yunjiPresent()?'（停駐約 '+(30-inCyc)+' 年）':'')+'<span class="im-x" onclick="closeYunjiModal()">✕</span></div>';
+  if(yunjiPresent()){
+    if((state.gxCard||0)>0){
+      h+='<div style="font-size:11px;color:#3a8a4a;margin:0 2px 8px;">✔ 持有 宗門貢獻卓越卡 ×'+(state.gxCard||0)+'　·　換幣手續費 1%</div>';
+      h+=currencyCounterHTML(1,'雲跡商人',true,true);
+    } else {
+      h+='<div style="background:rgba(200,160,80,0.12);border-radius:6px;padding:9px 11px;font-size:12px;color:#8a5a20;line-height:1.7;">🔒 需持有「宗門貢獻卓越卡」方可與其換幣。<br>完成宗門委託有機會獲得此卡。</div>';
+    }
+  } else {
+    h+='<div style="background:rgba(120,120,140,0.10);border-radius:6px;padding:9px 11px;font-size:12px;color:#6a6a7a;line-height:1.7;">雲跡商人雲遊四海，約 '+(50-inCyc)+' 年後再臨此地。</div>';
+  }
+  h+='</div></div>'; return h;
+}
 
 /* ===== 城鎮：城主府好感 + 萬寶樓兌幣（手續費3%，需好感+威望解鎖） ===== */
 var WBL_FAVOR=100, WBL_WEI=3000;
@@ -3021,7 +3047,7 @@ function exportSave(){ try{ saveState(); var data=localStorage.getItem(SAVE_KEY)
 function importSaveFile(input){ var f=input&&input.files&&input.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(e){ try{ var obj=JSON.parse(e.target.result); if(!obj||typeof obj!=='object'||obj.realm===undefined){ showToast('存檔格式不符，未匯入'); return; } localStorage.setItem(SAVE_KEY, JSON.stringify(obj)); showToast('已匯入存檔，重新載入中…'); setTimeout(function(){ location.reload(); },600); }catch(err){ showToast('匯入失敗：檔案無法解析'); } }; rd.readAsText(f); }
 function setShuxingTab(t){ state.shuxingTab=t; _suzhiPop=null; render(); }
 function _edRow(l,v,k){ return '<div class="ed-row"><span style="display:inline-flex;align-items:center;">'+l+(k?' <span class="attr-q" onclick="event.stopPropagation();toggleAttrInfo(\''+k+'\')">?</span>':'')+'</span><b>'+v+'</b></div>'; }
-function switchTab(name) { state.exchWork=null; if(name==='log') state.logUnread=0; _taskSheet=false; _suzhiPop=null; if(state.currentTab==='battle' && name!=='battle'){ window._btRunning=false; window._btAnim=false; _spellOpen=false; _spellSel=null; _cfgOpen=false; _cfgCat=null; _tgtPick=null; } if(name!=='battle'&&name!=='map'&&!(MB&&!MB.over)){ state.battleLocationRealm=null; state.battleLocationName=null; state.encounterMon=null; } if(name!=='sectview'){ state.viewSect=null; } if(name!=='cityview'){ state.viewCity=null; state.cityArea=null; } if(name!=='map'){ _locPickerOpen=false; } if(name!=='sect'&&name!=='sectview'){ state.sectJoinPending=null; state.sectLeavePending=false; } state.currentTab=name; render(); }
+function switchTab(name) { state.exchWork=null; state.yunjiModal=null; state.sectRankModal=null; if(name==='log') state.logUnread=0; _taskSheet=false; _suzhiPop=null; if(state.currentTab==='battle' && name!=='battle'){ window._btRunning=false; window._btAnim=false; _spellOpen=false; _spellSel=null; _cfgOpen=false; _cfgCat=null; _tgtPick=null; } if(name!=='battle'&&name!=='map'&&!(MB&&!MB.over)){ state.battleLocationRealm=null; state.battleLocationName=null; state.encounterMon=null; } if(name!=='sectview'){ state.viewSect=null; } if(name!=='cityview'){ state.viewCity=null; state.cityArea=null; } if(name!=='map'){ _locPickerOpen=false; } if(name!=='sect'&&name!=='sectview'){ state.sectJoinPending=null; state.sectLeavePending=false; } state.currentTab=name; render(); }
 function drinkWine(id){ const w=WINES.find(x=>x.id===id); if(!w) return; if(state.realm<w.minRealm) return showToast('境界不足'); if(!canAfford(w.cost.lingshi)) return showToast('靈石不足'); payLingshi(w.cost.lingshi);
   if(id==='tushu'){ state.ep=Math.min(state.epMax,state.ep+200); state.wuxing+=1; }
   if(id==='qionghua'){ state.ep=Math.min(state.epMax,state.ep+1000); state.wuxing+=3; }
@@ -3666,7 +3692,7 @@ function _renderCore() {
       html += '</div>';
     } else if (state.sectArea==='main'){
       // 主殿
-      html += '<div class="panel"><div class="panel-title">⛩️ 主殿 · '+_sObj.name+'</div>';
+      html += '<div class="panel"><div class="panel-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;"><span>⛩️ 主殿 · '+_sObj.name+'</span>'+_sectRankBtns()+'</div>';
       html += '<div style="padding:10px 6px;line-height:1.7;color:#5a3a1a;">';
       html += '<div style="font-size:14px;font-weight:700;margin-bottom:6px;color:#2a1f12;">'+_sObj.specialty+'</div>';
       html += '<div style="font-size:12px;margin-bottom:10px;">'+_sObj.desc+'</div>';
@@ -3683,6 +3709,7 @@ function _renderCore() {
         html += '<div style="text-align:center;font-size:12px;color:#3a6abf;margin-top:8px;">拜入本宗請至「🛏️ 接待所」辦理引薦。</div>';
       }
       html += '</div></div>';
+      html += sectRankModalHTML();
     } else if (state.sectArea==='vault'){
       // 藏寶閣
       html += '<div class="panel"><div class="panel-title">💎 藏寶閣 · '+_sObj.name+(_isMember?'（本宗｜貢獻 '+_contrib+'）':'（外門·僅可瀏覽）')+'</div>';
@@ -4034,6 +4061,17 @@ function selectMapLocation(name){
   mbStart();
 }
 function enterCityArea(id){ state.exchWork=null; if(id==='lord'||id==='shop'){ state.cityArea=id; render(); return; } var nm=({post:'驛站',apprz:'鑑寶閣',craft:'藝匠坊',tav:'酒樓'})[id]; showToast(nm+' · 尚未開放'); }
+var SECT_RANKS=[
+ {key:'zhang',name:'掌教',ic:'👑',role:'一宗之主，執掌全宗大權、統御眾長老與弟子，代表宗門對外行走。',req:'傳承之位。需威震一方、戰功與威望冠絕全宗，非尋常試煉可得（象徵性最高位）。'},
+ {key:'gong',name:'供奉',ic:'📿',role:'德高望重的傳功前輩，掌宗門傳承、授業解惑，地位超然於眾長老之上。',req:'對應宗門試煉「傳功長老」：元嬰境、完成委託 500 次、擊敗元嬰期敵手/BOSS 10 次、宗門貢獻 10000、上呈功法點數達 50。'},
+ {key:'nei',name:'內門長老',ic:'🏯',role:'統領內門精銳，威震一方，執掌宗門核心戰力。',req:'對應「內門長老」：金丹境、委託 200 次、擊敗金丹期 BOSS 80 次、越級擊殺 BOSS 1 次、貢獻 6000。'},
+ {key:'wai',name:'外門長老',ic:'⛩️',role:'執掌外門事務，督管門下弟子歷練與委託。',req:'對應「外門長老」：金丹境、委託 50 次、擊敗金丹期 BOSS 30 次、貢獻 3000。'},
+ {key:'tu',name:'門徒',ic:'🧎',role:'宗門最基層弟子，日常歷練、接取宗門委託、累積貢獻，循序晉升。',req:'拜入宗門即為門徒（外門弟子起）。完成委託、突破境界、累積貢獻可逐階晉升。'}
+];
+function openSectRank(k){ state.sectRankModal=k; render(); }
+function closeSectRank(){ state.sectRankModal=null; render(); }
+function _sectRankBtns(){ return '<span style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">'+SECT_RANKS.map(function(r){ return '<button class="rank-btn" onclick="openSectRank(\''+r.key+'\')">'+r.name+'</button>'; }).join('')+'</span>'; }
+function sectRankModalHTML(){ if(!state.sectRankModal) return ''; var r=SECT_RANKS.filter(function(x){return x.key===state.sectRankModal;})[0]; if(!r) return ''; var h='<div class="info-modal" onclick="closeSectRank()"><div class="im-box" onclick="event.stopPropagation()" style="width:320px;">'; h+='<div class="im-head">'+r.ic+' '+r.name+'<span class="im-x" onclick="closeSectRank()">✕</span></div>'; h+='<div style="font-size:12px;color:#3a2a18;line-height:1.85;margin-bottom:10px;">'+r.role+'</div>'; h+='<div style="background:rgba(58,106,191,0.08);border-radius:6px;padding:9px 11px;"><div style="font-size:11px;color:#3a6abf;font-weight:700;margin-bottom:3px;">晉任條件</div><div style="font-size:12px;color:#2a1f12;line-height:1.7;">'+r.req+'</div></div>'; h+='</div></div>'; return h; }
 function enterSectArea(id){ state.exchWork=null; state.sectArea=id; state.sectJoinPending=null; state.sectLeavePending=false; render(); }
 function _mMon(){
   if(state.encounterMon) return state.encounterMon;

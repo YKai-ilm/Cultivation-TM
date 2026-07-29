@@ -2357,7 +2357,7 @@ function tick() {
     if(_oreAdd>0) state.kuangshi=(state.kuangshi||0)+_oreAdd;
     state.mine.lastDay=_md; } }
   if(state.encPending){ state.encPending=false; rollEncounter(true); } else { rollEncounter(false); }
-  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&state.currentTab!=='tasks'&&!_editing&&!_taskSheet&&!_guideOpen) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
+  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&state.currentTab!=='tasks'&&!_editing&&!_taskSheet&&!_guideOpen&&!state.reincOpen&&!_attrAlloc&&state.identity) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
 }
 function triggerEvent() {
   let ev = EVENTS[Math.floor(Math.random()*EVENTS.length)];

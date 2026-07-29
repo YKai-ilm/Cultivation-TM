@@ -3208,7 +3208,7 @@ function eatFood(id){ const f=FOODS.find(x=>x.id===id); if(!f) return; if(state.
   if(id==='jiaohuaji'){ state.ep=state.epMax; }
   if(id==='longgan'){ state.shouyuan+=5; state.tipo+=1; }
   addLog('【食堂】享用 '+f.name,'good'); showToast('食 '+f.name); saveState(); render(); }
-function collectFazhen(){ const got=Math.floor(state.fazhen.stored||0); if(got<=0) return showToast('陣中尚無靈力'); state.lp=Math.min(state.lpMax,(state.lp||0)+got); state.fazhen.stored=0; addLog('【法陣】收取靈力 +'+fmt(got),'good'); showToast('收取靈力 +'+fmt(got)); saveState(); render(); }
+function collectFazhen(){ const stored=Math.floor(state.fazhen.stored||0); if(stored<=0) return showToast('陣中尚無靈力'); const room=Math.max(0,(state.lpMax||0)-(state.lp||0)); if(room<=0) return showToast('法力已滿，先消耗再收取'); const got=Math.min(stored,room); state.lp=(state.lp||0)+got; state.fazhen.stored=stored-got; const rem=Math.floor(state.fazhen.stored); addLog('【法陣】收取靈力 +'+fmt(got)+(rem>0?'（陣中尚餘 '+fmt(rem)+'）':''),'good'); showToast('收取靈力 +'+fmt(got)+(rem>0?'，陣中尚餘 '+fmt(rem):'')); saveState(); render(); }
 function fazhenUpCost(){ return Math.round(mineUpCost()*2*Math.pow(2,(state.fazhen.level||0))); }
 function fazhenLpBonus(){ return 200*(state.fazhen.level||0); }
 function fazhenSpellDmgPct(){ return 1*(state.fazhen.level||0); }

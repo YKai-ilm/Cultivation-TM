@@ -2342,7 +2342,7 @@ function tick() {
   { var _d=getDays(); if(state.lastRegenDay===undefined) state.lastRegenDay=_d; if(_d>state.lastRegenDay){ var _dd=_d-state.lastRegenDay; var _drf=1+(vaultBonus().dailyRegenPct||0)/100; state.hp=Math.min(state.hpMax,(state.hp||0)+state.hpMax*0.05*_dd*_drf); state.mp=Math.min(state.mpMax,(state.mp||0)+state.mpMax*0.05*_dd*_drf); state.ep=Math.min(state.epMax,(state.ep||0)+state.epMax*0.05*_dd*_drf); state.lastRegenDay=_d; } }
   if(!state.dead && state.realm<7 && lifeLeft()<=0){ triggerDeath(); return; }
   { var _pd=getDays(); if(state.prodLastDay===undefined) state.prodLastDay=_pd; if(_pd>state.prodLastDay){ var _pdd=_pd-state.prodLastDay;
-    if(state.shitang){ var _g=daotongAreaCount('shitang')*2*_pdd; if(_g>0) state.shitang.food=Math.min(shitangFoodMax(),(state.shitang.food||0)+_g); }
+    if(state.shitang){ var _g=daotongAreaCount('shitang')*1*_pdd; if(_g>0) state.shitang.food=Math.min(shitangFoodMax(),(state.shitang.food||0)+_g); }
     for(var _fa in FAC){ var _fc=FAC[_fa]; var _fg=daotongAreaCount(_fa)*_fc.rate*_pdd; if(_fg>0) state[_fc.res]=Math.min(facMax(_fa),(state[_fc.res]||0)+_fg); }
     state.prodLastDay=_pd; } }
   if (Math.random()<0.04) state.shengwang+=Math.max(1,Math.floor(realm.qiPerSec*0.05));
@@ -2351,7 +2351,7 @@ function tick() {
   { if(state.lastEventDay===undefined) state.lastEventDay=getDays(); var _ed=getDays(); var _pp=Math.floor((_ed-state.lastEventDay)/7); if(_pp>0){ state.lastEventDay+=_pp*7; var _pn=Math.min(_pp,5); for(var _pi=0;_pi<_pn;_pi++){ if(Math.random()<0.05) triggerEvent(); } } }
   state.fazhen.stored=(state.fazhen.stored||0)+state.fazhen.gather*0.5;
   if (state.mine){ var _md=getDays(); if(state.mine.lastDay===undefined) state.mine.lastDay=_md; if(_md>state.mine.lastDay){ var _mdd=_md-state.mine.lastDay; var _sc=_mdd;
-    var _rawAdd=mineWorkers()*2*_mdd + (mineVeinRate('tiekuang')+mineVeinRate('yinkuang'))*_sc;
+    var _rawAdd=mineWorkers()*1*_mdd + (mineVeinRate('tiekuang')+mineVeinRate('yinkuang'))*_sc;
     if(_rawAdd>0) state.mine.storage=Math.min(mineCap(),(state.mine.storage||0)+_rawAdd);
     var _oreAdd=(mineVeinRate('xuantie')+mineVeinRate('longjing'))*_sc;
     if(_oreAdd>0) state.kuangshi=(state.kuangshi||0)+_oreAdd;
@@ -2480,7 +2480,7 @@ function daotongRowHTML(area,full){
   return h;
 }
 // ===== 洞府設施（資源上限 + 升級）泛用系統；食堂沿用自有程式 =====
-const FAC = { jiusi:{res:'meijiu', name:'美酒', ic:'🍷', base:2000, rate:2} };
+const FAC = { jiusi:{res:'meijiu', name:'美酒', ic:'🍷', base:2000, rate:1} };
 function facLevel(area){ return (state.facLevel&&state.facLevel[area])||0; }
 function facilityBonus(){
   var sL=(state.shitang&&state.shitang.level)||0, jL=facLevel('jiusi'), mL=(state.mine&&state.mine.level)||0;
@@ -3523,7 +3523,7 @@ function _renderCore() {
     html += '</div></div>';
   }
   if (state.currentTab==='jiusi') {
-    html += '<div class="back-bar" onclick="switchTab(\'cave\')">⟵ 回洞府　🍶 酒肆</div>'; html += facPanelHTML('jiusi','釀酒坊','每 1 道童產美酒 +2／天');
+    html += '<div class="back-bar" onclick="switchTab(\'cave\')">⟵ 回洞府　🍶 酒肆</div>'; html += facPanelHTML('jiusi','釀酒坊','每 1 道童產美酒 +1／天');
     html += '<div class="panel"><div class="panel-title">🍶 釀造 · 名酒</div><div class="cave-intro">以美酒為引、佐以靈材，釀成名酒入庫，隨時可飲取其效。</div><div class="item-grid">';
     BREW_WINES.forEach(function(w){
       var stock=(state.wineStock&&state.wineStock[w.id])||0; var lackR=state.realm<w.minRealm; var afford=!lackR; var cp=[];
@@ -3570,7 +3570,7 @@ function _renderCore() {
         html += '</div>';
     // 道童列
     html += daotongRowHTML('shitang',true);
-    html += '<div style="text-align:center;padding:6px 8px 4px;font-size:11px;color:#7a6038;">每 1 道童產糧食 +2／天</div>';
+    html += '<div style="text-align:center;padding:6px 8px 4px;font-size:11px;color:#7a6038;">每 1 道童產糧食 +1／天</div>';
     // 換道童
     html += '<div style="border-top:1px dashed rgba(160,120,70,0.3);padding:10px 8px;text-align:center;">';
     if (state.shitang.exchangeMode){
@@ -3641,7 +3641,7 @@ function _renderCore() {
     html += '<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="font-size:11px;color:#7a6038;line-height:18px;">可用傀儡</div><div style="font-size:11px;font-weight:700;color:#3a8b3a;height:20px;line-height:20px;">'+fmt(_mAv)+'</div></div>';
     html += '<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="font-size:11px;color:#7a6038;line-height:18px;">傀儡總數</div><div style="font-size:11px;font-weight:700;color:#5a3a1a;height:20px;line-height:20px;">'+fmt(_mPT)+'</div></div>';
     html += '</div>';
-    html += '<div style="text-align:center;padding:6px 8px 4px;font-size:11px;color:#7a6038;">每 1 傀儡產原礦 +2／天</div>';
+    html += '<div style="text-align:center;padding:6px 8px 4px;font-size:11px;color:#7a6038;">每 1 傀儡產原礦 +1／天</div>';
     html += '<div style="border-top:1px dashed rgba(160,120,70,0.3);padding:10px 8px;text-align:center;">';
     if(m.exchangeMode){
       var _xMul=m.exchangeMode, _xQty=m.exchangeQty||1, _xCost=100*_xMul*_xQty, _xOut=1*_xMul*_xQty;

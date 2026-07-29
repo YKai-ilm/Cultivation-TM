@@ -826,6 +826,17 @@ function toggleAttrInfo(k){ state._attrInfo=(state._attrInfo===k)?null:k; render
 function closeAttrInfo(){ state._attrInfo=null; render(); }
 function toggleSuzhiPop(w){ _suzhiPop=(_suzhiPop===w)?null:w; render(); }
 function closeSuzhiPop(){ _suzhiPop=null; render(); }
+var _attrAlloc=null;
+var ATTR_KEYS=[['gengu','根骨','🦴'],['tipo','體魄','💪'],['wuxing','悟性','🧠'],['yanli','眼力','👁'],['shenxing','身形','🏃'],['xinxing','心性','🌸'],['fuyuan','福緣','🍀'],['jiyuan','機緣','✨']];
+function openAttrAlloc(){ if((state.attrPool||0)<=0){ showToast('目前無可分配的配點'); return; } _attrAlloc={}; ATTR_KEYS.forEach(function(a){_attrAlloc[a[0]]=0;}); render(); }
+function closeAttrAlloc(){ _attrAlloc=null; render(); }
+function _allocLeft(){ var s=0; for(var k in _attrAlloc) s+=_attrAlloc[k]; return (state.attrPool||0)-s; }
+function allocAttr(key,d){ if(!_attrAlloc) return; if(d>0 && _allocLeft()<=0){ showToast('點數已分配完'); return; } var nv=(_attrAlloc[key]||0)+d; if(nv<0)nv=0; _attrAlloc[key]=nv; render(); }
+function allocAttrAll(key){ if(!_attrAlloc) return; _attrAlloc[key]=(_attrAlloc[key]||0)+_allocLeft(); render(); }
+function allocReset(){ if(!_attrAlloc) return; for(var k in _attrAlloc) _attrAlloc[k]=0; render(); }
+function confirmAttrAlloc(){ if(!_attrAlloc) return; var used=0; for(var k in _attrAlloc){ var v=_attrAlloc[k]||0; if(v>0){ state[k]=(state[k]||0)+v; used+=v; } } state.attrPool=Math.max(0,(state.attrPool||0)-used); _attrAlloc=null; refreshMaxStats(); addLog('【素質配點】分配 '+used+' 點','good'); showToast('已分配 '+used+' 點素質'); saveState(); render(); }
+function attrAllocModalHTML(){ if(!_attrAlloc) return ''; var left=_allocLeft(); var h='<div class="info-modal" onclick="closeAttrAlloc()"><div class="im-box" onclick="event.stopPropagation()" style="width:340px;"><div class="im-head">🔧 素質配點<span class="im-x" onclick="closeAttrAlloc()">✕</span></div>'; h+='<div style="font-size:12px;color:#7a5a28;margin:0 2px 8px;">剩餘可分配：<b style="color:#8a4a1f;font-size:16px;">'+left+'</b> 點　<span style="color:#9a7a48;">（升階自動一半、另一半由你分配）</span></div>'; ATTR_KEYS.forEach(function(a){ var cur=state[a[0]]||0, add=_attrAlloc[a[0]]||0; h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 2px;border-bottom:1px solid rgba(160,120,70,0.12);"><span style="width:70px;font-size:13px;font-weight:700;color:#3a2a18;">'+a[2]+' '+a[1]+'</span><span style="flex:1;font-size:12px;color:#7a6038;">'+cur+(add>0?' <b style="color:#3a8a4a;">+'+add+'</b>':'')+'</span><button class="qbtn" onclick="allocAttr(\''+a[0]+'\',-1)">−</button><span style="width:30px;text-align:center;font-size:13px;">'+add+'</span><button class="qbtn" onclick="allocAttr(\''+a[0]+'\',1)">＋</button><button class="rank-btn" style="margin-left:2px;" onclick="allocAttrAll(\''+a[0]+'\')">全</button></div>'; }); h+='<div style="display:flex;gap:8px;margin-top:12px;"><button class="item-btn" style="flex:2;background:#3a8a4a;color:#fff;padding:9px;" onclick="confirmAttrAlloc()">✅ 確認配點</button><button class="item-btn" style="flex:1;background:#c8a050;color:#fff;padding:9px;" onclick="allocReset()">歸零</button><button class="item-btn" style="flex:1;background:#999;color:#fff;padding:9px;" onclick="closeAttrAlloc()">取消</button></div></div></div>'; return h; }
+
 const SUZHI_BONUS = {
   gengu:    [v => ({lbl:'攻擊', val:'+' + Math.floor(v*2).toLocaleString()}), v => ({lbl:'減傷', val:'+' + Math.min(50, v/30).toFixed(1).replace(/\.0$/,'') + '%'})],
   tipo:     [v => ({lbl:'HP 上限', val:'+' + Math.floor(v*125).toLocaleString()}), v => ({lbl:'防禦', val:'+' + Math.floor(v*1.5).toLocaleString()})],
@@ -977,72 +988,72 @@ const MONSTERS = [
   {realm:6,name:'海皇將',hp:997437,xiuwei:273750000000,atk:131723,def:29410,reward:{lingshi:5110000,shengwang:7300,kuangshi:1095},loc:'海龍祖宮'},
   {realm:6,name:'海帝',hp:1196241,xiuwei:393750000000,atk:157978,def:35272,reward:{lingshi:7350000,shengwang:10500,kuangshi:1575},loc:'海龍祖宮'},
   {realm:6,name:'深海龍魂',hp:990582,xiuwei:270000000000,atk:130818,def:29208,reward:{lingshi:5040000,shengwang:7200,kuangshi:1080},loc:'海龍祖宮'},
-  {realm:7,name:'上古凶獸',hp:200000000,xiuwei:375000000000,atk:5500000,def:2200000,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'上古禁地'},
-  {realm:7,name:'上古魔王',hp:248000000,xiuwei:465000000000,atk:6820000,def:2728000,reward:{lingshi:74400000,shengwang:62000,kuangshi:12400},loc:'上古禁地'},
-  {realm:7,name:'禁地守衛',hp:208000000,xiuwei:390000000000,atk:5720000,def:2288000,reward:{lingshi:62400000,shengwang:52000,kuangshi:10400},loc:'上古禁地'},
-  {realm:7,name:'古帝魂',hp:206000000,xiuwei:386250000000,atk:5665000,def:2266000,reward:{lingshi:61800000,shengwang:51500,kuangshi:10300},loc:'上古禁地'},
-  {realm:7,name:'古血神',hp:225999999,xiuwei:423749998125,atk:6214999,def:2485999,reward:{lingshi:67800000,shengwang:56499,kuangshi:11299},loc:'上古禁地'},
-  {realm:7,name:'域外天魔',hp:200000000,xiuwei:375000000000,atk:5500000,def:2200000,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'混沌之域'},
-  {realm:7,name:'混沌魔',hp:162000000,xiuwei:303750000000,atk:4455000,def:1782000,reward:{lingshi:48600000,shengwang:40500,kuangshi:8100},loc:'混沌之域'},
-  {realm:7,name:'混沌神將',hp:152000000,xiuwei:285000000000,atk:4180000,def:1672000,reward:{lingshi:45600000,shengwang:38000,kuangshi:7600},loc:'混沌之域'},
-  {realm:7,name:'混沌靈使',hp:188000000,xiuwei:352500000000,atk:5170000,def:2067999,reward:{lingshi:56400000,shengwang:47000,kuangshi:9400},loc:'混沌之域'},
-  {realm:7,name:'混沌古魔',hp:162000000,xiuwei:303750000000,atk:4455000,def:1782000,reward:{lingshi:48600000,shengwang:40500,kuangshi:8100},loc:'混沌之域'},
-  {realm:7,name:'天兵神將',hp:200000000,xiuwei:375000000000,atk:5500000,def:2200000,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'九天仙庭'},
-  {realm:7,name:'九天仙將',hp:154000000,xiuwei:288750000000,atk:4235000,def:1694000,reward:{lingshi:46200000,shengwang:38500,kuangshi:7700},loc:'九天仙庭'},
-  {realm:7,name:'仙庭執法',hp:300000000,xiuwei:562500000000,atk:8250000,def:3300000,reward:{lingshi:90000000,shengwang:75000,kuangshi:15000},loc:'九天仙庭'},
-  {realm:7,name:'九天魔仙',hp:146000000,xiuwei:273750000000,atk:4015000,def:1606000,reward:{lingshi:43800000,shengwang:36500,kuangshi:7300},loc:'九天仙庭'},
-  {realm:7,name:'九天兇魂',hp:168000000,xiuwei:315000000000,atk:4620000,def:1848000,reward:{lingshi:50400000,shengwang:42000,kuangshi:8400},loc:'九天仙庭'},
-  {realm:7,name:'冰皇',hp:200000000,xiuwei:375000000000,atk:5500000,def:2200000,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'極北冰原'},
-  {realm:7,name:'極北魔',hp:292000000,xiuwei:547500000000,atk:8030000,def:3212000,reward:{lingshi:87600000,shengwang:73000,kuangshi:14600},loc:'極北冰原'},
-  {realm:7,name:'冰原巨獸',hp:144000000,xiuwei:270000000000,atk:3960000,def:1584000,reward:{lingshi:43200000,shengwang:36000,kuangshi:7200},loc:'極北冰原'},
-  {realm:7,name:'冰原帝魂',hp:280000000,xiuwei:524999999999,atk:7699999,def:3080000,reward:{lingshi:84000000,shengwang:70000,kuangshi:14000},loc:'極北冰原'},
-  {realm:7,name:'極寒兇靈',hp:229999999,xiuwei:431249998125,atk:6324999,def:2530000,reward:{lingshi:69000000,shengwang:57499,kuangshi:11500},loc:'極北冰原'},
-  {realm:7,name:'北域兇王',hp:170000000,xiuwei:318750000000,atk:4675000,def:1870000,reward:{lingshi:51000000,shengwang:42500,kuangshi:8500},loc:'極北冰原'},
-  {realm:8,name:'太虛妖聖',hp:8961891,xiuwei:25704000000000,atk:9577965,def:430074,reward:{lingshi:345600000,shengwang:288000,kuangshi:57600},loc:'太虛幻境'},
-  {realm:8,name:'幻境魔君',hp:9623376,xiuwei:27820500000000,atk:10003997,def:447430,reward:{lingshi:374057143,shengwang:311714,kuangshi:62343},loc:'太虛幻境'},
-  {realm:8,name:'虛空聖獸',hp:10279842,xiuwei:29937000000000,atk:10415674,def:464138,reward:{lingshi:402514286,shengwang:335429,kuangshi:67086},loc:'太虛幻境'},
-  {realm:8,name:'太虛神將',hp:10931680,xiuwei:32053500000000,atk:10814448,def:480265,reward:{lingshi:430971429,shengwang:359143,kuangshi:71829},loc:'太虛幻境'},
-  {realm:8,name:'幻滅魔尊',hp:11579225,xiuwei:34170000000000,atk:11201536,def:495867,reward:{lingshi:459428571,shengwang:382857,kuangshi:76571},loc:'太虛幻境'},
-  {realm:8,name:'虛靈鬼帝',hp:12222768,xiuwei:36286500000000,atk:11577976,def:510994,reward:{lingshi:487885714,shengwang:406571,kuangshi:81314},loc:'太虛幻境'},
-  {realm:8,name:'太虛兇魂',hp:12862567,xiuwei:38403000000000,atk:11944657,def:525685,reward:{lingshi:516342857,shengwang:430286,kuangshi:86057},loc:'太虛幻境'},
-  {realm:8,name:'幻夢魔靈',hp:13498847,xiuwei:40519500000000,atk:12302350,def:539977,reward:{lingshi:544800000,shengwang:454000,kuangshi:90800},loc:'太虛幻境'},
-  {realm:8,name:'虛天神魔',hp:14131811,xiuwei:42636000000000,atk:12651729,def:553900,reward:{lingshi:573257143,shengwang:477714,kuangshi:95543},loc:'太虛幻境'},
-  {realm:8,name:'太虛古聖',hp:14761639,xiuwei:44752500000000,atk:12993386,def:567481,reward:{lingshi:601714286,shengwang:501429,kuangshi:100286},loc:'太虛幻境'},
-  {realm:8,name:'幻海妖王',hp:15388494,xiuwei:46869000000000,atk:13327846,def:580745,reward:{lingshi:630171429,shengwang:525143,kuangshi:105029},loc:'太虛幻境'},
-  {realm:8,name:'虛無魔皇',hp:16012524,xiuwei:48985500000000,atk:13655575,def:593713,reward:{lingshi:658628571,shengwang:548857,kuangshi:109771},loc:'太虛幻境'},
-  {realm:8,name:'太虛戰魂',hp:16633863,xiuwei:51102000000000,atk:13976991,def:606404,reward:{lingshi:687085714,shengwang:572571,kuangshi:114514},loc:'太虛幻境'},
-  {realm:8,name:'幻天兇獸',hp:17252632,xiuwei:53218500000000,atk:14292470,def:618834,reward:{lingshi:715542857,shengwang:596286,kuangshi:119257},loc:'太虛幻境'},
-  {realm:8,name:'虛聖魔將',hp:17868946,xiuwei:55335000000000,atk:14602351,def:631020,reward:{lingshi:744000000,shengwang:620000,kuangshi:124000},loc:'太虛幻境'},
-  {realm:9,name:'鴻蒙聖靈',hp:11913807,xiuwei:257040000000000,atk:141840009,def:1947143,reward:{lingshi:2764800000,shengwang:2304000,kuangshi:460800},loc:'鴻蒙聖境'},
-  {realm:9,name:'混元魔聖',hp:12793175,xiuwei:278205000000000,atk:148149118,def:2025722,reward:{lingshi:2992457143,shengwang:2493714,kuangshi:498743},loc:'鴻蒙聖境'},
-  {realm:9,name:'聖域神將',hp:13665872,xiuwei:299370000000000,atk:154245645,def:2101365,reward:{lingshi:3220114286,shengwang:2683429,kuangshi:536686},loc:'鴻蒙聖境'},
-  {realm:9,name:'鴻蒙魔尊',hp:14532416,xiuwei:320535000000000,atk:160151076,def:2174378,reward:{lingshi:3447771429,shengwang:2873143,kuangshi:574629},loc:'鴻蒙聖境'},
-  {realm:9,name:'混元兇獸',hp:15393252,xiuwei:341700000000000,atk:165883465,def:2245018,reward:{lingshi:3675428571,shengwang:3062857,kuangshi:612571},loc:'鴻蒙聖境'},
-  {realm:9,name:'聖天魔帝',hp:16248770,xiuwei:362865000000000,atk:171458158,def:2313502,reward:{lingshi:3903085714,shengwang:3252571,kuangshi:650514},loc:'鴻蒙聖境'},
-  {realm:9,name:'鴻蒙古聖',hp:17099308,xiuwei:384030000000000,atk:176888335,def:2380017,reward:{lingshi:4130742857,shengwang:3442286,kuangshi:688457},loc:'鴻蒙聖境'},
-  {realm:9,name:'混元神魔',hp:17945170,xiuwei:405195000000000,atk:182185413,def:2444722,reward:{lingshi:4358400000,shengwang:3632000,kuangshi:726400},loc:'鴻蒙聖境'},
-  {realm:9,name:'聖魂魔王',hp:18786623,xiuwei:426360000000000,atk:187359366,def:2507758,reward:{lingshi:4586057143,shengwang:3821714,kuangshi:764343},loc:'鴻蒙聖境'},
-  {realm:9,name:'鴻蒙兇魂',hp:19623907,xiuwei:447525000000000,atk:192418965,def:2569248,reward:{lingshi:4813714286,shengwang:4011429,kuangshi:802286},loc:'鴻蒙聖境'},
-  {realm:9,name:'混元聖獸',hp:20457239,xiuwei:468690000000000,atk:197371975,def:2629301,reward:{lingshi:5041371429,shengwang:4201143,kuangshi:840229},loc:'鴻蒙聖境'},
-  {realm:9,name:'聖域魔皇',hp:21286816,xiuwei:489855000000000,atk:202225310,def:2688012,reward:{lingshi:5269028571,shengwang:4390857,kuangshi:878171},loc:'鴻蒙聖境'},
-  {realm:9,name:'鴻蒙戰聖',hp:22112814,xiuwei:511020000000000,atk:206985157,def:2745468,reward:{lingshi:5496685714,shengwang:4580571,kuangshi:916114},loc:'鴻蒙聖境'},
-  {realm:9,name:'混元魔將',hp:22935398,xiuwei:532185000000000,atk:211657083,def:2801746,reward:{lingshi:5724342857,shengwang:4770286,kuangshi:954057},loc:'鴻蒙聖境'},
-  {realm:9,name:'聖天兇魔',hp:23754715,xiuwei:553350000000000,atk:216246114,def:2856915,reward:{lingshi:5952000000,shengwang:4960000,kuangshi:992000},loc:'鴻蒙聖境'},
-  {realm:10,name:'大道魔祖',hp:83400226,xiuwei:2570400000000000,atk:567618730,def:9518942,reward:{lingshi:22118400000,shengwang:18432000,kuangshi:3686400},loc:'大道之巔'},
-  {realm:10,name:'道則凶獸',hp:89556069,xiuwei:2782050000000000,atk:592866672,def:9903092,reward:{lingshi:23939657143,shengwang:19949714,kuangshi:3989943},loc:'大道之巔'},
-  {realm:10,name:'鴻鈞遺魂',hp:95665211,xiuwei:2993700000000000,atk:617263899,def:10272886,reward:{lingshi:25760914286,shengwang:21467429,kuangshi:4293486},loc:'大道之巔'},
-  {realm:10,name:'大道神魔',hp:101731278,xiuwei:3205350000000000,atk:640896393,def:10629824,reward:{lingshi:27582171429,shengwang:22985143,kuangshi:4597029},loc:'大道之巔'},
-  {realm:10,name:'混沌道尊',hp:107757391,xiuwei:3417000000000000,atk:663836402,def:10975159,reward:{lingshi:29403428571,shengwang:24502857,kuangshi:4900571},loc:'大道之巔'},
-  {realm:10,name:'道源魔皇',hp:113746269,xiuwei:3628650000000000,atk:686145342,def:11309955,reward:{lingshi:31224685714,shengwang:26020571,kuangshi:5204114},loc:'大道之巔'},
-  {realm:10,name:'大道古祖',hp:119700296,xiuwei:3840300000000000,atk:707875953,def:11635121,reward:{lingshi:33045942857,shengwang:27538286,kuangshi:5507657},loc:'大道之巔'},
-  {realm:10,name:'道則神將',hp:125621581,xiuwei:4051950000000000,atk:729073928,def:11951444,reward:{lingshi:34867200000,shengwang:29056000,kuangshi:5811200},loc:'大道之巔'},
-  {realm:10,name:'鴻蒙道魔',hp:131512004,xiuwei:4263600000000001,atk:749779177,def:12259607,reward:{lingshi:36688457143,shengwang:30573714,kuangshi:6114743},loc:'大道之巔'},
-  {realm:10,name:'大道兇魂',hp:137373245,xiuwei:4475250000000000,atk:770026801,def:12560212,reward:{lingshi:38509714286,shengwang:32091429,kuangshi:6418286},loc:'大道之巔'},
-  {realm:10,name:'道天魔帝',hp:143206821,xiuwei:4686900000000000,atk:789847874,def:12853789,reward:{lingshi:40330971429,shengwang:33609143,kuangshi:6721829},loc:'大道之巔'},
-  {realm:10,name:'混元道祖',hp:149014104,xiuwei:4898550000000000,atk:809270064,def:13140809,reward:{lingshi:42152228571,shengwang:35126857,kuangshi:7025371},loc:'大道之巔'},
-  {realm:10,name:'大道戰魂',hp:154796342,xiuwei:5110200000000000,atk:828318134,def:13421692,reward:{lingshi:43973485714,shengwang:36644571,kuangshi:7328914},loc:'大道之巔'},
-  {realm:10,name:'道則魔王',hp:160554674,xiuwei:5321850000000000,atk:847014357,def:13696817,reward:{lingshi:45794742857,shengwang:38162286,kuangshi:7632457},loc:'大道之巔'},
-  {realm:10,name:'鴻鈞兇獸',hp:166290144,xiuwei:5533500000000000,atk:865378853,def:13966522,reward:{lingshi:47616000000,shengwang:39680000,kuangshi:7936000},loc:'大道之巔'},
+  {realm:7,name:'上古凶獸',hp:1103593,xiuwei:375000000000,atk:5467133,def:74190,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'上古禁地'},
+  {realm:7,name:'上古魔王',hp:1228909,xiuwei:465000000000,atk:6087941,def:82615,reward:{lingshi:74400000,shengwang:62000,kuangshi:12400},loc:'上古禁地'},
+  {realm:7,name:'禁地守衛',hp:1125449,xiuwei:390000000000,atk:5575403,def:75660,reward:{lingshi:62400000,shengwang:52000,kuangshi:10400},loc:'上古禁地'},
+  {realm:7,name:'古帝魂',hp:1120025,xiuwei:386250000000,atk:5548533,def:75295,reward:{lingshi:61800000,shengwang:51500,kuangshi:10300},loc:'上古禁地'},
+  {realm:7,name:'古血神',hp:1173136,xiuwei:423749998125,atk:5811641,def:78865,reward:{lingshi:67800000,shengwang:56499,kuangshi:11299},loc:'上古禁地'},
+  {realm:7,name:'域外天魔',hp:1103593,xiuwei:375000000000,atk:5467133,def:74190,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'混沌之域'},
+  {realm:7,name:'混沌魔',hp:993234,xiuwei:303750000000,atk:4920419,def:66771,reward:{lingshi:48600000,shengwang:40500,kuangshi:8100},loc:'混沌之域'},
+  {realm:7,name:'混沌神將',hp:962090,xiuwei:285000000000,atk:4766136,def:64678,reward:{lingshi:45600000,shengwang:38000,kuangshi:7600},loc:'混沌之域'},
+  {realm:7,name:'混沌靈使',hp:1069973,xiuwei:352500000000,atk:5300582,def:71930,reward:{lingshi:56400000,shengwang:47000,kuangshi:9400},loc:'混沌之域'},
+  {realm:7,name:'混沌古魔',hp:993234,xiuwei:303750000000,atk:4920419,def:66771,reward:{lingshi:48600000,shengwang:40500,kuangshi:8100},loc:'混沌之域'},
+  {realm:7,name:'天兵神將',hp:1103593,xiuwei:375000000000,atk:5467133,def:74190,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'九天仙庭'},
+  {realm:7,name:'九天仙將',hp:968399,xiuwei:288750000000,atk:4797389,def:65102,reward:{lingshi:46200000,shengwang:38500,kuangshi:7700},loc:'九天仙庭'},
+  {realm:7,name:'仙庭執法',hp:1351620,xiuwei:562500000000,atk:6695842,def:90864,reward:{lingshi:90000000,shengwang:75000,kuangshi:15000},loc:'九天仙庭'},
+  {realm:7,name:'九天魔仙',hp:942910,xiuwei:273750000000,atk:4671120,def:63388,reward:{lingshi:43800000,shengwang:36500,kuangshi:7300},loc:'九天仙庭'},
+  {realm:7,name:'九天兇魂',hp:1011460,xiuwei:315000000000,atk:5010710,def:67997,reward:{lingshi:50400000,shengwang:42000,kuangshi:8400},loc:'九天仙庭'},
+  {realm:7,name:'冰皇',hp:1103593,xiuwei:375000000000,atk:5467133,def:74190,reward:{lingshi:60000000,shengwang:50000,kuangshi:10000},loc:'極北冰原'},
+  {realm:7,name:'極北魔',hp:1333477,xiuwei:547500000000,atk:6605961,def:89645,reward:{lingshi:87600000,shengwang:73000,kuangshi:14600},loc:'極北冰原'},
+  {realm:7,name:'冰原巨獸',hp:936430,xiuwei:270000000000,atk:4639016,def:62953,reward:{lingshi:43200000,shengwang:36000,kuangshi:7200},loc:'極北冰原'},
+  {realm:7,name:'冰原帝魂',hp:1305789,xiuwei:524999999999,atk:6468798,def:87783,reward:{lingshi:84000000,shengwang:70000,kuangshi:14000},loc:'極北冰原'},
+  {realm:7,name:'極寒兇靈',hp:1183472,xiuwei:431249998125,atk:5862846,def:79560,reward:{lingshi:69000000,shengwang:57499,kuangshi:11500},loc:'極北冰原'},
+  {realm:7,name:'北域兇王',hp:1017463,xiuwei:318750000000,atk:5040447,def:68400,reward:{lingshi:51000000,shengwang:42500,kuangshi:8500},loc:'極北冰原'},
+  {realm:8,name:'太虛妖聖',hp:2362456,xiuwei:25704000000000,atk:25759426,def:182198,reward:{lingshi:345600000,shengwang:288000,kuangshi:57600},loc:'太虛幻境'},
+  {realm:8,name:'幻境魔君',hp:2448092,xiuwei:27820500000000,atk:26326088,def:185838,reward:{lingshi:374057143,shengwang:311714,kuangshi:62343},loc:'太虛幻境'},
+  {realm:8,name:'虛空聖獸',hp:2530214,xiuwei:29937000000000,atk:26862303,def:189276,reward:{lingshi:402514286,shengwang:335429,kuangshi:67086},loc:'太虛幻境'},
+  {realm:8,name:'太虛神將',hp:2609200,xiuwei:32053500000000,atk:27371698,def:192537,reward:{lingshi:430971429,shengwang:359143,kuangshi:71829},loc:'太虛幻境'},
+  {realm:8,name:'幻滅魔尊',hp:2685367,xiuwei:34170000000000,atk:27857257,def:195639,reward:{lingshi:459428571,shengwang:382857,kuangshi:76571},loc:'太虛幻境'},
+  {realm:8,name:'虛靈鬼帝',hp:2758981,xiuwei:36286500000000,atk:28321476,def:198601,reward:{lingshi:487885714,shengwang:406571,kuangshi:81314},loc:'太虛幻境'},
+  {realm:8,name:'太虛兇魂',hp:2830270,xiuwei:38403000000000,atk:28766458,def:201435,reward:{lingshi:516342857,shengwang:430286,kuangshi:86057},loc:'太虛幻境'},
+  {realm:8,name:'幻夢魔靈',hp:2899428,xiuwei:40519500000000,atk:29193999,def:204155,reward:{lingshi:544800000,shengwang:454000,kuangshi:90800},loc:'太虛幻境'},
+  {realm:8,name:'虛天神魔',hp:2966627,xiuwei:42636000000000,atk:29605643,def:206770,reward:{lingshi:573257143,shengwang:477714,kuangshi:95543},loc:'太虛幻境'},
+  {realm:8,name:'太虛古聖',hp:3032014,xiuwei:44752500000000,atk:30002727,def:209290,reward:{lingshi:601714286,shengwang:501429,kuangshi:100286},loc:'太虛幻境'},
+  {realm:8,name:'幻海妖王',hp:3095723,xiuwei:46869000000000,atk:30386420,def:211722,reward:{lingshi:630171429,shengwang:525143,kuangshi:105029},loc:'太虛幻境'},
+  {realm:8,name:'虛無魔皇',hp:3157867,xiuwei:48985500000000,atk:30757749,def:214073,reward:{lingshi:658628571,shengwang:548857,kuangshi:109771},loc:'太虛幻境'},
+  {realm:8,name:'太虛戰魂',hp:3218552,xiuwei:51102000000000,atk:31117622,def:216348,reward:{lingshi:687085714,shengwang:572571,kuangshi:114514},loc:'太虛幻境'},
+  {realm:8,name:'幻天兇獸',hp:3277869,xiuwei:53218500000000,atk:31466845,def:218555,reward:{lingshi:715542857,shengwang:596286,kuangshi:119257},loc:'太虛幻境'},
+  {realm:8,name:'虛聖魔將',hp:3335903,xiuwei:55335000000000,atk:31806139,def:220696,reward:{lingshi:744000000,shengwang:620000,kuangshi:124000},loc:'太虛幻境'},
+  {realm:9,name:'鴻蒙聖靈',hp:6028766,xiuwei:257040000000000,atk:143222135,def:503968,reward:{lingshi:2764800000,shengwang:2304000,kuangshi:460800},loc:'鴻蒙聖境'},
+  {realm:9,name:'混元魔聖',hp:6247300,xiuwei:278205000000000,atk:146372774,def:514036,reward:{lingshi:2992457143,shengwang:2493714,kuangshi:498743},loc:'鴻蒙聖境'},
+  {realm:9,name:'聖域神將',hp:6456867,xiuwei:299370000000000,atk:149354126,def:523546,reward:{lingshi:3220114286,shengwang:2683429,kuangshi:536686},loc:'鴻蒙聖境'},
+  {realm:9,name:'鴻蒙魔尊',hp:6658434,xiuwei:320535000000000,atk:152186350,def:532564,reward:{lingshi:3447771429,shengwang:2873143,kuangshi:574629},loc:'鴻蒙聖境'},
+  {realm:9,name:'混元兇獸',hp:6852805,xiuwei:341700000000000,atk:154886055,def:541145,reward:{lingshi:3675428571,shengwang:3062857,kuangshi:612571},loc:'鴻蒙聖境'},
+  {realm:9,name:'聖天魔帝',hp:7040661,xiuwei:362865000000000,atk:157467106,def:549337,reward:{lingshi:3903085714,shengwang:3252571,kuangshi:650514},loc:'鴻蒙聖境'},
+  {realm:9,name:'鴻蒙古聖',hp:7222581,xiuwei:384030000000000,atk:159941206,def:557178,reward:{lingshi:4130742857,shengwang:3442286,kuangshi:688457},loc:'鴻蒙聖境'},
+  {realm:9,name:'混元神魔',hp:7399067,xiuwei:405195000000000,atk:162318332,def:564701,reward:{lingshi:4358400000,shengwang:3632000,kuangshi:726400},loc:'鴻蒙聖境'},
+  {realm:9,name:'聖魂魔王',hp:7570552,xiuwei:426360000000000,atk:164607066,def:571935,reward:{lingshi:4586057143,shengwang:3821714,kuangshi:764343},loc:'鴻蒙聖境'},
+  {realm:9,name:'鴻蒙兇魂',hp:7737415,xiuwei:447525000000000,atk:166814849,def:578905,reward:{lingshi:4813714286,shengwang:4011429,kuangshi:802286},loc:'鴻蒙聖境'},
+  {realm:9,name:'混元聖獸',hp:7899992,xiuwei:468690000000000,atk:168948178,def:585631,reward:{lingshi:5041371429,shengwang:4201143,kuangshi:840229},loc:'鴻蒙聖境'},
+  {realm:9,name:'聖域魔皇',hp:8058580,xiuwei:489855000000000,atk:171012763,def:592133,reward:{lingshi:5269028571,shengwang:4390857,kuangshi:878171},loc:'鴻蒙聖境'},
+  {realm:9,name:'鴻蒙戰聖',hp:8213442,xiuwei:511020000000000,atk:173013651,def:598428,reward:{lingshi:5496685714,shengwang:4580571,kuangshi:916114},loc:'鴻蒙聖境'},
+  {realm:9,name:'混元魔將',hp:8364814,xiuwei:532185000000000,atk:174955328,def:604531,reward:{lingshi:5724342857,shengwang:4770286,kuangshi:954057},loc:'鴻蒙聖境'},
+  {realm:9,name:'聖天兇魔',hp:8512911,xiuwei:553350000000000,atk:176841799,def:610454,reward:{lingshi:5952000000,shengwang:4960000,kuangshi:992000},loc:'鴻蒙聖境'},
+  {realm:10,name:'大道魔祖',hp:15468170,xiuwei:2570400000000000,atk:775437823,def:1409190,reward:{lingshi:22118400000,shengwang:18432000,kuangshi:3686400},loc:'大道之巔'},
+  {realm:10,name:'道則凶獸',hp:16028867,xiuwei:2782050000000000,atk:792496112,def:1437343,reward:{lingshi:23939657143,shengwang:19949714,kuangshi:3989943},loc:'大道之巔'},
+  {realm:10,name:'鴻鈞遺魂',hp:16566560,xiuwei:2993700000000000,atk:808637840,def:1463934,reward:{lingshi:25760914286,shengwang:21467429,kuangshi:4293486},loc:'大道之巔'},
+  {realm:10,name:'大道神魔',hp:17083725,xiuwei:3205350000000000,atk:823972154,def:1489149,reward:{lingshi:27582171429,shengwang:22985143,kuangshi:4597029},loc:'大道之巔'},
+  {realm:10,name:'混沌道尊',hp:17582428,xiuwei:3417000000000000,atk:838588984,def:1513145,reward:{lingshi:29403428571,shengwang:24502857,kuangshi:4900571},loc:'大道之巔'},
+  {realm:10,name:'道源魔皇',hp:18064415,xiuwei:3628650000000000,atk:852563393,def:1536051,reward:{lingshi:31224685714,shengwang:26020571,kuangshi:5204114},loc:'大道之巔'},
+  {realm:10,name:'大道古祖',hp:18531174,xiuwei:3840300000000000,atk:865958742,def:1557975,reward:{lingshi:33045942857,shengwang:27538286,kuangshi:5507657},loc:'大道之巔'},
+  {realm:10,name:'道則神將',hp:18983988,xiuwei:4051950000000000,atk:878829052,def:1579012,reward:{lingshi:34867200000,shengwang:29056000,kuangshi:5811200},loc:'大道之巔'},
+  {realm:10,name:'鴻蒙道魔',hp:19423971,xiuwei:4263600000000001,atk:891220790,def:1599239,reward:{lingshi:36688457143,shengwang:30573714,kuangshi:6114743},loc:'大道之巔'},
+  {realm:10,name:'大道兇魂',hp:19852097,xiuwei:4475250000000000,atk:903174239,def:1618727,reward:{lingshi:38509714286,shengwang:32091429,kuangshi:6418286},loc:'大道之巔'},
+  {realm:10,name:'道天魔帝',hp:20269226,xiuwei:4686900000000000,atk:914724578,def:1637535,reward:{lingshi:40330971429,shengwang:33609143,kuangshi:6721829},loc:'大道之巔'},
+  {realm:10,name:'混元道祖',hp:20676118,xiuwei:4898550000000000,atk:925902719,def:1655717,reward:{lingshi:42152228571,shengwang:35126857,kuangshi:7025371},loc:'大道之巔'},
+  {realm:10,name:'大道戰魂',hp:21073451,xiuwei:5110200000000000,atk:936735989,def:1673319,reward:{lingshi:43973485714,shengwang:36644571,kuangshi:7328914},loc:'大道之巔'},
+  {realm:10,name:'道則魔王',hp:21461832,xiuwei:5321850000000000,atk:947248677,def:1690382,reward:{lingshi:45794742857,shengwang:38162286,kuangshi:7632457},loc:'大道之巔'},
+  {realm:10,name:'鴻鈞兇獸',hp:21841807,xiuwei:5533500000000000,atk:957462472,def:1706944,reward:{lingshi:47616000000,shengwang:39680000,kuangshi:7936000},loc:'大道之巔'},
 ];
 var DROP_INFO={ lingshi:{name:'靈石',img:'drop_靈石',desc:'通用貨幣'}, neidan:{name:'內丹',img:'drop_丹藥',desc:'敵人精華，使用可得修為'}, xuanbing:{name:'玄冰',img:'drop_玄冰',desc:'煉器/煉丹高階材料'}, zijing:{name:'紫晶',img:'drop_紫晶',desc:'高階通用材料／法寶強化'}, juanzhou:{name:'功法卷軸',img:'drop_功法卷軸',desc:'點擊開啟，得隨機功法書'}, baoxiang:{name:'寶箱',img:'drop_寶箱',desc:'點擊開啟，得隨機獎勵'}, danyao:{name:'丹藥',img:'drop_丹藥',desc:'隨機丹藥（進丹藥欄）'} };
 var MONSTER_DROPS={
@@ -1800,13 +1811,14 @@ const initialState = {
   wuxing:5, shouyuan:60, zhanli:10, qingyuan:0, shengwang:0, weiwang:0,
   wuxingRoot:{jin:50,mu:50,shui:50,huo:50,tu:50},
   gengu:5, tipo:5, yanli:5, shenxing:5, xinxing:5, fuyuan:5, jiyuan:5,
+  attrPool:0,
   realm:0, subRealm:0, sect:null,
   elixirs:{}, artifacts:{}, daolu:null, zhujiBuff:0,
   logs:[], lastTick:Date.now(), totalSeconds:0, lastRegenDay:0, lastEventDay:0,
   breakAttempts:0, tribulations:0, boostUntil:0, currentTab:'main', shuxingTab:'equip',
   hp:100, hpMax:100, mp:50, mpMax:50, lp:0, lpMax:10, ep:100, epMax:100,
   giftClaimed:false, scrolls:{}, gongfa:{}, useQty:{}, activePop:null,
-  xuanbing:0, zijing:0, juanzhou:0, baoxiang:0, autoSpells:[], autoNeigong:[], equip:{}, bag:{gear:[]}, battleLocationName:null, battleLocationRealm:null, encounterMon:null, tribPillBuff:{}, neidan:{}, viewSect:null, viewCity:null,
+  xuanbing:0, zijing:0, juanzhou:0, baoxiang:0, autoSpells:[], autoNeigong:[], equip:{}, bag:{gear:[]}, battleLocationName:null, battleLocationRealm:null, encounterMon:null, tribPillBuff:{}, neidan:{}, yuandan:{}, viewSect:null, viewCity:null,
   fazhen:{tier:2,gather:5,days:128,stored:0,level:0,kstore:0}, jiayuan:{plots:[{c:null,d:0},{c:null,d:0},{c:null,d:0},{c:null,d:0}],fishLast:0,lastCatch:''}, mine:{level:0,puppets:5,workers:3,storage:42,lastDay:0,iron:0,darkiron:0,dragon:0,exchangeMode:null,exchangeQty:1},
   offlineMode:false, wbgCat:'gongfa', wbgSold:{}, wbgRefreshTs:Date.now(),
   musicOn:true, bossCD:{}, daotong:3, daotongAlloc:{shitang:0}, shitang:{level:0,food:0,daotongUsed:0,lastFoodDay:0,exchangeMode:null,exchangeQty:1}, meijiu:0, wineStock:{}, facLevel:{},
@@ -1890,6 +1902,8 @@ function loadState() {
     if (state.tribPillBuff === undefined) state.tribPillBuff={};
     if (state.neidan === undefined) state.neidan={};
     if (Array.isArray(state.neidan)) state.neidan={};
+    if (state.yuandan === undefined || Array.isArray(state.yuandan)) state.yuandan={};
+    if (state.attrPool === undefined) state.attrPool=0;
     if (state.viewSect === undefined) state.viewSect=null;
     if (state.viewCity === undefined) state.viewCity=null;
     if (state.sectArea === undefined) state.sectArea=null;
@@ -1932,7 +1946,7 @@ function qiPerSecNow() {
   const realm = REALMS[state.realm];
   let g = realm.qiPerSec + (state.wuxing||0) * 2.3;
   if (state.sect === 'qingyun') g *= 1.04;
-  if (state.daolu) g *= (1 + state.qingyuan * 0.005);
+  if (state.daolu) g *= (1 + Math.min(1, state.qingyuan * 0.005));
   if (state.artifacts.dingxiang) g *= 1.3;
   if (state.boostUntil > Date.now()) g *= 2;
   return g;
@@ -2348,21 +2362,25 @@ function tryBreakthrough() {
       // 小階突破：各靈根+5、各素質+2 (大跨境約為其 5-15 倍)
       var subWx=2, subSz=1;
       state.wuxingRoot.jin+=subWx; state.wuxingRoot.mu+=subWx; state.wuxingRoot.shui+=subWx; state.wuxingRoot.huo+=subWx; state.wuxingRoot.tu+=subWx;
-      state.gengu+=subSz; state.tipo+=subSz; state.wuxing+=subSz; state.yanli+=subSz; state.shenxing+=subSz;
-      state.xinxing+=subSz; state.fuyuan+=subSz; state.jiyuan+=subSz;
+      var _szaS=Math.floor(subSz/2), _poolS=(subSz-_szaS)*8;
+      state.gengu+=_szaS; state.tipo+=_szaS; state.wuxing+=_szaS; state.yanli+=_szaS; state.shenxing+=_szaS;
+      state.xinxing+=_szaS; state.fuyuan+=_szaS; state.jiyuan+=_szaS;
+      state.attrPool=(state.attrPool||0)+_poolS;
       refreshMaxStats();
-      addLog('【小階突破】踏入 '+getRealmName()+' — 五行+'+subWx+'、素質+'+subSz+'、壽元+20','good');
-      showToast('境界提升！'+getRealmName()+' 五行+'+subWx+' 素質+'+subSz);
+      addLog('【小階突破】踏入 '+getRealmName()+' — 五行+'+subWx+'、素質自動+'+_szaS+'、配點+'+_poolS+'、壽元+20','good');
+      showToast('境界提升！'+getRealmName()+' 配點+'+_poolS);
     } else if (state.realm < REALMS.length-1) {
       state.realm++; state.subRealm=0;
       const lifeGains=[200,500,1000,5000,10000,50000,999999,2000000,5000000,10000000];
       state.shouyuan += lifeGains[state.realm-1]||100;
       const wxGain=30*Math.pow(2,state.realm-1), szGain=10*Math.pow(2,state.realm-1);
       state.wuxingRoot.jin+=wxGain; state.wuxingRoot.mu+=wxGain; state.wuxingRoot.shui+=wxGain; state.wuxingRoot.huo+=wxGain; state.wuxingRoot.tu+=wxGain;
-      state.gengu+=szGain; state.tipo+=szGain; state.wuxing+=szGain; state.yanli+=szGain; state.shenxing+=szGain;
-      state.xinxing+=szGain; state.fuyuan+=szGain; state.jiyuan+=szGain;
+      var _szaB=Math.floor(szGain/2), _poolB=(szGain-_szaB)*8;
+      state.gengu+=_szaB; state.tipo+=_szaB; state.wuxing+=_szaB; state.yanli+=_szaB; state.shenxing+=_szaB;
+      state.xinxing+=_szaB; state.fuyuan+=_szaB; state.jiyuan+=_szaB;
+      state.attrPool=(state.attrPool||0)+_poolB;
       applyRealmStats();
-      addLog('【素質成長】跨境提升 — 五行靈根 +'+wxGain+'、全素質 +'+szGain,'great');
+      addLog('【素質成長】跨境提升 — 五行靈根 +'+wxGain+'、全素質自動 +'+_szaB+'、可配點 +'+_poolB,'great');
       state.tribulations++; addLog('【渡劫成功】雷霆過後踏入 '+getRealmName(),'great'); showTribulation('渡劫成功！');
     }
   } else {
@@ -2417,10 +2435,11 @@ const FAC = { jiusi:{res:'meijiu', name:'美酒', ic:'🍷', base:2000, rate:2} 
 function facLevel(area){ return (state.facLevel&&state.facLevel[area])||0; }
 function facilityBonus(){
   var sL=(state.shitang&&state.shitang.level)||0, jL=facLevel('jiusi'), mL=(state.mine&&state.mine.level)||0;
+  var _g=function(L){ return 1+0.05*Math.max(0,L-1); }; var _r=function(x){ return Math.round(x*10)/10; };
   return {
-    hpPct: sL>0?1*Math.pow(2,sL-1):0, genguPct: 2*sL,
-    mpPct: jL>0?1*Math.pow(2,jL-1):0, yanliPct: 2*jL,
-    atkPct: mL>0?2*Math.pow(2,mL-1):0, defPct: 2*mL
+    hpPct: _r(4*sL*_g(sL)), genguPct: _r(2*sL*_g(sL)),
+    mpPct: _r(4*jL*_g(jL)), yanliPct: _r(2*jL*_g(jL)),
+    atkPct: _r(4*mL*_g(mL)), defPct: _r(2*mL*_g(mL))
   };
 }
 function facBonusLine(kind){
@@ -2819,6 +2838,7 @@ var _taskSheet=false, _taskCatOpen={main:true,side:false,sect:false,enc:false};
 function openTaskSheet(){ _taskSheet=true; render(); }
 function closeTaskSheet(){ _taskSheet=false; render(); }
 var _guideOpen=false;
+function openReincarnation(){ showToast('輪迴系統建置中，敬請期待'); }
 function openGuide(){ _guideOpen=true; render(); }
 function closeGuide(){ _guideOpen=false; render(); }
 function guideHTML(){ return '<div class="ts-mask" onclick="event.stopPropagation();closeGuide()"></div><div class="task-sheet" onclick="event.stopPropagation()"><div class="ts-head">📖 玩法攻略<span class="ts-x" onclick="closeGuide()">✕</span></div><div class="ts-scroll" style="padding:4px 12px 14px;"><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🌀 核心玩法循環</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">本作為修仙掛機遊戲，兩條主線並行：①<b>靜心修煉</b>（掛機自動累積修為，悟性越高越快）；②<b>入境歷練</b>（擊殺妖獸換取大量修為與掉落）。前期掛機慢、擊殺快，<b>擊殺是主要成長來源</b>。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">⚡ 突破境界</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">修為蓄滿「突破所需」（＝境界基準×1400）即可衝境，每個小階都要蓄滿一次。突破有<b>成功率</b>，越高境越難；<b>心性</b>可提高成功率並抗心魔（失敗扣壽元）。渡劫期以上突破即「渡劫」，戰力與法寶能加成功率。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">⚔️ 戰鬥系統（最重要）</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">・手動施放<b>法術</b>：傷害＝功法威力＋攻擊×0.5，且<b>不吃怪物防禦</b>，是穿透高防怪的關鍵。<br>・自動戰鬥＝30%物攻＋70%自動施法，法力足夠時同樣吃功法傷害；但物攻要扣防，裝備不足時<b>手動施法效率遠高於純掛機</b>。<br>・<b>法力管理</b>：法術耗法力，見底會退回劍氣（弱）。靈力型功法可擴充法力上限。<br>・減傷上限85%；閃避／反擊／暴擊靠身形、眼力與功法。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">📚 功法配置建議</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">內功四系優先：<b>金</b>（攻擊）、<b>土</b>（防禦＋減傷）、<b>光</b>（全屬性％）、<b>水</b>（閃避）。外功／法術帶一支高傷單體或群體（火系有濺射）。靈力型補法力池。功法可升至 <b>Lv10</b>（威力約×3.5）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">💠 投資優先序</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;"><b>同階全套裝備 ＞ 功法升滿 ＞ 洞府設施 ＞ 宗門階級</b>。裝備的根骨／體魄換算成攻防，是戰力主體；設施（食堂血量、酒肆法力、礦山攻防）為永久％加成。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🧬 素質對照</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">根骨→攻擊＋減傷；體魄→血量＋防禦；悟性→修練效率＋法力上限；眼力→暴擊＋命中；身形→閃避＋反擊；心性→突破率＋抗心魔；福緣→掉寶倍率；機緣→晉升機緣。突破會自動成長全素質（越高境長越多）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">💰 貨幣與兌幣</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">靈石分階（下品→…→仙玉→神石），滿額自動進位；大額交易以錢袋總額支付。萬寶樓／城主府／宗門接待所可兌幣（有手續費）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🗺️ 場所・越級・變異・大BOSS</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">每突破一境，開放「當前＋下一境」場所，可<b>越級打怪</b>（高風險、多半打不過，屬耍帥）。一般歷練每隻怪 <b>8%</b> 機率變「變異」（×3~5）。每場所有固定「<b>王</b>」大BOSS（×20~25，附2~3變異護衛），戰鬥畫面可挑戰。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🏯 宗門試煉與上呈</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">入宗後六階：外門→內門→真傳弟子→外門→內門→傳功長老，各給永久增幅（長老另加防禦／減傷，傳功再加暴擊／機緣）。主殿可「上呈」功法換點數（傳功長老需50）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🌌 境界階梯</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">凡人→煉氣→築基→金丹→元嬰→化神→渡劫→大羅金仙→<b>準聖→聖人→道祖</b>（頂）。對應裝備階：凡品…仙品→混沌→<b>太初→鴻蒙→大道</b>。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">💡 小技巧</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">・打不動時先回頭把同階裝備補滿、功法升級，再挑戰同境最強怪。<br>・洞府 💾 可匯出存檔備份。<br>・道途只記大BOSS戰績。</div></div></div>'; }
@@ -3012,7 +3032,11 @@ function buyShopItem(cat, id) {
 
 // === 掉落道具 ===
 function _ndMon(nm){ var m=MONSTERS.filter(function(x){return x.name===nm;})[0]; if(!m){ var b=(''+nm).replace(/^變異/,'').replace(/王$/,''); m=MONSTERS.filter(function(x){return x.name===b;})[0]; } return m; }
-function useNeidan(monName,n){ n=n||1; if(!state.neidan||!state.neidan[monName]) return; var mon=_ndMon(monName); if(!mon){ delete state.neidan[monName]; return; } var actual=Math.min(n,state.neidan[monName]); state.neidan[monName]-=actual; if(state.neidan[monName]<=0) delete state.neidan[monName]; var gain=Math.floor((mon.xiuwei||0)/10)*actual; state.qi+=gain; state.totalQi+=gain; addLog('使用'+monName+'內丹×'+actual+'，得修為+'+fmt(gain),'good'); showToast('修為+'+fmt(gain)); saveState(); render(); }
+function refineYuandan(nm,n){ var own=(state.yuandan&&state.yuandan[nm])||0; if(own<=0) return; n=Math.min(n||1,own); if(n<=0) return; state.yuandan[nm]-=n; if(state.yuandan[nm]<=0) delete state.yuandan[nm]; if(!state.neidan)state.neidan={}; state.neidan[nm]=(state.neidan[nm]||0)+n; addLog('【煉丹】煉化 '+nm+'原丹 ×'+n+' → 內丹','good'); showToast('煉化 '+nm+'內丹 ×'+n); saveState(); render(); }
+function refineAllYuandan(){ var t=0; for(var nm in (state.yuandan||{})){ var c=state.yuandan[nm]; if(c>0){ if(!state.neidan)state.neidan={}; state.neidan[nm]=(state.neidan[nm]||0)+c; t+=c; } } state.yuandan={}; if(t>0){ addLog('【煉丹】一鍵煉化 原丹 ×'+t+' → 內丹','good'); showToast('煉化 '+t+' 顆內丹'); } else { showToast('無原丹可煉化'); } saveState(); render(); }
+function _yuandanPanelHTML(){ var _yd=state.yuandan||{}; var ks=Object.keys(_yd).filter(function(k){return _yd[k]>0;}); var h='<div class="panel"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span>🔴 原丹（未煉化）</span>'+(ks.length?'<button class="rank-btn" onclick="refineAllYuandan()">🏺 一鍵煉化</button>':'')+'</div>'; if(!ks.length){ h+='<div class="store-empty">目前無原丹（打怪掉落，需至煉丹房小丹爐煉化）</div>'; } else { h+='<div class="grid5">'; ks.forEach(function(nm){ var c=_yd[nm]; var pid='yd_'+nm; h+='<div class="cell5 usable'+(state.activePop===pid?' active':'')+'" data-id="'+pid+'" onclick="toggleCell(\''+pid+'\')"><div class="ci">🔴</div><div class="cn">'+nm+'原丹</div><div class="ce">×'+c+'</div><div class="pop" onclick="event.stopPropagation()"><button class="use-btn" onclick="event.stopPropagation();refineYuandan(\''+nm+'\','+c+')">🏺 煉化</button></div><div class="info-pop">打怪掉落的原丹，需煉化為內丹方可使用。</div></div>'; }); h+='</div>'; } h+='</div>'; return h; }
+function _yuandanFurnaceHTML(){ var _yd=state.yuandan||{}; var ks=Object.keys(_yd).filter(function(k){return _yd[k]>0;}); var h='<div class="panel"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span>🏺 小丹爐 · 原丹煉化</span>'+(ks.length?'<button class="rank-btn" onclick="refineAllYuandan()">一鍵煉化</button>':'')+'</div>'; if(!ks.length){ h+='<div class="store-empty">爐中無材料。將打怪掉落的「原丹」放入此爐煉化，方成可用內丹。</div>'; } else { h+='<div class="grid5">'; ks.forEach(function(nm){ var c=_yd[nm]; var mon=_ndMon(nm); var gain=mon?Math.floor((mon.xiuwei||0)/20):0; h+='<div class="cell5"><div class="ci">🔴</div><div class="cn">'+nm+'原丹</div><div class="ce">×'+c+'</div><div style="padding:5px 2px 2px;"><button class="use-btn" onclick="refineYuandan(\''+nm+'\','+c+')">🏺 煉化 ×'+c+'</button></div></div>'; }); h+='</div><div style="font-size:11px;color:#9a7a48;text-align:center;padding:6px;">煉化後每顆內丹使用得修為 ＝ 該怪修為 / 20</div>'; } h+='</div>'; return h; }
+function useNeidan(monName,n){ n=n||1; if(!state.neidan||!state.neidan[monName]) return; var mon=_ndMon(monName); if(!mon){ delete state.neidan[monName]; return; } var actual=Math.min(n,state.neidan[monName]); state.neidan[monName]-=actual; if(state.neidan[monName]<=0) delete state.neidan[monName]; var gain=Math.floor((mon.xiuwei||0)/20)*actual; state.qi+=gain; state.totalQi+=gain; addLog('使用'+monName+'內丹×'+actual+'，得修為+'+fmt(gain),'good'); showToast('修為+'+fmt(gain)); saveState(); render(); }
 function useNeidanWithQty(nm){ var pid='nd_'+nm; var q=qtyOf(pid); useNeidan(nm,q); state.useQty[pid]=1; state.activePop=null; }
 function neidanSellPrice(nm){ var mon=_ndMon(nm); var ls=(mon&&mon.reward&&mon.reward.lingshi)||50; return Math.max(50, Math.round(ls*50)); }
 function sellNeidan(nm){ var pid='nd_'+nm; var own=(state.neidan&&state.neidan[nm])||0; if(own<=0) return; var n=qtyOf(pid); if(n>own)n=own; if(n<=0) return; var price=neidanSellPrice(nm)*n; state.neidan[nm]=own-n; if(state.neidan[nm]<=0) delete state.neidan[nm]; gainLingshi(price); state.useQty[pid]=1; state.activePop=null; showToast('售 '+nm+'內丹 ×'+n+'，靈石 +'+fmt(price)); saveState(); render(); }
@@ -3024,6 +3048,7 @@ function applyDrop(key,n,realm){
   else if(key==='baoxiang') state.baoxiang=(state.baoxiang||0)+n;
   else if(key==='danyao'){ for(var i=0;i<n;i++){ var eid=['huiqi','zhuji','jindan','yuanying'][Math.floor(Math.random()*4)]; state.elixirs[eid]=(state.elixirs[eid]||0)+1; } }
   else if(key==='neidan'){ if(!state.neidan||Array.isArray(state.neidan)) state.neidan={}; var _nm=realm; if(typeof _nm!=='string') _nm='未知'; state.neidan[_nm]=(state.neidan[_nm]||0)+n; }
+  else if(key==='yuandan'){ if(!state.yuandan||Array.isArray(state.yuandan)) state.yuandan={}; var _ym=realm; if(typeof _ym!=='string') _ym='未知'; state.yuandan[_ym]=(state.yuandan[_ym]||0)+n; }
 }
 function _regScroll(item){ if(!SCROLLS[item.id]){ var cm={'修練':'xiulian','外功':'waigong','內功':'neigong','靈力':'lingli'}; SCROLLS[item.id]={name:item.name,ic:item.ic,cat:cm[item.tier]||'xiulian',desc:'功法卷軸',eff:item.eff||item.name,bonus:item.bonus||0}; } }
 function openJuanzhou(){ if((state.juanzhou||0)<=0) return; state.juanzhou--; var pool=WBG_SHOP.gongfa; var item=pool[Math.floor(Math.random()*pool.length)]; _regScroll(item); state.scrolls[item.id]=(state.scrolls[item.id]||0)+1; addLog('【戰利品】開啟功法卷軸，得《'+item.name+'》（去儲物習得）','great'); showToast('得功法書：'+item.name); saveState(); render(); }
@@ -3045,7 +3070,7 @@ function openSaveMenu(){ state.savePending=true; render(); }
 function closeSaveMenu(){ state.savePending=false; render(); }
 function exportSave(){ try{ saveState(); var data=localStorage.getItem(SAVE_KEY)||JSON.stringify(state); var blob=new Blob([data],{type:'application/json'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); var d=new Date(); var p=function(n){return ('0'+n).slice(-2);}; var ts=d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes()); a.href=url; a.download='xiuxian_save_'+ts+'.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){ URL.revokeObjectURL(url); },1000); showToast('已匯出存檔：xiuxian_save_'+ts+'.json'); }catch(e){ showToast('匯出失敗'); } }
 function importSaveFile(input){ var f=input&&input.files&&input.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(e){ try{ var obj=JSON.parse(e.target.result); if(!obj||typeof obj!=='object'||obj.realm===undefined){ showToast('存檔格式不符，未匯入'); return; } localStorage.setItem(SAVE_KEY, JSON.stringify(obj)); showToast('已匯入存檔，重新載入中…'); setTimeout(function(){ location.reload(); },600); }catch(err){ showToast('匯入失敗：檔案無法解析'); } }; rd.readAsText(f); }
-function setShuxingTab(t){ state.shuxingTab=t; _suzhiPop=null; render(); }
+function setShuxingTab(t){ state.shuxingTab=t; _suzhiPop=null; _attrAlloc=null; render(); }
 function _edRow(l,v,k){ return '<div class="ed-row"><span style="display:inline-flex;align-items:center;">'+l+(k?' <span class="attr-q" onclick="event.stopPropagation();toggleAttrInfo(\''+k+'\')">?</span>':'')+'</span><b>'+v+'</b></div>'; }
 function switchTab(name) { state.exchWork=null; state.yunjiModal=null; state.sectRankModal=null; if(name==='log') state.logUnread=0; _taskSheet=false; _suzhiPop=null; if(state.currentTab==='battle' && name!=='battle'){ window._btRunning=false; window._btAnim=false; _spellOpen=false; _spellSel=null; _cfgOpen=false; _cfgCat=null; _tgtPick=null; } if(name!=='battle'&&name!=='map'&&!(MB&&!MB.over)){ state.battleLocationRealm=null; state.battleLocationName=null; state.encounterMon=null; } if(name!=='sectview'){ state.viewSect=null; } if(name!=='cityview'){ state.viewCity=null; state.cityArea=null; } if(name!=='map'){ _locPickerOpen=false; } if(name!=='sect'&&name!=='sectview'){ state.sectJoinPending=null; state.sectLeavePending=false; } state.currentTab=name; render(); }
 function drinkWine(id){ const w=WINES.find(x=>x.id===id); if(!w) return; if(state.realm<w.minRealm) return showToast('境界不足'); if(!canAfford(w.cost.lingshi)) return showToast('靈石不足'); payLingshi(w.cost.lingshi);
@@ -3154,21 +3179,21 @@ function gongfaReact(){
   var r={reflectPct:0,paralyzeChance:0,freezeChance:0,poisonOnHit:0,burnOnHit:0,missChance:0};
   for(var id in state.gongfa){ var g=state.gongfa[id]; if(!g||g.cat!=='neigong') continue; if(state.autoNeigong&&state.autoNeigong.indexOf(id)<0) continue; var d=gfParseLv(id, g.level||1); if(!d) continue; var e=d.elem, Pp=d.pp||0;
     if(e==='tu') r.reflectPct+=Pp;
-    else if(e==='lei') r.paralyzeChance+=Math.min(0.5,Pp/100);
-    else if(e==='bing') r.freezeChance+=Math.min(0.5,Pp/100);
+    else if(e==='lei') r.paralyzeChance+=Math.min(0.3,Pp/100);
+    else if(e==='bing') r.freezeChance+=Math.min(0.3,Pp/100);
     else if(e==='du') r.poisonOnHit+=Pp;
     else if(e==='huo') r.burnOnHit+=Pp;
     else if(e==='an') r.missChance+=Math.min(0.4,Pp/100);
   }
-  return r;
+  r.reflectPct=Math.min(30,r.reflectPct); return r;
 }
 function playerPower(){ var p=playerCombat(); var v=p.atk + p.def*2 + Math.floor(state.hpMax/20) + Math.floor(state.mpMax/60) + Math.floor((state.lpMax||0)/60) + (p.crit*100)*12 + (p.hit*100)*2 + (p.dodge*100)*10 + (p.counter*100)*10 + (p.dmgRed*100)*12 + (p.antiCrit*100)*6 + ((p.vamp||0)*100)*12 + (p.dot*100)*6; return Math.round(v); }
-function playerCombat(){ var _srb=sectRankBonus(); var eq=equipBonus(); var vb=vaultBonus(); var gb=gongfaBonus(); var asf=1+((vb.allStatPct||0)+(gb.allStatPct||0))/100; var _fb=facilityBonus(); var ge=Math.floor(((state.gengu||0)+eq.gengu+(gb.genguAdd||0))*(1+_fb.genguPct/100)), ti=(state.tipo||0)+eq.tipo, ya=Math.floor(((state.yanli||0)+eq.yanli)*(1+_fb.yanliPct/100)), sh=(state.shenxing||0)+eq.shenxing; return { hp:state.hpMax, atk:Math.floor((Math.floor(ge*2)+zhanliTotal()+eq.atk+vb.atk+gb.atk)*asf*(1+_fb.atkPct/100)*(1+_srb.atkPct/100)), def:Math.floor((Math.floor(ti*1.5)+eq.def+vb.def+gb.def)*asf*(1+_fb.defPct/100)*(1+_srb.defPct/100)), crit:Math.min(0.75,Math.min(0.5,ya/3000)+eq.crit/100+vb.critPct/100+gb.critPct/100+_srb.crit/100), hit:0.7+Math.min(0.3,ya/5000)+eq.hit/100+gb.hitPct/100, dodge:Math.min(0.6,Math.min(0.4,sh/3000)+gb.dodgePct/100), counter:Math.min(0.5,Math.min(0.3,sh/4000)+gb.counterPct/100), dmgRed:Math.min(0.85,Math.min(0.5,ge/3000)+vb.dmgRedPct/100+gb.dmgRedPct/100+_srb.dmgRed/100), antiCrit:eq.antiCrit/100, defBoost:eq.defBoost/100, dot:eq.dot/100, vamp:(eq.vamp||0)/100, regen:gb.regenPct, genguAdd:gb.genguAdd }; }
+function playerCombat(){ var _srb=sectRankBonus(); var eq=equipBonus(); var vb=vaultBonus(); var gb=gongfaBonus(); var asf=1+((vb.allStatPct||0)+(gb.allStatPct||0))/100; var _fb=facilityBonus(); var ge=Math.floor(((state.gengu||0)+eq.gengu+(gb.genguAdd||0))*(1+_fb.genguPct/100)), ti=(state.tipo||0)+eq.tipo, ya=Math.floor(((state.yanli||0)+eq.yanli)*(1+_fb.yanliPct/100)), sh=(state.shenxing||0)+eq.shenxing; return { hp:state.hpMax, atk:Math.floor((Math.floor(ge*2)+zhanliTotal()+eq.atk+vb.atk+gb.atk)*asf*(1+_fb.atkPct/100)*(1+_srb.atkPct/100)), def:Math.floor((Math.floor(ti*1.5)+eq.def+vb.def+gb.def)*asf*(1+_fb.defPct/100)*(1+_srb.defPct/100)), crit:Math.min(0.75,Math.min(0.5,ya/3000)+eq.crit/100+vb.critPct/100+gb.critPct/100+_srb.crit/100), hit:0.7+Math.min(0.3,ya/5000)+eq.hit/100+gb.hitPct/100, dodge:Math.min(0.5,Math.min(0.4,sh/3000)+gb.dodgePct/100), counter:Math.min(0.35,Math.min(0.3,sh/4000)+gb.counterPct/100), dmgRed:Math.min(0.85,Math.min(0.5,ge/3000)+vb.dmgRedPct/100+gb.dmgRedPct/100+_srb.dmgRed/100), antiCrit:eq.antiCrit/100, defBoost:eq.defBoost/100, dot:eq.dot/100, vamp:(eq.vamp||0)/100, regen:gb.regenPct, genguAdd:gb.genguAdd }; }
 function doBattle(){ const mon=MONSTERS.find(m=>m.realm===state.realm)||MONSTERS[MONSTERS.length-1]; const p=playerCombat(); let php=p.hp, mhp=mon.hp, rounds=0;
   while(php>0&&mhp>0&&rounds<300){ rounds++;
     if(Math.random()<p.hit){ let dmg=Math.max(1,p.atk-mon.def); if(Math.random()<p.crit) dmg*=2; mhp-=dmg; }
     if(mhp<=0) break;
-    if(Math.random()>=p.dodge){ let mdmg=Math.max(1,Math.floor((mon.atk-p.def)*(1-p.dmgRed))); php-=mdmg; if(Math.random()<p.counter) mhp-=Math.max(1,Math.floor(p.atk*0.5)); } }
+    if(Math.random()>=p.dodge){ let mdmg=Math.max(1,Math.floor((mon.atk-p.def)*(1-p.dmgRed))); php-=mdmg; if(Math.random()<p.counter) mhp-=Math.max(1,Math.floor(p.atk*0.35)); } }
   const win=mhp<=0&&php>0;
   if(win){ const lootMult=1+Math.min(5,(state.fuyuan||0)/325); let gains=[];
     for(const [k,v] of Object.entries(mon.reward)){ const val=Math.floor(v*lootMult); if(k==='lingshi'){gainLingshi(val);gains.push('靈石+'+fmt(val));} if(k==='shengwang'){state.shengwang+=val;gains.push('聲望+'+val);} if(k==='kuangshi'){state.kuangshi+=val;gains.push('礦石+'+val);} }
@@ -3271,7 +3296,7 @@ function _renderCore() {
     const stat=(cls,ic,cur,max)=>'<div class="'+cls+'"><div class="'+ic[1]+'">'+ic[0]+'</div><div class="'+ic[2]+'">'+kv('現有',Math.floor(cur).toLocaleString())+kv('上限',Math.floor(max).toLocaleString())+'</div></div>';
     html += '<div class="stage" onclick="stageClickCoord(event)">'+'<div class="stage-bg-img"></div>'+petals()
       + '<div class="stage-icons-left"><div class="stage-icon" onclick="switchTab(\'shuxing\')">👤<span>屬性</span></div><div class="stage-icon" onclick="switchTab(\'map\')">🗺️<span>歷練</span></div><div class="stage-icon" onclick="restAtInn()" title="在修仙界投宿客棧或尋找休息地點，扣除 2,000 下品靈石，可恢復血量、法力、精力">🏨<span>投宿</span></div></div>'
-      + '<div class="stage-icons"><div class="stage-icon" onclick="openTaskSheet()">📋<span>任務</span></div><div class="stage-icon" onclick="openGuide()">📖<span>攻略</span></div><div class="stage-icon" onclick="switchTab(\'jiayuan\')">🏡<span>家園</span></div></div>'+(_taskSheet?taskSheetHTML():'')+(_guideOpen?guideHTML():'')
+      + '<div class="stage-icons"><div class="stage-icon" onclick="openGuide()">📖<span>攻略</span></div><div class="stage-icon" onclick="openTaskSheet()">📋<span>任務</span></div><div class="stage-icon" onclick="switchTab(\'jiayuan\')">🏡<span>家園</span></div><div class="stage-icon" onclick="openReincarnation()">🔄<span>輪迴</span></div></div>'+(_taskSheet?taskSheetHTML():'')+(_guideOpen?guideHTML():'')
       + figureSVG()
       + '<div class="dantian-btn '+(canBreak?'ready':'')+'" onclick="tryBreakthrough()" title="點此突破"></div>'
       + '<div class="stage-eff">當前修煉效率：'+fmt(qiPerSecNow()+speedBonus())+' / 秒'+(boosted?' ✨×2':'')+'</div>'
@@ -3298,13 +3323,14 @@ function _renderCore() {
  + '</div></div>';
     }
     if(_sc==='neidan'){
-    var _nd=state.neidan||{}; if(typeof _nd==="object"&&Object.keys(_nd).length){
-      html += '<div class="panel"><div class="panel-title">💠 內丹</div><div class="grid5">';
-      Object.keys(_nd).forEach(function(nm){ var c=_nd[nm]; if(c<=0) return; var mon=MONSTERS.filter(function(m){return m.name===nm;})[0]; var gain=mon?Math.floor((mon.xiuwei||0)/10):0; var pid='nd_'+nm; var q=qtyOf(pid); var act=state.activePop===pid?' active':''; var eff='使用得修為 +'+fmt(gain)+'/顆（敵人精華）';
+    html += _yuandanPanelHTML();
+    var _nd=state.neidan||{}; if(typeof _nd==="object"&&Object.keys(_nd).some(function(k){return _nd[k]>0;})){
+      html += '<div class="panel"><div class="panel-title">💠 內丹（已煉化）</div><div class="grid5">';
+      Object.keys(_nd).forEach(function(nm){ var c=_nd[nm]; if(c<=0) return; var mon=_ndMon(nm); var gain=mon?Math.floor((mon.xiuwei||0)/20):0; var pid='nd_'+nm; var q=qtyOf(pid); var act=state.activePop===pid?' active':''; var eff='使用得修為 +'+fmt(gain)+'/顆（敵人精華）';
         html += '<div class="cell5 usable'+act+'" data-id="'+pid+'" onmouseenter="enterCell(\''+pid+'\')" onmouseleave="leaveCell(\''+pid+'\')" onclick="toggleCell(\''+pid+'\')"><div class="ci"><img class="loot-img" src="images/drop_丹藥.png"></div><div class="cn">'+nm+'內丹</div><div class="ce">×'+c+'</div><div class="pop" onclick="event.stopPropagation()"><div class="qty"><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+pid+'\',-1)">−</button><input type="number" class="qn num-input" inputmode="numeric" min="1" value="'+q+'" onchange="setQtyAbs(\''+pid+'\',this.value)" onkeydown="if(event.key===&apos;Enter&apos;)this.blur()" onclick="event.stopPropagation();this.select()" style="font-size:12px;width:36px;" /><button class="qbtn" onclick="event.stopPropagation();changeQty(\''+pid+'\',1)">＋</button></div><button class="use-btn" onclick="event.stopPropagation();useNeidanWithQty(\''+nm+'\')">使用</button><button class="use-btn" style="background:#c8a050;" onclick="event.stopPropagation();sellNeidan(\''+nm+'\')" title="售價 '+costDisp(neidanSellPrice(nm))+'/顆">售出</button></div><div class="info-pop">'+eff+'</div></div>';
       });
       html += '</div></div>';
-    } else { html += '<div class="panel"><div class="panel-title">💠 內丹</div><div class="store-empty">目前無內丹</div></div>'; }
+    } else { html += '<div class="panel"><div class="panel-title">💠 內丹（已煉化）</div><div class="store-empty">尚無內丹，於煉丹房小丹爐煉化原丹後取得</div></div>'; }
     }
     if(_sc==='elixir'){
     const ekeys=Object.keys(state.elixirs).filter(k=>state.elixirs[k]>0);
@@ -3402,6 +3428,7 @@ function _renderCore() {
     ELIXIRS.forEach(function(e){ const lack=state.realm<e.minRealm||state.lingcao<e.cost.lingcao||!canAfford(e.cost.lingshi); const owned=state.elixirs[e.id]||0;
       html += '<button class="item-btn" '+(lack?'disabled':'')+' onclick="makeElixir(\''+e.id+'\')"><div class="item-name">'+e.name+' '+(owned?('<span class="owned-mark">已煉 ×'+owned+'</span>'):'')+'</div><div class="item-effect">'+e.effect+'</div><div class="item-cost">需 靈草'+e.cost.lingcao+' · '+costDisp(e.cost.lingshi)+(state.realm<e.minRealm?' · 境界不足':'')+'</div></button>'; });
     html += '</div></div>';
+    html += _yuandanFurnaceHTML();
   }
   if (state.currentTab==='qishi') {
     html += '<div class="back-bar" onclick="switchTab(\'cave\')">⟵ 回洞府　⚔️ 鍊器室</div><div class="panel"><div class="panel-title">⚔️ 器譜</div><div class="item-grid">';
@@ -3598,7 +3625,7 @@ function _renderCore() {
     }
     if(_sxt==='attr'){
     const bonusRows=[['🦴','根骨','gengu'],['💪','體魄','tipo'],['🧠','悟性','wuxing'],['👁️','眼力','yanli'],['🏃','身形','shenxing'],['🪷','心性','xinxing'],['🍀','福緣','fuyuan'],['✨','機緣','jiyuan']];
-    html += '<div class="panel"><div class="panel-title">🌟 人物素質<span class="suzhi-info" onclick="event.stopPropagation();toggleSuzhiPop(\'suzhi\')">升階數值 ⓘ</span></div><div class="bonus-list">';
+    html += '<div class="panel"><div class="panel-title">🌟 人物素質<button class="rank-btn" style="margin-left:auto;" onclick="event.stopPropagation();openAttrAlloc()">🔧 配點'+((state.attrPool||0)>0?'·'+(state.attrPool):'')+'</button><span class="suzhi-info" style="margin-left:6px;" onclick="event.stopPropagation();toggleSuzhiPop(\'suzhi\')">升階數值 ⓘ</span></div><div class="bonus-list">';
     bonusRows.forEach(function(r){ const v=state[r[2]]||0; const fns=SUZHI_BONUS[r[2]]; const e1=fns[0](v),e2=fns[1](v);
       html += '<div class="bonus-row"><div class="ic">'+r[0]+'</div><div class="lb"><b>'+r[1]+'</b><span>'+v+' '+suzhiTier(v)+'</span></div><div class="ef"><div class="row"><span>'+e1.lbl+'</span><b>'+e1.val+'</b></div><div class="row"><span>'+e2.lbl+'</span><b>'+e2.val+'</b></div></div></div>'; });
     html += '</div></div>';
@@ -3825,6 +3852,7 @@ function _renderCore() {
   nav.forEach(function(n){ html += '<div class="nav-item '+(activeNavId===n.id?'active':'')+'" onclick="switchTab(\''+n.id+'\')"><div class="nic">'+n.ic+'</div><div class="nlb">'+n.lb+'</div>'+(n.badge?('<div class="nav-dot">'+(n.badge>99?'99+':n.badge)+'</div>'):'')+'</div>'; });
   html += '</div>';
   if (_suzhiPop && state.currentTab==='shuxing') { html += '<div class="info-modal" onclick="closeSuzhiPop()"><div class="im-box" onclick="event.stopPropagation()"><div class="im-head">升階數值<span class="im-x" onclick="closeSuzhiPop()">✕</span></div>'+suzhiPopHTML()+'</div></div>'; }
+  if (_attrAlloc && state.currentTab==='shuxing') { html += attrAllocModalHTML(); }
   if (state.resetPending) { html += '<div class="info-modal" onclick="resetCancel()"><div class="im-box" onclick="event.stopPropagation()" style="width:280px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#c0392b;margin-bottom:8px;">⚠️ 重新開始</div><div style="font-size:13px;color:#5a3a1a;line-height:1.8;margin-bottom:16px;">確定要重新開始嗎？<br>所有進度將永久消失！</div><div style="display:flex;gap:10px;justify-content:center;"><button class="item-btn" style="background:#c0392b;color:#fff;padding:9px 22px;" onclick="resetConfirm()">確定重置</button><button class="item-btn" style="background:#999;color:#fff;padding:9px 22px;" onclick="resetCancel()">取消</button></div></div></div>'; }
   if (state.gearPop && state.currentTab==='store') { var _gp=gearById(state.gearPop); if(_gp){ var _gOwn=_gearBagCount(state.gearPop); var _gQty=Math.min(state.gearSellQty||1, Math.max(1,_gOwn)); var _gPr=gearSellPrice(_gp);
     html += '<div class="info-modal" onclick="closeGearPop()"><div class="im-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;padding:20px 18px;">';
@@ -4250,9 +4278,9 @@ function _grantKillReward(mon){
   { var _vk=vaultBonus(); if(_vk.killRegenPct>0){ state.hp=Math.min(state.hpMax,(state.hp||0)+Math.floor(state.hpMax*_vk.killRegenPct/100)); state.mp=Math.min(state.mpMax,(state.mp||0)+Math.floor(state.mpMax*_vk.killRegenPct/100)); } }
   for(var k in mon.reward){ var val=Math.floor(mon.reward[k]*lootMult); if(k==='lingshi'){gainLingshi(val);arr.push('靈石+'+fmt(val));} if(k==='shengwang'){state.shengwang+=val;arr.push('聲望+'+val);} if(k==='kuangshi'){state.kuangshi+=val;arr.push('礦石+'+val);} }
   var dl=MONSTER_DROPS[mon.realm]||[]; dl.forEach(function(d){ if(Math.random()<d[1]){ var dn=d[2]+Math.floor(Math.random()*(d[3]-d[2]+1)); applyDrop(d[0],dn,mon.realm); arr.push(DROP_INFO[d[0]].name+'×'+dn); } });
-  if(mon.xiuwei){ var _xw=Math.floor(mon.xiuwei/(70+Math.random()*30)); state.qi+=_xw; state.totalQi+=_xw; arr.push('修為+'+fmt(_xw)); }
+  if(mon.xiuwei){ var _xw=Math.floor(mon.xiuwei/(140+Math.random()*60)); state.qi+=_xw; state.totalQi+=_xw; arr.push('修為+'+fmt(_xw)); }
   var _ndR=(0.08+Math.random()*0.02) + Math.min(0.02,(state.fuyuan||0)/2500) + Math.min(0.03,(state.jiyuan||0)/2500);
-  if(Math.random()<_ndR){ var _ndn=mon.baseName||mon.name; applyDrop('neidan',1,_ndn); arr.push(_ndn+'內丹×1'); }
+  if(Math.random()<_ndR){ var _ndn=mon.baseName||mon.name; applyDrop('yuandan',1,_ndn); arr.push(_ndn+'原丹×1'); }
   var _eqR=0.08+0.005*mon.realm+(vaultBonus().dropPct||0)/100; if(Math.random()<_eqR){ var _gid=randomGearForRealm(mon.realm); if(_gid){ state.bag.gear=state.bag.gear||[]; state.bag.gear.push(_gid); arr.push('裝備·'+GEAR_DB[_gid].name); } }
   var _wg=WEIWANG_GAIN[mon.realm]||1; var _t0=titleIdx(state.weiwang); state.weiwang=(state.weiwang||0)+_wg; arr.push('威望+'+_wg); if(titleIdx(state.weiwang)>_t0){ arr.push('晉升稱號「'+titleOf(state.weiwang)+'」'); }
   state.killTotal=(state.killTotal||0)+1; _recordKill(mon); if(Math.random()<0.04) state.encPending=true;

@@ -147,6 +147,20 @@ body { background:#221c14; display:flex; align-items:center; justify-content:cen
 .store-tab.active { background:#8a4a1f; color:#fff; border-color:#8a4a1f; }
 .rank-btn { padding:3px 8px; border-radius:7px; font-size:11px; font-weight:700; background:rgba(138,74,31,0.10); border:1px solid rgba(138,74,31,0.35); color:#7a4a1a; cursor:pointer; white-space:nowrap; }
 .rank-btn:hover { background:rgba(138,74,31,0.2); }
+.ident-overlay{ position:fixed; inset:0; z-index:9998; background:linear-gradient(160deg,#2a2036,#3a2a44); display:flex; align-items:center; justify-content:center; padding:14px; overflow-y:auto; }
+.ident-box{ width:100%; max-width:460px; background:rgba(250,244,230,0.98); border-radius:16px; padding:18px 16px; box-shadow:0 8px 40px rgba(0,0,0,0.5); max-height:94vh; overflow-y:auto; }
+.ident-title{ font-size:20px; font-weight:800; color:#5a3a1a; text-align:center; margin-bottom:8px; }
+.ident-story{ font-size:12.5px; color:#5a4428; line-height:1.85; margin-bottom:14px; text-align:center; }
+.ident-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.ident-card{ background:rgba(255,255,255,0.7); border:1px solid rgba(160,120,70,0.35); border-radius:10px; padding:10px 8px; cursor:pointer; text-align:center; }
+.ident-card:active{ background:rgba(255,240,210,0.95); }
+.ident-card.locked{ opacity:0.5; cursor:not-allowed; }
+.ident-card.rand{ grid-column:1/-1; background:rgba(200,160,80,0.18); }
+.ident-ic{ font-size:26px; }
+.ident-nm{ font-size:14px; font-weight:800; color:#2a1f12; margin:2px 0; }
+.ident-fx{ font-size:11px; color:#b35a1f; font-weight:700; }
+.ident-ds{ font-size:10.5px; color:#7a6038; line-height:1.4; margin-top:3px; }
+.ident-st{ font-size:10px; color:#3a8a4a; margin-top:3px; }
 .store-empty { grid-column:1/-1; text-align:center; color:#9a8458; font-size:12px; padding:16px 8px; }
 .cell5 { position:relative; text-align:center; background:rgba(255,255,255,0.55); border:1px solid rgba(160,120,70,0.3); border-radius:8px; padding:6px 2px 8px; }
 .cell5 .ci { font-size:20px; height:28px; display:flex; align-items:center; justify-content:center; }
@@ -1811,7 +1825,7 @@ const initialState = {
   wuxing:5, shouyuan:60, zhanli:10, qingyuan:0, shengwang:0, weiwang:0,
   wuxingRoot:{jin:50,mu:50,shui:50,huo:50,tu:50},
   gengu:5, tipo:5, yanli:5, shenxing:5, xinxing:5, fuyuan:5, jiyuan:5,
-  attrPool:0,
+  attrPool:0, daoyun:0, reincCount:0, reincLv:{}, daozuReinc:0, identity:null, autoWeight:null,
   realm:0, subRealm:0, sect:null,
   elixirs:{}, artifacts:{}, daolu:null, zhujiBuff:0,
   logs:[], lastTick:Date.now(), totalSeconds:0, lastRegenDay:0, lastEventDay:0,
@@ -1904,6 +1918,13 @@ function loadState() {
     if (Array.isArray(state.neidan)) state.neidan={};
     if (state.yuandan === undefined || Array.isArray(state.yuandan)) state.yuandan={};
     if (state.attrPool === undefined) state.attrPool=0;
+    if (state.daoyun === undefined) state.daoyun=0;
+    if (state.reincCount === undefined) state.reincCount=0;
+    if (state.reincLv === undefined || typeof state.reincLv!=='object') state.reincLv={};
+    if (state.daozuReinc === undefined) state.daozuReinc=0;
+    if (state.identity === undefined) state.identity=null;
+    if (state.autoWeight === undefined) state.autoWeight=null;
+    if (!state.identity && ((state.realm||0)>0 || (state.totalQi||0)>0 || (state.reincCount||0)>0)){ state.identity='fanren'; if(!state.autoWeight){ var _fi=_identById('fanren'); state.autoWeight=_fi?_fi.aw:null; } }
     if (state.viewSect === undefined) state.viewSect=null;
     if (state.viewCity === undefined) state.viewCity=null;
     if (state.sectArea === undefined) state.sectArea=null;
@@ -1942,6 +1963,35 @@ function timeLabel() { const d=getDays(), y=Math.floor(d/365), rd=d%365; return 
 function lifeLeft() { return Math.max(0, Math.floor(state.shouyuan) - Math.floor(getDays()/365)); }
 function getRealmName() { const r=REALMS[state.realm]; return r.name + (r.sub[state.subRealm]||''); }
 function realmShort() { return getRealmName(); }
+var IDENTITIES=[
+ {id:'fanren',   name:'凡人俗子', ic:'🧑', unlock:0, foc:'均衡', desc:'塵世凡胎，資質平平，卻無所偏廢。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{}, sl:2000, sg:[]},
+ {id:'wushi',    name:'武道世家', ic:'🥋', unlock:0, foc:'根骨·攻擊', desc:'將門之後，筋骨天成，攻伐凌厲。', aw:{gengu:3,tipo:2}, sa:{gengu:15,tipo:8}, sl:0, sg:['e012']},
+ {id:'shuxiang', name:'書香門第', ic:'📖', unlock:0, foc:'悟性·修煉', desc:'詩禮傳家，悟性超群，修煉飛速。', aw:{wuxing:3,xinxing:1}, sa:{wuxing:16}, sl:15000, sg:[]},
+ {id:'youxia',   name:'江湖遊俠', ic:'🗡', unlock:0, foc:'身形·閃避', desc:'浪跡天涯，身法飄忽，避打反擊。', aw:{shenxing:3,yanli:1}, sa:{shenxing:16}, sl:0, sg:[]},
+ {id:'liehu',    name:'獵戶之子', ic:'🏹', unlock:0, foc:'眼力·暴擊', desc:'山野獵戶，目光如炬，一擊致命。', aw:{yanli:3,shenxing:1}, sa:{yanli:16}, sl:0, sg:[]},
+ {id:'qier',     name:'道觀棄嬰', ic:'⛩', unlock:0, foc:'心性·突破', desc:'自幼清修，心志堅韌，突破如神。', aw:{xinxing:3,wuxing:1}, sa:{xinxing:16}, sl:4000, sg:[]},
+ {id:'shanggu',  name:'商賈之後', ic:'💰', unlock:1, foc:'福緣·財富', desc:'家財萬貫，福緣深厚，拾遺無數。', aw:{fuyuan:3,jiyuan:1}, sa:{fuyuan:15}, sl:50000, sg:[]},
+ {id:'jiangmen', name:'將門虎子', ic:'🛡', unlock:1, foc:'體魄·防禦', desc:'名將血裔，體魄雄渾，攻守兼備。', aw:{tipo:3,gengu:1}, sa:{tipo:20}, sl:0, sg:['e001','e012']},
+ {id:'xianyi',   name:'仙裔遺孤', ic:'✨', unlock:2, foc:'機緣·天命', desc:'仙人血脈，機緣不斷，天命所歸。', aw:{jiyuan:3,fuyuan:1}, sa:{jiyuan:20,fuyuan:6}, sl:0, sg:[]},
+ {id:'liantong', name:'煉體狂人', ic:'💪', unlock:2, foc:'根骨+體魄', desc:'以體證道，血肉成聖，攻防俱強。', aw:{gengu:2,tipo:2}, sa:{gengu:12,tipo:12}, sl:0, sg:[]},
+ {id:'guxing',   name:'天煞孤星', ic:'☄', unlock:3, foc:'心性(福緣淺)', desc:'命犯孤煞，道心通玄，然福澤淺薄。', aw:{xinxing:3,gengu:1}, sa:{xinxing:26,fuyuan:-3}, sl:0, sg:[]},
+ {id:'qiyun',    name:'氣運之子', ic:'🍀', unlock:3, foc:'福緣+機緣', desc:'天生氣運，逢凶化吉，鴻運當頭。', aw:{fuyuan:2,jiyuan:2}, sa:{fuyuan:12,jiyuan:12}, sl:15000, sg:[]},
+ {id:'jianxiu',  name:'劍修世家', ic:'⚔', unlock:4, foc:'眼力+根骨', desc:'劍道傳家，眼疾手快，攻勢凌厲。', aw:{yanli:2,gengu:2}, sa:{yanli:12,gengu:12}, sl:0, sg:['e012']},
+ {id:'chanseng', name:'禪院僧人', ic:'📿', unlock:4, foc:'心性+體魄', desc:'古剎清修，心如止水，體魄如鐘。', aw:{xinxing:2,tipo:2}, sa:{xinxing:14,tipo:10}, sl:0, sg:[]},
+ {id:'danshi',   name:'煉丹宗師', ic:'⚗', unlock:5, foc:'悟性+福緣', desc:'丹道大家，悟性通玄，福澤綿長。', aw:{wuxing:2,fuyuan:2}, sa:{wuxing:12,fuyuan:12}, sl:20000, sg:[]},
+ {id:'modao',    name:'魔道傳人', ic:'😈', unlock:5, foc:'根骨(道心淺)', desc:'入魔証道，殺伐果決，然道心不穩。', aw:{gengu:3,yanli:1}, sa:{gengu:28,xinxing:-3}, sl:0, sg:[]},
+ {id:'sanxiu',   name:'散修浪人', ic:'🎒', unlock:6, foc:'均衡·家底厚', desc:'白手起家，資質平平卻自備盤纏。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:4,tipo:4,wuxing:4,yanli:4,shenxing:4,xinxing:4,fuyuan:4,jiyuan:4}, sl:80000, sg:['e001','e012']},
+ {id:'yaoyi',    name:'妖族血裔', ic:'🐾', unlock:6, foc:'體魄+身形', desc:'妖獸血脈，肉身強橫，身法矯健。', aw:{tipo:2,shenxing:2}, sa:{tipo:16,shenxing:8}, sl:0, sg:[]},
+ {id:'tianming', name:'天命之子', ic:'🌠', unlock:7, foc:'全屬性微增', desc:'天命所鍾，八方俱佳，無有短板。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:6,tipo:6,wuxing:6,yanli:6,shenxing:6,xinxing:6,fuyuan:6,jiyuan:6}, sl:10000, sg:[]},
+ {id:'zhexian',  name:'謫仙轉世', ic:'🕊', unlock:7, foc:'機緣+悟性', desc:'仙人謫世，慧根深植，機緣天成。', aw:{jiyuan:2,wuxing:2}, sa:{jiyuan:16,wuxing:12}, sl:15000, sg:[]}
+];
+function _identById(id){ for(var i=0;i<IDENTITIES.length;i++){ if(IDENTITIES[i].id===id) return IDENTITIES[i]; } return null; }
+function _identPool(){ var d=state.daozuReinc||0; return IDENTITIES.filter(function(x){ return d>=x.unlock; }); }
+function _autoAllocSplit(gain){ var ks=['gengu','tipo','wuxing','yanli','shenxing','xinxing','fuyuan','jiyuan']; var w=state.autoWeight; if(!w||typeof w!=='object'){ w={}; ks.forEach(function(k){w[k]=1;}); } var total=8*gain, autoTotal=Math.floor(total/2), pool=total-autoTotal; var sw=0; ks.forEach(function(k){ sw+=(w[k]||0); }); if(sw<=0){ sw=8; w={gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}; } var auto={}, used=0; ks.forEach(function(k){ auto[k]=Math.floor(autoTotal*(w[k]||0)/sw); used+=auto[k]; }); var rem=autoTotal-used; var order=ks.slice().sort(function(a,b){ return (w[b]||0)-(w[a]||0); }); var ri=0; while(rem>0){ auto[order[ri%order.length]]+=1; rem--; ri++; } return {auto:auto,pool:pool}; }
+function applyIdentity(idn){ if(!idn) return; state.identity=idn.id; state.identityName=idn.name; state.autoWeight=idn.aw||null; var ks=['gengu','tipo','wuxing','yanli','shenxing','xinxing','fuyuan','jiyuan']; ks.forEach(function(k){ state[k]=Math.max(1,5+((idn.sa&&idn.sa[k])||0)); }); if(idn.sl){ gainLingshi(idn.sl); } if(idn.sg&&idn.sg.length){ state.bag=state.bag||{}; state.bag.gear=state.bag.gear||[]; idn.sg.forEach(function(g){ state.bag.gear.push(g); }); } applyRealmStats(); refreshMaxStats(); state.hp=state.hpMax; state.mp=state.mpMax; state.ep=state.epMax; }
+function selectIdentity(id){ var pool=_identPool(); var idn; if(id==='random'){ idn=pool[Math.floor(Math.random()*pool.length)]; } else { idn=_identById(id); if(idn && (state.daozuReinc||0)<idn.unlock){ showToast('此身分尚未解鎖'); return; } } if(!idn) return; applyIdentity(idn); addLog('【轉世】此世身分：'+idn.name+'（'+idn.foc+'）','great'); showToast('身分：'+idn.name); saveState(); render(); }
+function identityOverlayHTML(){ if(state.identity) return ''; var first=((state.reincCount||0)===0); var d=state.daozuReinc||0; var h='<div class="ident-overlay"><div class="ident-box">'; h+='<div class="ident-title">'+(first?'🌌 踏入修仙路':('🔄 轉世 · 第 '+((state.reincCount||0))+' 周目'))+'</div>'; if(first){ h+='<div class="ident-story">天地玄黃，靈氣氤氳。你魂歸此界，得一具凡軀，睜眼便是求道長生的漫漫仙途。<br>你的<b>出身</b>，將決定此世資質的偏重——擇一而行：</div>'; } else { h+='<div class="ident-story">前塵已了，道韻長存。轉世重修，擇此世身分——每登道祖一次，便多兩種人生可選。（已解鎖 '+_identPool().length+' / '+IDENTITIES.length+'）</div>'; } h+='<div class="ident-grid">'; IDENTITIES.forEach(function(x){ var locked=d<x.unlock; if(locked){ h+='<div class="ident-card locked"><div class="ident-ic">🔒</div><div class="ident-nm">？？？</div><div class="ident-fx">需道祖轉世 '+x.unlock+' 次解鎖</div></div>'; } else { h+='<div class="ident-card" onclick="selectIdentity(\''+x.id+'\')"><div class="ident-ic">'+x.ic+'</div><div class="ident-nm">'+x.name+'</div><div class="ident-fx">偏重：'+x.foc+'</div><div class="ident-ds">'+x.desc+'</div><div class="ident-st">'+(x.sl?'開局靈石 '+fmt(x.sl):'')+((x.sg&&x.sg.length)?((x.sl?' · ':'')+'贈基礎裝備'):'')+'</div></div>'; } }); h+='<div class="ident-card rand" onclick="selectIdentity(\'random\')"><div class="ident-ic">🎲</div><div class="ident-nm">隨機天命</div><div class="ident-fx">交由天意，隨機一種已解鎖身分</div></div>'; h+='</div></div></div>'; return h; }
+function reincBonus(){ var lv=state.reincLv||{}; return { cultPct:2*(lv.tianzi||0), killPct:2*(lv.shafa||0), allStatPct:1*(lv.shenhun||0), dropPct:2*(lv.fuze||0), breakPct:1*(lv.daoji||0), chuancheng:(lv.chuancheng||0) }; }
 function qiPerSecNow() {
   const realm = REALMS[state.realm];
   let g = realm.qiPerSec + (state.wuxing||0) * 2.3;
@@ -1949,6 +1999,7 @@ function qiPerSecNow() {
   if (state.daolu) g *= (1 + Math.min(1, state.qingyuan * 0.005));
   if (state.artifacts.dingxiang) g *= 1.3;
   if (state.boostUntil > Date.now()) g *= 2;
+  g *= (1 + reincBonus().cultPct/100);
   return g;
 }
 function addLog(text, type) { if(/^【(礦山|食堂|酒肆|家園|[^】]*坊|法陣|煉[丹器](失敗)?|萬寶閣|藏寶閣|功法|升級|禮包|離線修練|歷練)】/.test(text)) return; state.logs.unshift({text, type:type||'normal', yr:getDays()}); state.logUnread=(state.logUnread||0)+1; if (state.logs.length>30) state.logs.pop(); }
@@ -2182,10 +2233,10 @@ function gfXlLlNow(id,g){ var b=gfBaseBonus(id,g); var L=(g&&g.level)||1; if(g&&
 function gfHealthCheck(){ if(!state.gongfa) return; for(var id in state.gongfa){ var g=state.gongfa[id]; if(!g) continue; if(typeof g.level!=='number'||!(g.level>=1)) g.level=1; if(g.level>10) g.level=10; if((''+id).indexOf('gf_')===0){ var _pp=(''+id).split('_'); if(_pp.length>=5){ var _rr=parseInt(_pp[2])||0; if(g.realm!==_rr) g.realm=_rr; } } if(g.cat==='xiulian'||g.cat==='lingli'){ var v=gfXlLlNow(id,g); if(g.bonus!==v) g.bonus=v; } } }
 function lpPerSec(){ let s=0; for (const id in state.gongfa){ const g=state.gongfa[id]; if(g.cat==='lingli') s+=gfXlLlNow(id,g); } return s; }
 function speedBonus(){ let s=0; for (const id in state.gongfa){ const g=state.gongfa[id]; if(g.cat==='xiulian') s+=gfXlLlNow(id,g); } return s; }
-function applyRealmStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var asf=1+(vb.allStatPct||0)/100; var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf*(1+_fb.hpPct/100)*(1+_srb.hpPct/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*asf*(1+_fb.mpPct/100)*(1+_srb.mpPct/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; state.hp=state.hpMax; state.mp=state.mpMax; state.ep=state.epMax; }
+function applyRealmStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var asf=1+((vb.allStatPct||0)+reincBonus().allStatPct)/100; var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf*(1+_fb.hpPct/100)*(1+_srb.hpPct/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*asf*(1+_fb.mpPct/100)*(1+_srb.mpPct/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; state.hp=state.hpMax; state.mp=state.mpMax; state.ep=state.epMax; }
 function triggerDeath(){ state.dead=true; state.deathInfo={ realm:getRealmName(), years:Math.floor(getDays()/365), totalQi:Math.floor(state.totalQi||0) }; window._btRunning=false; window._btStop=true; window._btAnim=false; MB=null; saveState(); render(); }
 function deathReset(){ state=JSON.parse(JSON.stringify(initialState)); refreshMaxStats(); saveState(); render(); }
-function refreshMaxStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var asf=1+(vb.allStatPct||0)/100; var fullH=(state.hp>=state.hpMax), fullM=(state.mp>=state.mpMax), fullL=(state.lp>=state.lpMax), fullE=(state.ep>=state.epMax); var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf*(1+_fb.hpPct/100)*(1+_srb.hpPct/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*asf*(1+_fb.mpPct/100)*(1+_srb.mpPct/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; if(fullH||state.hp>state.hpMax)state.hp=state.hpMax; if(fullM||state.mp>state.mpMax)state.mp=state.mpMax; if(fullL||state.lp>state.lpMax)state.lp=state.lpMax; if(state.ep>state.epMax)state.ep=state.epMax; }
+function refreshMaxStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var asf=1+((vb.allStatPct||0)+reincBonus().allStatPct)/100; var fullH=(state.hp>=state.hpMax), fullM=(state.mp>=state.mpMax), fullL=(state.lp>=state.lpMax), fullE=(state.ep>=state.epMax); var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf*(1+_fb.hpPct/100)*(1+_srb.hpPct/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*asf*(1+_fb.mpPct/100)*(1+_srb.mpPct/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; if(fullH||state.hp>state.hpMax)state.hp=state.hpMax; if(fullM||state.mp>state.mpMax)state.mp=state.mpMax; if(fullL||state.lp>state.lpMax)state.lp=state.lpMax; if(state.ep>state.epMax)state.ep=state.epMax; }
 function claimGift(){
   if (state.giftClaimed) return;
   gainLingshi(10000); state.lingcao+=50; state.kuangshi+=50;
@@ -2343,7 +2394,7 @@ function tryBreakthrough() {
   var BASE_RATE=[0.95, 0.90, 0.85, 0.75, 0.60, 0.45, 0.30, 0.15, 0.12, 0.10, 0.08];
   // 跨境突破時，目標境界為 state.realm+1（subRealm 為當前境界內進階，沿用本境界率）
   var targetRealm=(state.subRealm===realm.sub.length-1 && state.realm<REALMS.length-1) ? state.realm+1 : state.realm;
-  let successRate = (BASE_RATE[targetRealm]||0.5) + xxBonus*0.5;
+  let successRate = (BASE_RATE[targetRealm]||0.5) + xxBonus*0.5 + reincBonus().breakPct/100;
   if (state.zhujiBuff>0){ successRate+=0.3; state.zhujiBuff--; }
   if (state.vaultBreakBonus>0){ successRate+=state.vaultBreakBonus; state.vaultBreakBonus=0; }
   if (isTrib && state.vaultTribBonus>0){ successRate+=state.vaultTribBonus; state.vaultTribBonus=0; }
@@ -2362,25 +2413,23 @@ function tryBreakthrough() {
       // 小階突破：各靈根+5、各素質+2 (大跨境約為其 5-15 倍)
       var subWx=2, subSz=1;
       state.wuxingRoot.jin+=subWx; state.wuxingRoot.mu+=subWx; state.wuxingRoot.shui+=subWx; state.wuxingRoot.huo+=subWx; state.wuxingRoot.tu+=subWx;
-      var _szaS=Math.floor(subSz/2), _poolS=(subSz-_szaS)*8;
-      state.gengu+=_szaS; state.tipo+=_szaS; state.wuxing+=_szaS; state.yanli+=_szaS; state.shenxing+=_szaS;
-      state.xinxing+=_szaS; state.fuyuan+=_szaS; state.jiyuan+=_szaS;
-      state.attrPool=(state.attrPool||0)+_poolS;
+      var _spS=_autoAllocSplit(subSz);
+      state.gengu+=_spS.auto.gengu; state.tipo+=_spS.auto.tipo; state.wuxing+=_spS.auto.wuxing; state.yanli+=_spS.auto.yanli; state.shenxing+=_spS.auto.shenxing; state.xinxing+=_spS.auto.xinxing; state.fuyuan+=_spS.auto.fuyuan; state.jiyuan+=_spS.auto.jiyuan;
+      state.attrPool=(state.attrPool||0)+_spS.pool;
       refreshMaxStats();
-      addLog('【小階突破】踏入 '+getRealmName()+' — 五行+'+subWx+'、素質自動+'+_szaS+'、配點+'+_poolS+'、壽元+20','good');
-      showToast('境界提升！'+getRealmName()+' 配點+'+_poolS);
+      addLog('【小階突破】踏入 '+getRealmName()+' — 五行+'+subWx+'、素質自動成長（依身分偏重）、可配點+'+_spS.pool+'、壽元+20','good');
+      showToast('境界提升！'+getRealmName()+' 配點+'+_spS.pool);
     } else if (state.realm < REALMS.length-1) {
       state.realm++; state.subRealm=0;
       const lifeGains=[200,500,1000,5000,10000,50000,999999,2000000,5000000,10000000];
       state.shouyuan += lifeGains[state.realm-1]||100;
       const wxGain=30*Math.pow(2,state.realm-1), szGain=10*Math.pow(2,state.realm-1);
       state.wuxingRoot.jin+=wxGain; state.wuxingRoot.mu+=wxGain; state.wuxingRoot.shui+=wxGain; state.wuxingRoot.huo+=wxGain; state.wuxingRoot.tu+=wxGain;
-      var _szaB=Math.floor(szGain/2), _poolB=(szGain-_szaB)*8;
-      state.gengu+=_szaB; state.tipo+=_szaB; state.wuxing+=_szaB; state.yanli+=_szaB; state.shenxing+=_szaB;
-      state.xinxing+=_szaB; state.fuyuan+=_szaB; state.jiyuan+=_szaB;
-      state.attrPool=(state.attrPool||0)+_poolB;
+      var _spB=_autoAllocSplit(szGain);
+      state.gengu+=_spB.auto.gengu; state.tipo+=_spB.auto.tipo; state.wuxing+=_spB.auto.wuxing; state.yanli+=_spB.auto.yanli; state.shenxing+=_spB.auto.shenxing; state.xinxing+=_spB.auto.xinxing; state.fuyuan+=_spB.auto.fuyuan; state.jiyuan+=_spB.auto.jiyuan;
+      state.attrPool=(state.attrPool||0)+_spB.pool;
       applyRealmStats();
-      addLog('【素質成長】跨境提升 — 五行靈根 +'+wxGain+'、全素質自動 +'+_szaB+'、可配點 +'+_poolB,'great');
+      addLog('【素質成長】跨境提升 — 五行靈根 +'+wxGain+'、素質自動成長（依身分偏重）、可配點 +'+_spB.pool,'great');
       state.tribulations++; addLog('【渡劫成功】雷霆過後踏入 '+getRealmName(),'great'); showTribulation('渡劫成功！');
     }
   } else {
@@ -2838,7 +2887,44 @@ var _taskSheet=false, _taskCatOpen={main:true,side:false,sect:false,enc:false};
 function openTaskSheet(){ _taskSheet=true; render(); }
 function closeTaskSheet(){ _taskSheet=false; render(); }
 var _guideOpen=false;
-function openReincarnation(){ showToast('輪迴系統建置中，敬請期待'); }
+function reincScore(){ var r=state.realm||0; var realmPt=r*r*30; var qiPt=Math.floor(Math.log(1+(state.totalQi||0))/Math.LN10*80); var warPt=Math.floor((state.killTotal||0)/20)+((state.bossKills||0)*10)+Math.floor(Math.log(1+(state.weiwang||0))/Math.LN10*50); return Math.floor((realmPt+qiPt+warPt)/10); }
+var REINC_SHOP=[
+ {id:'tianzi',  name:'天資·修煉', ic:'🧘', per:2, unit:'修煉速度', base:160, max:40},
+ {id:'shafa',   name:'殺伐·戰魂', ic:'⚔️', per:2, unit:'擊殺修為', base:160, max:40},
+ {id:'shenhun', name:'神魂·根基', ic:'🌟', per:1, unit:'全素質',   base:192, max:40},
+ {id:'fuze',    name:'福澤·機緣', ic:'🍀', per:2, unit:'掉寶/奇遇', base:160, max:40},
+ {id:'daoji',   name:'道基·通玄', ic:'☯️', per:1, unit:'突破成功率', base:240, max:15},
+ {id:'chuancheng', name:'傳承·底蘊', ic:'📜', per:0, unit:'開局贈靈石', base:240, max:10}
+];
+function _reincItem(id){ for(var i=0;i<REINC_SHOP.length;i++){ if(REINC_SHOP[i].id===id) return REINC_SHOP[i]; } return null; }
+function reincCost(id){ var it=_reincItem(id); var lv=(state.reincLv&&state.reincLv[id])||0; return Math.round(it.base*Math.pow(1.9,lv)); }
+function _chuanchengLingshi(lv){ return lv>0?Math.floor(10000*Math.pow(4,lv-1)):0; }
+function buyReincUpgrade(id){ var it=_reincItem(id); if(!it) return; var lv=(state.reincLv&&state.reincLv[id])||0; if(lv>=it.max){ showToast('已達上限'); return; } var cost=reincCost(id); if((state.daoyun||0)<cost){ showToast('道韻不足，需 '+cost); return; } state.daoyun-=cost; if(!state.reincLv)state.reincLv={}; state.reincLv[id]=lv+1; refreshMaxStats(); addLog('【輪迴商店】'+it.name+' → Lv.'+(lv+1),'good'); showToast(it.name+' Lv.'+(lv+1)); saveState(); render(); }
+function openReincarnation(){ state.reincOpen=true; state.reincConfirm=false; render(); }
+function closeReincarnation(){ state.reincOpen=false; state.reincConfirm=false; render(); }
+function doReincarnate(){ if(!state.reincConfirm){ state.reincConfirm=true; render(); return; } var score=reincScore(); var _wasDaozu=((state.realm||0)>=REALMS.length-1);
+  var keep={ daoyun:(state.daoyun||0)+score, reincCount:(state.reincCount||0)+1, daozuReinc:(state.daozuReinc||0)+(_wasDaozu?1:0), reincLv:state.reincLv||{}, avatars:state.avatars, avatar:state.avatar, playerName:state.playerName, codesUsed:state.codesUsed, musicOn:state.musicOn, admin:state.admin, adminAutoEnc:state.adminAutoEnc };
+  state=JSON.parse(JSON.stringify(initialState));
+  for(var k in keep){ if(keep[k]!==undefined) state[k]=keep[k]; }
+  state.resetTag=RESET_TAG; state.lastTick=Date.now();
+  var cc=reincBonus().chuancheng; if(cc>0){ gainLingshi(_chuanchengLingshi(cc)); }
+  applyRealmStats(); refreshMaxStats(); state.reincOpen=false; state.reincConfirm=false;
+  addLog('【輪迴】轉世第 '+state.reincCount+' 世 · 道韻 +'+score+'（累計 '+state.daoyun+'）','great'); showToast('輪迴轉世！道韻 +'+score);
+  saveState(); render(); }
+function reincModalHTML(){ if(!state.reincOpen) return ''; var sc=reincScore(); var rb=reincBonus();
+  var h='<div class="info-modal" onclick="closeReincarnation()"><div class="im-box" onclick="event.stopPropagation()" style="width:344px;max-height:86vh;overflow-y:auto;">';
+  h+='<div class="im-head">🔄 輪迴 · 第 '+(state.reincCount||0)+' 世<span class="im-x" onclick="closeReincarnation()">✕</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:12px;color:#5a3a1a;background:rgba(200,160,80,0.12);border-radius:6px;padding:8px 10px;margin-bottom:8px;"><span>現有道韻 <b style="color:#8a4a1f;font-size:15px;">'+fmt(state.daoyun||0)+'</b></span><span>本世結算可得 <b style="color:#3a8a4a;font-size:15px;">+'+fmt(sc)+'</b></span></div>';
+  h+='<div style="font-size:11px;color:#9a7a48;margin:0 2px 8px;line-height:1.6;">道韻＝境界＋累計修為＋戰功（擊殺/BOSS/威望）換算。輪迴後幾乎全部重置，但<b>道韻與已購加成永久保留</b>，可隨時輪迴。</div>';
+  h+='<div style="font-size:12px;font-weight:700;color:#7a5a28;margin:4px 2px 6px;">🛍 道韻商店（永久加成）</div>';
+  REINC_SHOP.forEach(function(it){ var lv=(state.reincLv&&state.reincLv[it.id])||0; var cost=reincCost(it.id); var maxed=lv>=it.max; var eff;
+    if(it.id==='chuancheng'){ eff='現：開局贈靈石 '+fmt(_chuanchengLingshi(lv))+(lv<it.max?' → '+fmt(_chuanchengLingshi(lv+1)):''); } else { eff='現：'+it.unit+' +'+(it.per*lv)+'%'+(maxed?'':' → +'+(it.per*(lv+1))+'%'); }
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid rgba(160,120,70,0.12);"><div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#2a1f12;">'+it.ic+' '+it.name+' <span style="color:#3a8a4a;font-size:11px;">Lv.'+lv+'/'+it.max+'</span></div><div style="font-size:11px;color:#7a6038;">'+eff+'</div></div>'+(maxed?'<span style="font-size:11px;color:#9a9a9a;flex:none;">已滿</span>':'<button class="item-btn" style="background:'+((state.daoyun||0)>=cost?'#8a4a1f':'#bbb')+';color:#fff;padding:5px 10px;font-size:11px;flex:none;" onclick="buyReincUpgrade(\''+it.id+'\')">'+fmt(cost)+' 道韻</button>')+'</div>';
+  });
+  h+='<div style="margin-top:12px;">';
+  if(!state.reincConfirm){ h+='<button class="item-btn" style="width:100%;background:#8a3a2a;color:#fff;padding:10px;font-size:13px;" onclick="doReincarnate()">🔄 執行輪迴（重置本世 · 結算 +'+fmt(sc)+' 道韻）</button>'; }
+  else { h+='<div style="font-size:12px;color:#c0392b;text-align:center;margin-bottom:6px;font-weight:700;">確定輪迴？本世境界／修為／裝備／功法／設施等將全部重置（道韻與加成保留）。</div><div style="display:flex;gap:8px;"><button class="item-btn" style="flex:1;background:#c0392b;color:#fff;padding:10px;" onclick="doReincarnate()">確認輪迴</button><button class="item-btn" style="flex:1;background:#999;color:#fff;padding:10px;" onclick="state.reincConfirm=false;render()">取消</button></div>'; }
+  h+='</div></div></div>'; return h; }
 function openGuide(){ _guideOpen=true; render(); }
 function closeGuide(){ _guideOpen=false; render(); }
 function guideHTML(){ return '<div class="ts-mask" onclick="event.stopPropagation();closeGuide()"></div><div class="task-sheet" onclick="event.stopPropagation()"><div class="ts-head">📖 玩法攻略<span class="ts-x" onclick="closeGuide()">✕</span></div><div class="ts-scroll" style="padding:4px 12px 14px;"><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🌀 核心玩法循環</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">本作為修仙掛機遊戲，兩條主線並行：①<b>靜心修煉</b>（掛機自動累積修為，悟性越高越快）；②<b>入境歷練</b>（擊殺妖獸換取大量修為與掉落）。前期掛機慢、擊殺快，<b>擊殺是主要成長來源</b>。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">⚡ 突破境界</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">修為蓄滿「突破所需」（＝境界基準×1400）即可衝境，每個小階都要蓄滿一次。突破有<b>成功率</b>，越高境越難；<b>心性</b>可提高成功率並抗心魔（失敗扣壽元）。渡劫期以上突破即「渡劫」，戰力與法寶能加成功率。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">⚔️ 戰鬥系統（最重要）</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">・手動施放<b>法術</b>：傷害＝功法威力＋攻擊×0.5，且<b>不吃怪物防禦</b>，是穿透高防怪的關鍵。<br>・自動戰鬥＝30%物攻＋70%自動施法，法力足夠時同樣吃功法傷害；但物攻要扣防，裝備不足時<b>手動施法效率遠高於純掛機</b>。<br>・<b>法力管理</b>：法術耗法力，見底會退回劍氣（弱）。靈力型功法可擴充法力上限。<br>・減傷上限85%；閃避／反擊／暴擊靠身形、眼力與功法。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">📚 功法配置建議</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">內功四系優先：<b>金</b>（攻擊）、<b>土</b>（防禦＋減傷）、<b>光</b>（全屬性％）、<b>水</b>（閃避）。外功／法術帶一支高傷單體或群體（火系有濺射）。靈力型補法力池。功法可升至 <b>Lv10</b>（威力約×3.5）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">💠 投資優先序</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;"><b>同階全套裝備 ＞ 功法升滿 ＞ 洞府設施 ＞ 宗門階級</b>。裝備的根骨／體魄換算成攻防，是戰力主體；設施（食堂血量、酒肆法力、礦山攻防）為永久％加成。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🧬 素質對照</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">根骨→攻擊＋減傷；體魄→血量＋防禦；悟性→修練效率＋法力上限；眼力→暴擊＋命中；身形→閃避＋反擊；心性→突破率＋抗心魔；福緣→掉寶倍率；機緣→晉升機緣。突破會自動成長全素質（越高境長越多）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">💰 貨幣與兌幣</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">靈石分階（下品→…→仙玉→神石），滿額自動進位；大額交易以錢袋總額支付。萬寶樓／城主府／宗門接待所可兌幣（有手續費）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🗺️ 場所・越級・變異・大BOSS</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">每突破一境，開放「當前＋下一境」場所，可<b>越級打怪</b>（高風險、多半打不過，屬耍帥）。一般歷練每隻怪 <b>8%</b> 機率變「變異」（×3~5）。每場所有固定「<b>王</b>」大BOSS（×20~25，附2~3變異護衛），戰鬥畫面可挑戰。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🏯 宗門試煉與上呈</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">入宗後六階：外門→內門→真傳弟子→外門→內門→傳功長老，各給永久增幅（長老另加防禦／減傷，傳功再加暴擊／機緣）。主殿可「上呈」功法換點數（傳功長老需50）。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">🌌 境界階梯</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">凡人→煉氣→築基→金丹→元嬰→化神→渡劫→大羅金仙→<b>準聖→聖人→道祖</b>（頂）。對應裝備階：凡品…仙品→混沌→<b>太初→鴻蒙→大道</b>。</div><div style="font-size:13px;font-weight:800;color:#8a4a1f;margin:10px 2px 4px;">💡 小技巧</div><div style="font-size:12px;color:#4a3a24;line-height:1.85;">・打不動時先回頭把同階裝備補滿、功法升級，再挑戰同境最強怪。<br>・洞府 💾 可匯出存檔備份。<br>・道途只記大BOSS戰績。</div></div></div>'; }
@@ -3072,7 +3158,7 @@ function exportSave(){ try{ saveState(); var data=localStorage.getItem(SAVE_KEY)
 function importSaveFile(input){ var f=input&&input.files&&input.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(e){ try{ var obj=JSON.parse(e.target.result); if(!obj||typeof obj!=='object'||obj.realm===undefined){ showToast('存檔格式不符，未匯入'); return; } localStorage.setItem(SAVE_KEY, JSON.stringify(obj)); showToast('已匯入存檔，重新載入中…'); setTimeout(function(){ location.reload(); },600); }catch(err){ showToast('匯入失敗：檔案無法解析'); } }; rd.readAsText(f); }
 function setShuxingTab(t){ state.shuxingTab=t; _suzhiPop=null; _attrAlloc=null; render(); }
 function _edRow(l,v,k){ return '<div class="ed-row"><span style="display:inline-flex;align-items:center;">'+l+(k?' <span class="attr-q" onclick="event.stopPropagation();toggleAttrInfo(\''+k+'\')">?</span>':'')+'</span><b>'+v+'</b></div>'; }
-function switchTab(name) { state.exchWork=null; state.yunjiModal=null; state.sectRankModal=null; if(name==='log') state.logUnread=0; _taskSheet=false; _suzhiPop=null; if(state.currentTab==='battle' && name!=='battle'){ window._btRunning=false; window._btAnim=false; _spellOpen=false; _spellSel=null; _cfgOpen=false; _cfgCat=null; _tgtPick=null; } if(name!=='battle'&&name!=='map'&&!(MB&&!MB.over)){ state.battleLocationRealm=null; state.battleLocationName=null; state.encounterMon=null; } if(name!=='sectview'){ state.viewSect=null; } if(name!=='cityview'){ state.viewCity=null; state.cityArea=null; } if(name!=='map'){ _locPickerOpen=false; } if(name!=='sect'&&name!=='sectview'){ state.sectJoinPending=null; state.sectLeavePending=false; } state.currentTab=name; render(); }
+function switchTab(name) { state.exchWork=null; state.yunjiModal=null; state.sectRankModal=null; state.reincOpen=false; state.reincConfirm=false; if(name==='log') state.logUnread=0; _taskSheet=false; _suzhiPop=null; if(state.currentTab==='battle' && name!=='battle'){ window._btRunning=false; window._btAnim=false; _spellOpen=false; _spellSel=null; _cfgOpen=false; _cfgCat=null; _tgtPick=null; } if(name!=='battle'&&name!=='map'&&!(MB&&!MB.over)){ state.battleLocationRealm=null; state.battleLocationName=null; state.encounterMon=null; } if(name!=='sectview'){ state.viewSect=null; } if(name!=='cityview'){ state.viewCity=null; state.cityArea=null; } if(name!=='map'){ _locPickerOpen=false; } if(name!=='sect'&&name!=='sectview'){ state.sectJoinPending=null; state.sectLeavePending=false; } state.currentTab=name; render(); }
 function drinkWine(id){ const w=WINES.find(x=>x.id===id); if(!w) return; if(state.realm<w.minRealm) return showToast('境界不足'); if(!canAfford(w.cost.lingshi)) return showToast('靈石不足'); payLingshi(w.cost.lingshi);
   if(id==='tushu'){ state.ep=Math.min(state.epMax,state.ep+200); state.wuxing+=1; }
   if(id==='qionghua'){ state.ep=Math.min(state.epMax,state.ep+1000); state.wuxing+=3; }
@@ -3188,7 +3274,7 @@ function gongfaReact(){
   r.reflectPct=Math.min(30,r.reflectPct); return r;
 }
 function playerPower(){ var p=playerCombat(); var v=p.atk + p.def*2 + Math.floor(state.hpMax/20) + Math.floor(state.mpMax/60) + Math.floor((state.lpMax||0)/60) + (p.crit*100)*12 + (p.hit*100)*2 + (p.dodge*100)*10 + (p.counter*100)*10 + (p.dmgRed*100)*12 + (p.antiCrit*100)*6 + ((p.vamp||0)*100)*12 + (p.dot*100)*6; return Math.round(v); }
-function playerCombat(){ var _srb=sectRankBonus(); var eq=equipBonus(); var vb=vaultBonus(); var gb=gongfaBonus(); var asf=1+((vb.allStatPct||0)+(gb.allStatPct||0))/100; var _fb=facilityBonus(); var ge=Math.floor(((state.gengu||0)+eq.gengu+(gb.genguAdd||0))*(1+_fb.genguPct/100)), ti=(state.tipo||0)+eq.tipo, ya=Math.floor(((state.yanli||0)+eq.yanli)*(1+_fb.yanliPct/100)), sh=(state.shenxing||0)+eq.shenxing; return { hp:state.hpMax, atk:Math.floor((Math.floor(ge*2)+zhanliTotal()+eq.atk+vb.atk+gb.atk)*asf*(1+_fb.atkPct/100)*(1+_srb.atkPct/100)), def:Math.floor((Math.floor(ti*1.5)+eq.def+vb.def+gb.def)*asf*(1+_fb.defPct/100)*(1+_srb.defPct/100)), crit:Math.min(0.75,Math.min(0.5,ya/3000)+eq.crit/100+vb.critPct/100+gb.critPct/100+_srb.crit/100), hit:0.7+Math.min(0.3,ya/5000)+eq.hit/100+gb.hitPct/100, dodge:Math.min(0.5,Math.min(0.4,sh/3000)+gb.dodgePct/100), counter:Math.min(0.35,Math.min(0.3,sh/4000)+gb.counterPct/100), dmgRed:Math.min(0.85,Math.min(0.5,ge/3000)+vb.dmgRedPct/100+gb.dmgRedPct/100+_srb.dmgRed/100), antiCrit:eq.antiCrit/100, defBoost:eq.defBoost/100, dot:eq.dot/100, vamp:(eq.vamp||0)/100, regen:gb.regenPct, genguAdd:gb.genguAdd }; }
+function playerCombat(){ var _srb=sectRankBonus(); var eq=equipBonus(); var vb=vaultBonus(); var gb=gongfaBonus(); var asf=1+((vb.allStatPct||0)+(gb.allStatPct||0)+reincBonus().allStatPct)/100; var _fb=facilityBonus(); var ge=Math.floor(((state.gengu||0)+eq.gengu+(gb.genguAdd||0))*(1+_fb.genguPct/100)), ti=(state.tipo||0)+eq.tipo, ya=Math.floor(((state.yanli||0)+eq.yanli)*(1+_fb.yanliPct/100)), sh=(state.shenxing||0)+eq.shenxing; return { hp:state.hpMax, atk:Math.floor((Math.floor(ge*2)+zhanliTotal()+eq.atk+vb.atk+gb.atk)*asf*(1+_fb.atkPct/100)*(1+_srb.atkPct/100)), def:Math.floor((Math.floor(ti*1.5)+eq.def+vb.def+gb.def)*asf*(1+_fb.defPct/100)*(1+_srb.defPct/100)), crit:Math.min(0.75,Math.min(0.5,ya/3000)+eq.crit/100+vb.critPct/100+gb.critPct/100+_srb.crit/100), hit:0.7+Math.min(0.3,ya/5000)+eq.hit/100+gb.hitPct/100, dodge:Math.min(0.5,Math.min(0.4,sh/3000)+gb.dodgePct/100), counter:Math.min(0.35,Math.min(0.3,sh/4000)+gb.counterPct/100), dmgRed:Math.min(0.85,Math.min(0.5,ge/3000)+vb.dmgRedPct/100+gb.dmgRedPct/100+_srb.dmgRed/100), antiCrit:eq.antiCrit/100, defBoost:eq.defBoost/100, dot:eq.dot/100, vamp:(eq.vamp||0)/100, regen:gb.regenPct, genguAdd:gb.genguAdd }; }
 function doBattle(){ const mon=MONSTERS.find(m=>m.realm===state.realm)||MONSTERS[MONSTERS.length-1]; const p=playerCombat(); let php=p.hp, mhp=mon.hp, rounds=0;
   while(php>0&&mhp>0&&rounds<300){ rounds++;
     if(Math.random()<p.hit){ let dmg=Math.max(1,p.atk-mon.def); if(Math.random()<p.crit) dmg*=2; mhp-=dmg; }
@@ -3853,6 +3939,8 @@ function _renderCore() {
   html += '</div>';
   if (_suzhiPop && state.currentTab==='shuxing') { html += '<div class="info-modal" onclick="closeSuzhiPop()"><div class="im-box" onclick="event.stopPropagation()"><div class="im-head">升階數值<span class="im-x" onclick="closeSuzhiPop()">✕</span></div>'+suzhiPopHTML()+'</div></div>'; }
   if (_attrAlloc && state.currentTab==='shuxing') { html += attrAllocModalHTML(); }
+  if (state.reincOpen) { html += reincModalHTML(); }
+  html += identityOverlayHTML();
   if (state.resetPending) { html += '<div class="info-modal" onclick="resetCancel()"><div class="im-box" onclick="event.stopPropagation()" style="width:280px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#c0392b;margin-bottom:8px;">⚠️ 重新開始</div><div style="font-size:13px;color:#5a3a1a;line-height:1.8;margin-bottom:16px;">確定要重新開始嗎？<br>所有進度將永久消失！</div><div style="display:flex;gap:10px;justify-content:center;"><button class="item-btn" style="background:#c0392b;color:#fff;padding:9px 22px;" onclick="resetConfirm()">確定重置</button><button class="item-btn" style="background:#999;color:#fff;padding:9px 22px;" onclick="resetCancel()">取消</button></div></div></div>'; }
   if (state.gearPop && state.currentTab==='store') { var _gp=gearById(state.gearPop); if(_gp){ var _gOwn=_gearBagCount(state.gearPop); var _gQty=Math.min(state.gearSellQty||1, Math.max(1,_gOwn)); var _gPr=gearSellPrice(_gp);
     html += '<div class="info-modal" onclick="closeGearPop()"><div class="im-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;padding:20px 18px;">';
@@ -4278,10 +4366,10 @@ function _grantKillReward(mon){
   { var _vk=vaultBonus(); if(_vk.killRegenPct>0){ state.hp=Math.min(state.hpMax,(state.hp||0)+Math.floor(state.hpMax*_vk.killRegenPct/100)); state.mp=Math.min(state.mpMax,(state.mp||0)+Math.floor(state.mpMax*_vk.killRegenPct/100)); } }
   for(var k in mon.reward){ var val=Math.floor(mon.reward[k]*lootMult); if(k==='lingshi'){gainLingshi(val);arr.push('靈石+'+fmt(val));} if(k==='shengwang'){state.shengwang+=val;arr.push('聲望+'+val);} if(k==='kuangshi'){state.kuangshi+=val;arr.push('礦石+'+val);} }
   var dl=MONSTER_DROPS[mon.realm]||[]; dl.forEach(function(d){ if(Math.random()<d[1]){ var dn=d[2]+Math.floor(Math.random()*(d[3]-d[2]+1)); applyDrop(d[0],dn,mon.realm); arr.push(DROP_INFO[d[0]].name+'×'+dn); } });
-  if(mon.xiuwei){ var _xw=Math.floor(mon.xiuwei/(140+Math.random()*60)); state.qi+=_xw; state.totalQi+=_xw; arr.push('修為+'+fmt(_xw)); }
-  var _ndR=(0.08+Math.random()*0.02) + Math.min(0.02,(state.fuyuan||0)/2500) + Math.min(0.03,(state.jiyuan||0)/2500);
+  if(mon.xiuwei){ var _xw=Math.floor(mon.xiuwei/(140+Math.random()*60)*(1+reincBonus().killPct/100)); state.qi+=_xw; state.totalQi+=_xw; arr.push('修為+'+fmt(_xw)); }
+  var _ndR=((0.08+Math.random()*0.02) + Math.min(0.02,(state.fuyuan||0)/2500) + Math.min(0.03,(state.jiyuan||0)/2500))*(1+reincBonus().dropPct/100);
   if(Math.random()<_ndR){ var _ndn=mon.baseName||mon.name; applyDrop('yuandan',1,_ndn); arr.push(_ndn+'原丹×1'); }
-  var _eqR=0.08+0.005*mon.realm+(vaultBonus().dropPct||0)/100; if(Math.random()<_eqR){ var _gid=randomGearForRealm(mon.realm); if(_gid){ state.bag.gear=state.bag.gear||[]; state.bag.gear.push(_gid); arr.push('裝備·'+GEAR_DB[_gid].name); } }
+  var _eqR=(0.08+0.005*mon.realm+(vaultBonus().dropPct||0)/100)*(1+reincBonus().dropPct/100); if(Math.random()<_eqR){ var _gid=randomGearForRealm(mon.realm); if(_gid){ state.bag.gear=state.bag.gear||[]; state.bag.gear.push(_gid); arr.push('裝備·'+GEAR_DB[_gid].name); } }
   var _wg=WEIWANG_GAIN[mon.realm]||1; var _t0=titleIdx(state.weiwang); state.weiwang=(state.weiwang||0)+_wg; arr.push('威望+'+_wg); if(titleIdx(state.weiwang)>_t0){ arr.push('晉升稱號「'+titleOf(state.weiwang)+'」'); }
   state.killTotal=(state.killTotal||0)+1; _recordKill(mon); if(Math.random()<0.04) state.encPending=true;
   return arr.join('、');

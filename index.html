@@ -768,16 +768,18 @@ const SECT_VAULT = {
 const ELIXIRS = [
   {id:'huiqi', name:'回氣丹', cost:{lingcao:3, lingshi:10}, effect:'即時回復法力 +300', minRealm:0},
   {id:'huixue', name:'回血丹', cost:{lingcao:5, lingshi:50}, effect:'即時回復氣血 +300', minRealm:0},
-  {id:'zhuji', name:'築基丹', cost:{lingcao:20, lingshi:200}, effect:'下次突破成功率 +30%', minRealm:1},
-  {id:'jindan', name:'金丹妙藥', cost:{lingcao:100, lingshi:2000}, effect:'修煉×2 (1小時)', minRealm:2},
-  {id:'yuanying', name:'元嬰丹', cost:{lingcao:500, lingshi:20000}, effect:'壽元 +100年', minRealm:3},
-  {id:'trib1', name:'煉氣渡劫丹', cost:{lingcao:10, lingshi:50}, effect:'煉氣突破率 +1.7%／顆，可累加', minRealm:0, tribRealm:1, tribBonus:0.0167},
-  {id:'trib2', name:'築基渡劫丹', cost:{lingcao:30, lingshi:300}, effect:'築基突破率 +3.3%／顆，可累加', minRealm:1, tribRealm:2, tribBonus:0.0333},
-  {id:'trib3', name:'金丹渡劫丹', cost:{lingcao:80, lingshi:1500, xuanbing:2}, effect:'金丹突破率 +6.7%／顆，可累加', minRealm:2, tribRealm:3, tribBonus:0.0667},
-  {id:'trib4', name:'元嬰渡劫丹', cost:{lingcao:200, lingshi:8000, xuanbing:5}, effect:'元嬰突破率 +11.7%／顆，可累加', minRealm:3, tribRealm:4, tribBonus:0.1167},
-  {id:'trib5', name:'化神渡劫丹', cost:{lingcao:500, lingshi:50000, zijing:2}, effect:'化神突破率 +16.7%／顆，可累加', minRealm:4, tribRealm:5, tribBonus:0.1667},
-  {id:'trib6', name:'渡劫天丹', cost:{lingcao:1500, lingshi:300000, zijing:8}, effect:'渡劫率 +21.7%／顆，可累加', minRealm:5, tribRealm:6, tribBonus:0.2167},
-  {id:'trib7', name:'大羅金丹', cost:{lingcao:5000, lingshi:2000000, zijing:25}, effect:'大羅金仙率 +26.7%／顆，可累加', minRealm:6, tribRealm:7, tribBonus:0.2667},
+  {id:'yinqi', name:'引氣丹', cost:{lingcao:5, lingshi:50}, effect:'凡人→煉氣 破境成功率 +60%（服後生效）', minRealm:0, tribRealm:1, tribBonus:0.6},
+  {id:'zhuji', name:'築基丹', cost:{lingcao:20, lingshi:200}, effect:'煉氣→築基 破境成功率 +60%（服後生效）', minRealm:1, tribRealm:2, tribBonus:0.6},
+  {id:'ningjin', name:'凝金丹', cost:{lingcao:80, lingshi:1500}, effect:'築基→金丹 破境成功率 +60%（服後生效）', minRealm:2, tribRealm:3, tribBonus:0.6},
+  {id:'jindan', name:'聚靈丹', cost:{lingcao:100, lingshi:2000}, effect:'修煉×2 (1小時)', minRealm:2},
+  {id:'yuanying', name:'元嬰丹', cost:{lingcao:300, lingshi:8000}, effect:'金丹→元嬰 破境成功率 +60%（服後生效）', minRealm:3, tribRealm:4, tribBonus:0.6},
+  {id:'shouyuan', name:'壽元丹', cost:{lingcao:500, lingshi:15000}, effect:'壽元 +100 年', minRealm:2},
+  {id:'huashen', name:'化神丹', cost:{lingcao:650, lingshi:50000}, effect:'元嬰→化神 破境成功率 +60%（服後生效）', minRealm:4, tribRealm:5, tribBonus:0.6},
+  {id:'due', name:'渡厄丹', cost:{lingcao:1400, lingshi:300000}, effect:'化神→渡劫 破境成功率 +60%（服後生效）', minRealm:5, tribRealm:6, tribBonus:0.6},
+  {id:'jinxian', name:'金仙丹', cost:{lingcao:3000, lingshi:1800000}, effect:'渡劫→大羅金仙 破境成功率 +60%（服後生效）', minRealm:6, tribRealm:7, tribBonus:0.6},
+  {id:'zhunsheng', name:'準聖丹', cost:{lingcao:7000, lingshi:11000000}, effect:'大羅金仙→準聖 破境成功率 +60%（服後生效）', minRealm:7, tribRealm:8, tribBonus:0.6},
+  {id:'chengsheng', name:'成聖丹', cost:{lingcao:15000, lingshi:70000000}, effect:'準聖→聖人 破境成功率 +60%（服後生效）', minRealm:8, tribRealm:9, tribBonus:0.6},
+  {id:'daozudan', name:'道祖丹', cost:{lingcao:35000, lingshi:400000000}, effect:'聖人→道祖 破境成功率 +60%（服後生效）', minRealm:9, tribRealm:10, tribBonus:0.6},
 ];
 const ARTIFACTS = [
   {id:'feijian', name:'青鋒飛劍', cost:{lingshi:500, kuangshi:20}, effect:'戰力 +100', tier:'法器'},
@@ -1096,8 +1098,8 @@ const WBG_SHOP = {
     {id:'huiqi', ic:'💧', name:'回氣丹', eff:'即時回復法力 +300', cost:300, cur:'lingshi', limit:20, minRealm:0, kind:'elixir'},
     {id:'huixue', ic:'🩸', name:'回血丹', eff:'即時回復氣血 +300', cost:300, cur:'lingshi', limit:20, minRealm:0, kind:'elixir'},
     {id:'zhuji', ic:'🧪', name:'築基丹', eff:'下次突破 +30%', cost:1000, cur:'lingshi', limit:10, minRealm:1, kind:'elixir'},
-    {id:'jindan', ic:'🧪', name:'金丹妙藥', eff:'修煉×2 一小時', cost:10000, cur:'lingshi', limit:5, minRealm:2, kind:'elixir'},
-    {id:'yuanying', ic:'🧪', name:'元嬰丹', eff:'壽元 +100 年', cost:100000, cur:'lingshi', limit:3, minRealm:3, kind:'elixir'},
+    {id:'jindan', ic:'🧪', name:'聚靈丹', eff:'修煉×2 一小時', cost:10000, cur:'lingshi', limit:5, minRealm:2, kind:'elixir'},
+    {id:'shouyuan', ic:'🧪', name:'壽元丹', eff:'壽元 +100 年', cost:100000, cur:'lingshi', limit:3, minRealm:3, kind:'elixir'},
   ],
   fabao: [
     {id:'feijian', ic:'⚔️', name:'青鋒飛劍', tier:'法器', eff:'戰力 +100', cost:5000, cur:'lingshi', limit:5, minRealm:0, kind:'artifact'},
@@ -1119,6 +1121,10 @@ const WBG_SHOP = {
     {id:'kuangyu', ic:'🔶', name:'地心玉髓', tier:'雜貨', eff:'礦石換 · 體魄/根骨 +10', cost:2000, cur:'kuangshi', limit:1, minRealm:2, kind:'misc'},
   ]
 };
+var WBG_DANYAO_META = { huiqi:{ic:'💧',limit:20}, huixue:{ic:'🩸',limit:20}, yinqi:{ic:'🧪',limit:5}, zhuji:{ic:'🧪',limit:5}, ningjin:{ic:'🧪',limit:4}, jindan:{ic:'🧪',limit:5}, yuanying:{ic:'🧪',limit:3}, shouyuan:{ic:'🧪',limit:3}, huashen:{ic:'🧪',limit:3}, due:{ic:'🧪',limit:2}, jinxian:{ic:'🧪',limit:2}, zhunsheng:{ic:'🧪',limit:2}, chengsheng:{ic:'🧪',limit:1}, daozudan:{ic:'🧪',limit:1} };
+function _elixShopCost(e){ return Math.max(300, (e.cost.lingshi||0)*4); }
+function wbgDanyao(){ var seed=(state.reincCount||0); var always=['huiqi','huixue']; var rest=['yinqi','zhuji','ningjin','jindan','yuanying','shouyuan','huashen','due','jinxian','zhunsheng','chengsheng','daozudan']; var start=(seed*5)%rest.length; var pick=[]; for(var i=0;i<5;i++) pick.push(rest[(start+i)%rest.length]); var ids=always.concat(pick); var out=[]; ids.forEach(function(id){ var e=ELIXIRS.find(function(x){return x.id===id;}); if(!e) return; var m=WBG_DANYAO_META[id]||{ic:'🧪',limit:3}; out.push({id:id, ic:m.ic, name:e.name, eff:e.effect, cost:_elixShopCost(e), cur:'lingshi', limit:m.limit, minRealm:e.minRealm||0, kind:'elixir'}); }); return out; }
+function wbgList(cat){ return cat==='danyao'? wbgDanyao() : (WBG_SHOP[cat]||[]); }
 var GEAR_DB = {
   'sha_zhu_dao':{name:'殺豬刀',slot:'weaponR',tier:'絕品',tierIdx:8,combo:'攻擊+吸血+暴擊',stats:{atk:5,vamp:2,crit:5},desc:'屠夫遺物，看似俗氣，實藏絕品之力'},
   'e001':{name:'凡鐵守盾',slot:'weaponL',tier:'凡品',tierIdx:0,combo:'純防禦',stats:{def:2}},
@@ -1613,6 +1619,8 @@ var GEAR_DB = {
   'e490':{name:'大道行戒',slot:'bodyAcc',tier:'大道',tierIdx:11,combo:'體魄+身形',stats:{tipo:45900,shenxing:22950}},
   'e491':{name:'大道影佩',slot:'bodyAcc',tier:'大道',tierIdx:11,combo:'眼力+身形',stats:{yanli:45900,shenxing:22950}},
   'e492':{name:'大道明玉',slot:'bodyAcc',tier:'大道',tierIdx:11,combo:'血量增幅+眼力',stats:{hpBoost:35,yanli:22950}},
+  'e493':{name:'凡鐵鴻運符',slot:'bodyAcc',tier:'凡品',tierIdx:0,combo:'福緣+機緣',stats:{fuyuan:2,jiyuan:1}},
+  'e494':{name:'凡鐵靈犀墜',slot:'neck',tier:'凡品',tierIdx:0,combo:'身形+眼力',stats:{shenxing:2,yanli:1}},
 };
 function gearById(id){ return GEAR_DB[id]||null; }
 function statLabel(k){ return ({atk:'攻擊',def:'防禦',hp:'血量',hpBoost:'血量增幅',crit:'暴擊',hit:'命中',antiCrit:'抗暴擊',defBoost:'防禦增幅',dot:'持續扣血',vamp:'吸血',gengu:'根骨',tipo:'體魄',wuxing:'悟性',yanli:'眼力',shenxing:'身形',xinxing:'心性',fuyuan:'福緣',jiyuan:'機緣'})[k]||k; }
@@ -1980,10 +1988,10 @@ var IDENTITIES=[
  {id:'chanseng', name:'禪院僧人', ic:'📿', unlock:4, foc:'心性+體魄', desc:'古剎清修，心如止水，體魄如鐘。', aw:{xinxing:2,tipo:2}, sa:{xinxing:14,tipo:10}, sl:0, sg:[]},
  {id:'danshi',   name:'煉丹宗師', ic:'⚗', unlock:5, foc:'悟性+福緣', desc:'丹道大家，悟性通玄，福澤綿長。', aw:{wuxing:2,fuyuan:2}, sa:{wuxing:12,fuyuan:12}, sl:20000, sg:[]},
  {id:'modao',    name:'魔道傳人', ic:'😈', unlock:5, foc:'根骨(道心淺)', desc:'入魔証道，殺伐果決，然道心不穩。', aw:{gengu:3,yanli:1}, sa:{gengu:28,xinxing:-3}, sl:0, sg:[]},
- {id:'sanxiu',   name:'散修浪人', ic:'🎒', unlock:6, foc:'均衡·家底厚', desc:'白手起家，資質平平卻自備盤纏。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:4,tipo:4,wuxing:4,yanli:4,shenxing:4,xinxing:4,fuyuan:4,jiyuan:4}, sl:30000, sg:['e001','e012']},
+ {id:'sanxiu',   name:'散修浪人', ic:'🎒', unlock:6, foc:'均衡·家底厚', desc:'白手起家，資質平平卻自備盤纏。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:3,tipo:3,wuxing:3,yanli:3,shenxing:3,xinxing:3,fuyuan:3,jiyuan:3}, sl:30000, sg:['e001','e012']},
  {id:'yaoyi',    name:'妖族血裔', ic:'🐾', unlock:6, foc:'體魄+身形', desc:'妖獸血脈，肉身強橫，身法矯健。', aw:{tipo:2,shenxing:2}, sa:{tipo:16,shenxing:8}, sl:0, sg:[]},
- {id:'tianming', name:'天命之子', ic:'🌠', unlock:7, foc:'全屬性微增', desc:'天命所鍾，八方俱佳，無有短板。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:6,tipo:6,wuxing:6,yanli:6,shenxing:6,xinxing:6,fuyuan:6,jiyuan:6}, sl:10000, sg:[]},
- {id:'zhexian',  name:'謫仙轉世', ic:'🕊', unlock:7, foc:'機緣+悟性', desc:'仙人謫世，慧根深植，機緣天成。', aw:{jiyuan:2,wuxing:2}, sa:{jiyuan:16,wuxing:12}, sl:15000, sg:[]}
+ {id:'tianming', name:'天命之子', ic:'🌠', unlock:7, foc:'戰鬥四維（根/體/眼/身）', desc:'天命所鍾，根骨體魄眼力身形俱強，臨陣全能。', aw:{gengu:2,tipo:2,yanli:2,shenxing:2}, sa:{gengu:8,tipo:8,yanli:8,shenxing:8}, sl:35000, sg:['e493']},
+ {id:'zhexian',  name:'謫仙轉世', ic:'🕊', unlock:7, foc:'機緣+悟性', desc:'仙人謫世，慧根深植，機緣天成。', aw:{jiyuan:2,wuxing:2}, sa:{jiyuan:16,wuxing:12}, sl:35000, sg:['e494']}
 ];
 function _identById(id){ for(var i=0;i<IDENTITIES.length;i++){ if(IDENTITIES[i].id===id) return IDENTITIES[i]; } return null; }
 function _identPool(){ var d=state.daozuReinc||0; return IDENTITIES.filter(function(x){ return d>=x.unlock; }); }
@@ -2296,7 +2304,7 @@ function consumeElixir(id){
   const own=state.elixirs[id]||0; if (own<=0) return;
   const n=qtyOf(id); state.elixirs[id]=own-n;
   const _eli=ELIXIRS.find(x=>x.id===id);
-  for (let i=0;i<n;i++){ if(id==='huiqi'){state.mp=Math.min(state.mpMax,(state.mp||0)+300);} if(id==='huixue'){state.hp=Math.min(state.hpMax,(state.hp||0)+300);} if(id==='zhuji'){state.zhujiBuff=(state.zhujiBuff||0)+3;} if(id==='jindan'){state.boostUntil=Date.now()+3600000;} if(id==='yuanying'){state.shouyuan+=100;} if(_eli&&_eli.tribRealm){ state.tribPillBuff[_eli.tribRealm]=(state.tribPillBuff[_eli.tribRealm]||0)+_eli.tribBonus; } }
+  for (let i=0;i<n;i++){ if(id==='huiqi'){state.mp=Math.min(state.mpMax,(state.mp||0)+300);} if(id==='huixue'){state.hp=Math.min(state.hpMax,(state.hp||0)+300);} if(id==='jindan'){state.boostUntil=Date.now()+3600000;} if(id==='shouyuan'){state.shouyuan+=100;} if(_eli&&_eli.tribRealm){ state.tribPillBuff[_eli.tribRealm]=(state.tribPillBuff[_eli.tribRealm]||0)+_eli.tribBonus; } }
   const name=ELIXIRS.find(x=>x.id===id).name;
   addLog('使用 '+name+' ×'+n,'good'); showToast('使用 '+name+' ×'+n);
   if (state.elixirs[id]<=0){ delete state.elixirs[id]; delete state.useQty[id]; state.activePop=null; } else { state.useQty[id]=1; }
@@ -2357,7 +2365,7 @@ function tick() {
     if(_oreAdd>0) state.kuangshi=(state.kuangshi||0)+_oreAdd;
     state.mine.lastDay=_md; } }
   if(state.encPending){ state.encPending=false; rollEncounter(true); } else { rollEncounter(false); }
-  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&state.currentTab!=='tasks'&&!_editing&&!_taskSheet&&!_guideOpen&&!state.reincOpen&&!_attrAlloc&&state.identity) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
+  state.lastTick=Date.now(); if(state.totalSeconds%10===0) saveState(); var _ae=document.activeElement; var _editing=(_ae&&_ae.classList&&_ae.classList.contains('num-input')); if(state.currentTab!=='map'&&state.currentTab!=='wanbaoge'&&state.currentTab!=='gongfa'&&state.currentTab!=='jiayuan'&&state.currentTab!=='store'&&state.currentTab!=='tasks'&&state.currentTab!=='danfang'&&!_editing&&!_taskSheet&&!_guideOpen&&!state.reincOpen&&!_attrAlloc&&state.identity) render(); else { _updTopbar(); if(state.currentTab==='wanbaoge'){ if(_gfStockCheck()){ render(); } else { var _wt=document.getElementById('wbg-timer'); if(_wt) _wt.textContent='更新尚需 '+gfRefreshRemain()+' 天'; } } }
 }
 function triggerEvent() {
   let ev = EVENTS[Math.floor(Math.random()*EVENTS.length)];
@@ -3069,13 +3077,17 @@ function cityShopHTML(cn){ var h='<div class="panel"><div class="panel-title">�
   }
   h+='</div>'; return h; }
 
+function elixirCat(e){ if(e.tribRealm) return 'bpo'; if(e.id==='huiqi'||e.id==='huixue') return 'heal'; return 'aux'; }
+function setDanfangCat(c){ state.danfangCat=c; render(); }
+function toggleDanfang(){ state.danfangOpen=(state.danfangOpen===false); render(); }
+function toggleHuangou(){ state.huangouOpen=!(state.huangouOpen===true); render(); }
 function makeElixir(id) {
   const e=ELIXIRS.find(x=>x.id===id);
   if (state.realm<e.minRealm) return showToast('境界不足');
   if (state.lingcao<e.cost.lingcao||!canAfford(e.cost.lingshi)) return showToast('材料不足');
   state.lingcao-=e.cost.lingcao; payLingshi(e.cost.lingshi);
   const sectBonus = state.sect==='wanhua'?0.04:0;
-  if (Math.random()<0.7+sectBonus){ state.elixirs[id]=(state.elixirs[id]||0)+1; if(id==='zhuji')state.zhujiBuff=3; if(id==='jindan')state.boostUntil=Date.now()+3600000; if(id==='yuanying')state.shouyuan+=100; addLog('【煉丹】成功煉製 '+e.name,'good'); showToast('煉成 '+e.name); }
+  if (Math.random()<0.7+sectBonus){ state.elixirs[id]=(state.elixirs[id]||0)+1; if(id==='jindan')state.boostUntil=Date.now()+3600000; addLog('【煉丹】成功煉製 '+e.name,'good'); showToast('煉成 '+e.name); }
   else { addLog('【煉丹失敗】丹爐炸裂','bad'); showToast('煉丹失敗'); }
   render(); saveState();
 }
@@ -3101,7 +3113,7 @@ function seekDaolu() {
 }
 function setWbgCat(id) { state.exchWork=null; state.wbgCat=id; render(); }
 function buyShopItem(cat, id) {
-  const item=(WBG_SHOP[cat]||[]).find(x=>x.id===id); if(!item) return;
+  const item=wbgList(cat).find(x=>x.id===id); if(!item) return;
   const cur=item.cur||'lingshi', curName=CUR_INFO[cur].name;
   if (state.realm<item.minRealm) return showToast('境界不足');
   const soldKey=cat+':'+id, sold=state.wbgSold[soldKey]||0;
@@ -3127,12 +3139,13 @@ function useNeidanWithQty(nm){ var pid='nd_'+nm; var q=qtyOf(pid); useNeidan(nm,
 function neidanSellPrice(nm){ var mon=_ndMon(nm); var ls=(mon&&mon.reward&&mon.reward.lingshi)||50; return Math.max(50, Math.round(ls*50)); }
 function sellNeidan(nm){ var pid='nd_'+nm; var own=(state.neidan&&state.neidan[nm])||0; if(own<=0) return; var n=qtyOf(pid); if(n>own)n=own; if(n<=0) return; var price=neidanSellPrice(nm)*n; state.neidan[nm]=own-n; if(state.neidan[nm]<=0) delete state.neidan[nm]; gainLingshi(price); state.useQty[pid]=1; state.activePop=null; showToast('售 '+nm+'內丹 ×'+n+'，靈石 +'+fmt(price)); saveState(); render(); }
 function _ownOf(id){ if(id&&id.indexOf('nd_')===0) return (state.neidan&&state.neidan[id.substring(3)])||0; if(id&&id.indexOf('s_')===0) return (state.scrolls&&state.scrolls[id.substring(2)])||0; return state.elixirs[id]||0; }
+function _randElixirDrop(mr){ if(typeof mr!=='number') mr=state.realm||0; var pool=[],ws=0; for(var i=0;i<ELIXIRS.length;i++){ var e=ELIXIRS[i]; var d=Math.abs((e.minRealm||0)-mr); var w=1/(1+d*d*1.3); pool.push([e.id,w]); ws+=w; } var r=Math.random()*ws; for(var j=0;j<pool.length;j++){ r-=pool[j][1]; if(r<=0) return pool[j][0]; } return pool[0][0]; }
 function applyDrop(key,n,realm){
   if(key==='xuanbing') state.xuanbing=(state.xuanbing||0)+n;
   else if(key==='zijing') state.zijing=(state.zijing||0)+n;
   else if(key==='juanzhou') state.juanzhou=(state.juanzhou||0)+n;
   else if(key==='baoxiang') state.baoxiang=(state.baoxiang||0)+n;
-  else if(key==='danyao'){ for(var i=0;i<n;i++){ var eid=['huiqi','zhuji','jindan','yuanying'][Math.floor(Math.random()*4)]; state.elixirs[eid]=(state.elixirs[eid]||0)+1; } }
+  else if(key==='danyao'){ for(var i=0;i<n;i++){ var eid=_randElixirDrop(realm); state.elixirs[eid]=(state.elixirs[eid]||0)+1; } }
   else if(key==='neidan'){ if(!state.neidan||Array.isArray(state.neidan)) state.neidan={}; var _nm=realm; if(typeof _nm!=='string') _nm='未知'; state.neidan[_nm]=(state.neidan[_nm]||0)+n; }
   else if(key==='yuandan'){ if(!state.yuandan||Array.isArray(state.yuandan)) state.yuandan={}; var _ym=realm; if(typeof _ym!=='string') _ym='未知'; state.yuandan[_ym]=(state.yuandan[_ym]||0)+n; }
 }
@@ -3142,7 +3155,7 @@ function openBaoxiang(){ if((state.baoxiang||0)<=0) return; state.baoxiang--; va
   if(r<0.38){ var amt=Math.floor(1000*Math.pow(6,state.realm)*(0.5+Math.random()))+500; gainLingshi(amt); msg='靈石+'+fmt(amt); }
   else if(r<0.58){ var n1=1+Math.floor(Math.random()*3); state.xuanbing+=n1; msg='玄冰×'+n1; }
   else if(r<0.73){ var n2=1+Math.floor(Math.random()*2); state.zijing+=n2; msg='紫晶×'+n2; }
-  else if(r<0.84){ var eid=['huiqi','zhuji','jindan','yuanying'][Math.floor(Math.random()*4)]; state.elixirs[eid]=(state.elixirs[eid]||0)+1; msg='丹藥：'+ELIXIRS.find(function(e){return e.id===eid;}).name; }
+  else if(r<0.84){ var eid=_randElixirDrop(state.realm); state.elixirs[eid]=(state.elixirs[eid]||0)+1; msg='丹藥：'+ELIXIRS.find(function(e){return e.id===eid;}).name; }
   else if(r<0.88){ state.juanzhou+=1; msg='功法卷軸×1'; }
   else { var gid=randomGearForRealm(state.realm); if(gid){ state.bag.gear=state.bag.gear||[]; state.bag.gear.push(gid); msg='裝備：'+GEAR_DB[gid].name; } else { var amt2=Math.floor(2000*Math.pow(6,state.realm)*(0.5+Math.random()))+1000; gainLingshi(amt2); msg='靈石+'+fmt(amt2); } }
   addLog('【戰利品】開啟寶箱，得 '+msg,'great'); showToast('寶箱：'+msg); saveState(); render(); }
@@ -3281,7 +3294,7 @@ function doBattle(){ const mon=MONSTERS.find(m=>m.realm===state.realm)||MONSTERS
     if(mhp<=0) break;
     if(Math.random()>=p.dodge){ let mdmg=Math.max(1,Math.floor((mon.atk-p.def)*(1-p.dmgRed))); php-=mdmg; if(Math.random()<p.counter) mhp-=Math.max(1,Math.floor(p.atk*0.35)); } }
   const win=mhp<=0&&php>0;
-  if(win){ const lootMult=1+Math.min(5,(state.fuyuan||0)/325); let gains=[];
+  if(win){ const lootMult=1+Math.min(5,((state.fuyuan||0)+equipBonus().fuyuan)/325); let gains=[];
     for(const [k,v] of Object.entries(mon.reward)){ const val=Math.floor(v*lootMult); if(k==='lingshi'){gainLingshi(val);gains.push('靈石+'+fmt(val));} if(k==='shengwang'){state.shengwang+=val;gains.push('聲望+'+val);} if(k==='kuangshi'){state.kuangshi+=val;gains.push('礦石+'+val);} }
     state.weiwang=(state.weiwang||0)+(WEIWANG_GAIN[mon.realm]||1); state.killTotal=(state.killTotal||0)+1; _recordKill(mon); if(Math.random()<0.04) state.encPending=true; addLog('【歷練】擊敗 '+mon.name+'（'+rounds+'回合）：'+gains.join('、'),'great'); showToast('擊敗 '+mon.name+'！');
   } else { const loss=Math.max(1,Math.floor(state.shouyuan*0.02)); state.shouyuan=Math.max(1,state.shouyuan-loss); addLog('【歷練】敗於 '+mon.name+'，重傷而歸，壽元-'+loss,'bad'); showToast('不敵 '+mon.name+'…'); }
@@ -3510,11 +3523,19 @@ function _renderCore() {
     html += '<div class="panel"><div class="panel-title">📜 家園訊息</div><div class="cave-intro" id="jy-msg">'+(state.jiayuan.lastCatch||'尚無動態')+'</div></div>';
   }
   if (state.currentTab==='danfang') {
-    html += '<div class="back-bar" onclick="switchTab(\'cave\')">⟵ 回洞府　🏺 煉丹房</div><div class="panel"><div class="panel-title">🧪 丹方</div><div class="item-grid">';
-    ELIXIRS.forEach(function(e){ const lack=state.realm<e.minRealm||state.lingcao<e.cost.lingcao||!canAfford(e.cost.lingshi); const owned=state.elixirs[e.id]||0;
-      html += '<button class="item-btn" '+(lack?'disabled':'')+' onclick="makeElixir(\''+e.id+'\')"><div class="item-name">'+e.name+' '+(owned?('<span class="owned-mark">已煉 ×'+owned+'</span>'):'')+'</div><div class="item-effect">'+e.effect+'</div><div class="item-cost">需 靈草'+e.cost.lingcao+' · '+costDisp(e.cost.lingshi)+(state.realm<e.minRealm?' · 境界不足':'')+'</div></button>'; });
-    html += '</div></div>';
+    html += '<div class="back-bar" onclick="switchTab(\'cave\')">⟵ 回洞府　🏺 煉丹房</div>';
     html += _yuandanFurnaceHTML();
+    var _dfOpen=state.danfangOpen!==false; var _dfc=state.danfangCat||'all';
+    html += '<div class="panel"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleDanfang()"><span>🧪 丹方</span><span style="font-size:13px;color:#9a7a48;">'+(_dfOpen?'▲ 收合':'▼ 展開')+'</span></div>';
+    if(_dfOpen){
+      html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
+      [['all','全部'],['bpo','破境丹'],['heal','恢復'],['aux','輔助']].forEach(function(c){ html += '<button class="wbg-tab '+(_dfc===c[0]?'active':'')+'" onclick="setDanfangCat(\''+c[0]+'\')">'+c[1]+'</button>'; });
+      html += '</div><div class="item-grid" style="max-height:520px;overflow-y:auto;">';
+      ELIXIRS.forEach(function(e){ if(_dfc!=='all'&&elixirCat(e)!==_dfc) return; const lack=state.realm<e.minRealm||state.lingcao<e.cost.lingcao||!canAfford(e.cost.lingshi); const owned=state.elixirs[e.id]||0;
+        html += '<button class="item-btn" '+(lack?'disabled':'')+' onclick="makeElixir(\''+e.id+'\')"><div class="item-name">'+e.name+' '+(owned?('<span class="owned-mark">已煉 ×'+owned+'</span>'):'')+'</div><div class="item-effect">'+e.effect+'</div><div class="item-cost">需 靈草'+e.cost.lingcao+' · '+costDisp(e.cost.lingshi)+(state.realm<e.minRealm?' · 境界不足':'')+'</div></button>'; });
+      html += '</div>';
+    }
+    html += '</div>';
   }
   if (state.currentTab==='qishi') {
     html += '<div class="back-bar" onclick="switchTab(\'cave\')">⟵ 回洞府　⚔️ 鍊器室</div><div class="panel"><div class="panel-title">⚔️ 器譜</div><div class="item-grid">';
@@ -3614,7 +3635,7 @@ function _renderCore() {
     WBG_CATEGORIES.forEach(function(c){ html += '<div class="wbg-tab '+(cat===c.id?'active':'')+'" onclick="setWbgCat(\''+c.id+'\')">'+c.name+'</div>'; });
     html += '</div><div class="wbg-main">';
     if(cat==='gongfa'){ html += '<div style="grid-column:1/-1;">'+gongfaCatalogHTML()+'</div>'; }
-    else { if(cat==='huangou') html += '<div class="panel" style="margin:0;grid-column:1/-1;"><div class="panel-title">💱 典當鋪掌櫃 · 換幣</div>'+currencyCounterHTML(5,'典當鋪掌櫃',true,true)+'</div>'; (WBG_SHOP[cat]||[]).forEach(function(it){ const soldKey=cat+':'+it.id; const sold=state.wbgSold[soldKey]||0; const cur=it.cur||'lingshi'; const lack=state.realm<it.minRealm||(state[cur]||0)<it.cost||sold>=it.limit; const remaining=it.limit-sold;
+    else { if(cat==='huangou'){ var _hgO=state.huangouOpen===true; html += '<div class="panel" style="margin:0;grid-column:1/-1;"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleHuangou()"><span>💱 典當鋪掌櫃 · 換幣</span><span style="font-size:13px;color:#9a7a48;">'+(_hgO?'▲ 收合':'▼ 展開')+'</span></div>'+(_hgO?currencyCounterHTML(5,'典當鋪掌櫃',true,true):'')+'</div>'; } wbgList(cat).forEach(function(it){ const soldKey=cat+':'+it.id; const sold=state.wbgSold[soldKey]||0; const cur=it.cur||'lingshi'; const lack=state.realm<it.minRealm||(state[cur]||0)<it.cost||sold>=it.limit; const remaining=it.limit-sold;
       html += '<div class="wbg-card '+(lack?'lack':'')+'" title="'+(it.eff||'')+'" '+(lack?'':'onclick="buyShopItem(\''+cat+'\',\''+it.id+'\')"')+'><div class="wbg-ic">'+it.ic+'</div><div class="wbg-name">'+it.name+'</div>'+(it.tier?'<div class="wbg-tier tier-'+it.tier+'">'+it.tier+'</div>':'')+'<div class="wbg-limit">限購 <b>'+remaining+'/'+it.limit+'</b></div><div class="wbg-price">'+(cur==='lingshi'?costDisp(it.cost):CUR_INFO[cur].ic+' '+fmt(it.cost))+'</div></div>'; }); }
     html += '</div></div>';
   }
@@ -4362,12 +4383,12 @@ function mbExchange(kind, done, opt){
   step();
 }
 function _grantKillReward(mon){
-  var lootMult=1+Math.min(5,(state.fuyuan||0)/325); var arr=[];
+  var _eb0=equipBonus(); var lootMult=1+Math.min(5,((state.fuyuan||0)+_eb0.fuyuan)/325); var arr=[];
   { var _vk=vaultBonus(); if(_vk.killRegenPct>0){ state.hp=Math.min(state.hpMax,(state.hp||0)+Math.floor(state.hpMax*_vk.killRegenPct/100)); state.mp=Math.min(state.mpMax,(state.mp||0)+Math.floor(state.mpMax*_vk.killRegenPct/100)); } }
   for(var k in mon.reward){ var val=Math.floor(mon.reward[k]*lootMult); if(k==='lingshi'){gainLingshi(val);arr.push('靈石+'+fmt(val));} if(k==='shengwang'){state.shengwang+=val;arr.push('聲望+'+val);} if(k==='kuangshi'){state.kuangshi+=val;arr.push('礦石+'+val);} }
   var dl=MONSTER_DROPS[mon.realm]||[]; dl.forEach(function(d){ if(Math.random()<d[1]){ var dn=d[2]+Math.floor(Math.random()*(d[3]-d[2]+1)); applyDrop(d[0],dn,mon.realm); arr.push(DROP_INFO[d[0]].name+'×'+dn); } });
   if(mon.xiuwei){ var _xw=Math.floor(mon.xiuwei/(140+Math.random()*60)*(1+reincBonus().killPct/100)); state.qi+=_xw; state.totalQi+=_xw; arr.push('修為+'+fmt(_xw)); }
-  var _ndR=((0.08+Math.random()*0.02) + Math.min(0.02,(state.fuyuan||0)/2500) + Math.min(0.03,(state.jiyuan||0)/2500))*(1+reincBonus().dropPct/100);
+  var _ndR=((0.08+Math.random()*0.02) + Math.min(0.02,((state.fuyuan||0)+_eb0.fuyuan)/2500) + Math.min(0.03,((state.jiyuan||0)+_eb0.jiyuan)/2500))*(1+reincBonus().dropPct/100);
   if(Math.random()<_ndR){ var _ndn=mon.baseName||mon.name; applyDrop('yuandan',1,_ndn); arr.push(_ndn+'原丹×1'); }
   var _eqR=(0.08+0.005*mon.realm+(vaultBonus().dropPct||0)/100)*(1+reincBonus().dropPct/100); if(Math.random()<_eqR){ var _gid=randomGearForRealm(mon.realm); if(_gid){ state.bag.gear=state.bag.gear||[]; state.bag.gear.push(_gid); arr.push('裝備·'+GEAR_DB[_gid].name); } }
   var _wg=WEIWANG_GAIN[mon.realm]||1; var _t0=titleIdx(state.weiwang); state.weiwang=(state.weiwang||0)+_wg; arr.push('威望+'+_wg); if(titleIdx(state.weiwang)>_t0){ arr.push('晉升稱號「'+titleOf(state.weiwang)+'」'); }
@@ -4452,9 +4473,8 @@ function useBattleItem(cat,id){
   if(cat==='dan'){ var own=state.elixirs[id]||0; if(own<=0) return; state.elixirs[id]=own-1; if(state.elixirs[id]<=0) delete state.elixirs[id]; var _e=ELIXIRS.find(function(x){return x.id===id;}); var nm=(_e&&_e.name)||'丹藥';
     if(id==='huixue'){ state.hp=Math.min(state.hpMax,(state.hp||0)+300); if(MB){ MB.php=state.hp; setBar('bt-php',MB.php/MB.pmax*100); } bmPush('🩸 服用回血丹，回復氣血 +300','good'); }
     else if(id==='huiqi'){ state.mp=Math.min(state.mpMax,(state.mp||0)+300); setBar('bt-pmp',state.mp/state.mpMax*100); bmPush('💧 服用回氣丹，回復法力 +300','good'); }
-    else if(id==='zhuji'){ state.zhujiBuff=(state.zhujiBuff||0)+3; bmPush('💊 服用築基丹（下次突破率↑）','good'); }
-    else if(id==='jindan'){ state.boostUntil=Date.now()+3600000; bmPush('💊 服用金丹妙藥（修煉×2）','good'); }
-    else if(id==='yuanying'){ state.shouyuan+=100; bmPush('💊 服用元嬰丹，壽元 +100','good'); }
+    else if(id==='jindan'){ state.boostUntil=Date.now()+3600000; bmPush('💊 服用聚靈丹（修煉×2）','good'); }
+    else if(id==='shouyuan'){ state.shouyuan+=100; bmPush('💊 服用壽元丹，壽元 +100 年','good'); }
     else if(_e&&_e.tribRealm){ state.tribPillBuff[_e.tribRealm]=(state.tribPillBuff[_e.tribRealm]||0)+_e.tribBonus; bmPush('💊 服用 '+nm,'good'); }
     else bmPush('💊 服用 '+nm,'good');
     showToast('使用 '+nm); _itemOpen=false; saveState(); render();

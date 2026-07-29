@@ -1970,7 +1970,7 @@ var IDENTITIES=[
  {id:'youxia',   name:'江湖遊俠', ic:'🗡', unlock:0, foc:'身形·閃避', desc:'浪跡天涯，身法飄忽，避打反擊。', aw:{shenxing:3,yanli:1}, sa:{shenxing:16}, sl:0, sg:[]},
  {id:'liehu',    name:'獵戶之子', ic:'🏹', unlock:0, foc:'眼力·暴擊', desc:'山野獵戶，目光如炬，一擊致命。', aw:{yanli:3,shenxing:1}, sa:{yanli:16}, sl:0, sg:[]},
  {id:'qier',     name:'道觀棄嬰', ic:'⛩', unlock:0, foc:'心性·突破', desc:'自幼清修，心志堅韌，突破如神。', aw:{xinxing:3,wuxing:1}, sa:{xinxing:16}, sl:4000, sg:[]},
- {id:'shanggu',  name:'商賈之後', ic:'💰', unlock:1, foc:'福緣·財富', desc:'家財萬貫，福緣深厚，拾遺無數。', aw:{fuyuan:3,jiyuan:1}, sa:{fuyuan:15}, sl:50000, sg:[]},
+ {id:'shanggu',  name:'商賈之後', ic:'💰', unlock:1, foc:'福緣·財富', desc:'家財萬貫，福緣深厚，拾遺無數。', aw:{fuyuan:3,jiyuan:1}, sa:{fuyuan:15}, sl:15000, sg:[]},
  {id:'jiangmen', name:'將門虎子', ic:'🛡', unlock:1, foc:'體魄·防禦', desc:'名將血裔，體魄雄渾，攻守兼備。', aw:{tipo:3,gengu:1}, sa:{tipo:20}, sl:0, sg:['e001','e012']},
  {id:'xianyi',   name:'仙裔遺孤', ic:'✨', unlock:2, foc:'機緣·天命', desc:'仙人血脈，機緣不斷，天命所歸。', aw:{jiyuan:3,fuyuan:1}, sa:{jiyuan:20,fuyuan:6}, sl:0, sg:[]},
  {id:'liantong', name:'煉體狂人', ic:'💪', unlock:2, foc:'根骨+體魄', desc:'以體證道，血肉成聖，攻防俱強。', aw:{gengu:2,tipo:2}, sa:{gengu:12,tipo:12}, sl:0, sg:[]},
@@ -1980,7 +1980,7 @@ var IDENTITIES=[
  {id:'chanseng', name:'禪院僧人', ic:'📿', unlock:4, foc:'心性+體魄', desc:'古剎清修，心如止水，體魄如鐘。', aw:{xinxing:2,tipo:2}, sa:{xinxing:14,tipo:10}, sl:0, sg:[]},
  {id:'danshi',   name:'煉丹宗師', ic:'⚗', unlock:5, foc:'悟性+福緣', desc:'丹道大家，悟性通玄，福澤綿長。', aw:{wuxing:2,fuyuan:2}, sa:{wuxing:12,fuyuan:12}, sl:20000, sg:[]},
  {id:'modao',    name:'魔道傳人', ic:'😈', unlock:5, foc:'根骨(道心淺)', desc:'入魔証道，殺伐果決，然道心不穩。', aw:{gengu:3,yanli:1}, sa:{gengu:28,xinxing:-3}, sl:0, sg:[]},
- {id:'sanxiu',   name:'散修浪人', ic:'🎒', unlock:6, foc:'均衡·家底厚', desc:'白手起家，資質平平卻自備盤纏。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:4,tipo:4,wuxing:4,yanli:4,shenxing:4,xinxing:4,fuyuan:4,jiyuan:4}, sl:80000, sg:['e001','e012']},
+ {id:'sanxiu',   name:'散修浪人', ic:'🎒', unlock:6, foc:'均衡·家底厚', desc:'白手起家，資質平平卻自備盤纏。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:4,tipo:4,wuxing:4,yanli:4,shenxing:4,xinxing:4,fuyuan:4,jiyuan:4}, sl:30000, sg:['e001','e012']},
  {id:'yaoyi',    name:'妖族血裔', ic:'🐾', unlock:6, foc:'體魄+身形', desc:'妖獸血脈，肉身強橫，身法矯健。', aw:{tipo:2,shenxing:2}, sa:{tipo:16,shenxing:8}, sl:0, sg:[]},
  {id:'tianming', name:'天命之子', ic:'🌠', unlock:7, foc:'全屬性微增', desc:'天命所鍾，八方俱佳，無有短板。', aw:{gengu:1,tipo:1,wuxing:1,yanli:1,shenxing:1,xinxing:1,fuyuan:1,jiyuan:1}, sa:{gengu:6,tipo:6,wuxing:6,yanli:6,shenxing:6,xinxing:6,fuyuan:6,jiyuan:6}, sl:10000, sg:[]},
  {id:'zhexian',  name:'謫仙轉世', ic:'🕊', unlock:7, foc:'機緣+悟性', desc:'仙人謫世，慧根深植，機緣天成。', aw:{jiyuan:2,wuxing:2}, sa:{jiyuan:16,wuxing:12}, sl:15000, sg:[]}
@@ -2903,7 +2903,7 @@ function buyReincUpgrade(id){ var it=_reincItem(id); if(!it) return; var lv=(sta
 function openReincarnation(){ state.reincOpen=true; state.reincConfirm=false; render(); }
 function closeReincarnation(){ state.reincOpen=false; state.reincConfirm=false; render(); }
 function doReincarnate(){ if(!state.reincConfirm){ state.reincConfirm=true; render(); return; } var score=reincScore(); var _wasDaozu=((state.realm||0)>=REALMS.length-1);
-  var keep={ daoyun:(state.daoyun||0)+score, reincCount:(state.reincCount||0)+1, daozuReinc:(state.daozuReinc||0)+(_wasDaozu?1:0), reincLv:state.reincLv||{}, avatars:state.avatars, avatar:state.avatar, playerName:state.playerName, codesUsed:state.codesUsed, musicOn:state.musicOn, admin:state.admin, adminAutoEnc:state.adminAutoEnc };
+  var keep={ daoyun:(state.daoyun||0)+score, reincCount:(state.reincCount||0)+1, daozuReinc:(state.daozuReinc||0)+(_wasDaozu?1:0), reincLv:state.reincLv||{}, avatars:state.avatars, avatar:state.avatar, playerName:state.playerName, musicOn:state.musicOn, admin:state.admin, adminAutoEnc:state.adminAutoEnc };
   state=JSON.parse(JSON.stringify(initialState));
   for(var k in keep){ if(keep[k]!==undefined) state[k]=keep[k]; }
   state.resetTag=RESET_TAG; state.lastTick=Date.now();

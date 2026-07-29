@@ -869,12 +869,12 @@ const SUZHI_BONUS = {
 };
 const MINES = [
   {id:'tiekuang', name:'鐵礦脈', unlock:100, res:'原礦', desc:'每 1 鐵傀儡 +3 原礦／天'},
-  {id:'yinkuang', name:'銀光石礦', unlock:1000, res:'原礦', desc:'每 50 鐵傀儡 +10 原礦／天'},
-  {id:'xuantie', name:'玄鐵礦', unlock:3000, res:'礦石', desc:'每 1 玄鐵傀儡 +3 礦石／天'},
-  {id:'longjing', name:'龍晶礦脈', unlock:25000, res:'礦石', desc:'每 1 龍晶傀儡 +35 礦石／天'},
+  {id:'yinkuang', name:'銀光石礦', unlock:1000, res:'原礦', desc:'每 50 鐵傀儡 +150 原礦／天'},
+  {id:'xuantie', name:'玄鐵礦', unlock:3000, res:'礦石', desc:'每 1 玄鐵傀儡 +90 礦石／天'},
+  {id:'longjing', name:'龍晶礦脈', unlock:25000, res:'礦石', desc:'每 1 龍晶傀儡 +1080 礦石／天'},
 ];
 function mineVeinUnlocked(id){ var u={tiekuang:100,yinkuang:1000,xuantie:3000,longjing:25000}[id]||0; return minePuppetTotal()>=u; }
-function mineVeinRate(id){ if(!mineVeinUnlocked(id)) return 0; var iron=state.mine.iron||0, dark=state.mine.darkiron||0, dragon=state.mine.dragon||0; if(id==='tiekuang') return 3*iron; if(id==='yinkuang') return 10*Math.floor(iron/50); if(id==='xuantie') return 3*dark; if(id==='longjing') return 35*dragon; return 0; }
+function mineVeinRate(id){ if(!mineVeinUnlocked(id)) return 0; var iron=state.mine.iron||0, dark=state.mine.darkiron||0, dragon=state.mine.dragon||0; if(id==='tiekuang') return 3*iron; if(id==='yinkuang') return 150*Math.floor(iron/50); if(id==='xuantie') return 90*dark; if(id==='longjing') return 1080*dragon; return 0; }
 const MONSTERS = [
   {realm:0,name:'野兔',hp:200,xiuwei:375000,atk:24,def:6,reward:{lingshi:80,shengwang:5},loc:'村野小徑'},
   {realm:0,name:'山豬',hp:172,xiuwei:322500,atk:20,def:5,reward:{lingshi:68,shengwang:4},loc:'村野小徑'},

@@ -1868,7 +1868,7 @@ function loadState() {
       const onlineRate = realm.qiPerSec + (parsed.wuxing||0) * 2.3;
       const offlineQi = Math.floor(onlineRate * offlineSec * OFFLINE_RATE);
       parsed.qi += offlineQi; parsed.totalQi = (parsed.totalQi||0) + offlineQi;
-      parsed._offlineGain = offlineQi; parsed._offlineSec = Math.floor(offlineSec);
+      parsed._offlineGain = offlineQi; parsed._offlineSec = Math.floor(offlineSec); parsed._offlineDays = Math.floor(offlineSec*3/10);
     }
     parsed.lastTick = now; state = parsed;
     if (state.totalQi === undefined) state.totalQi = state.qi || 0;
@@ -1966,6 +1966,13 @@ function loadState() {
     if (state.shitang.exchangeQty === undefined) state.shitang.exchangeQty=1;
     if (state.lastRegenDay === undefined) state.lastRegenDay = getDays();
     if (state.lastEventDay === undefined) state.lastEventDay = getDays();
+    if(state._offlineDays && state._offlineDays>0){ var _od=state._offlineDays;
+      if(state.shitang){ var _fo=daotongAreaCount('shitang')*1*_od; if(_fo>0) state.shitang.food=Math.min(shitangFoodMax(),(state.shitang.food||0)+_fo); }
+      for(var _fa in FAC){ var _fc=FAC[_fa]; var _fgo=daotongAreaCount(_fa)*_fc.rate*_od; if(_fgo>0) state[_fc.res]=Math.min(facMax(_fa),(state[_fc.res]||0)+_fgo); }
+      if(state.mine){ var _rawO=mineWorkers()*1*_od + (mineVeinRate('tiekuang')+mineVeinRate('yinkuang'))*_od; if(_rawO>0) state.mine.storage=Math.min(mineCap(),(state.mine.storage||0)+_rawO); var _oreO=(mineVeinRate('xuantie')+mineVeinRate('longjing'))*_od; if(_oreO>0) state.kuangshi=(state.kuangshi||0)+_oreO; }
+      if(state.lcZone && state.lcZone.open && state.lcZone.stock>0){ var _lg=Math.min(state.lcZone.stock,_od); if(_lg>0){ state.lingcao=(state.lingcao||0)+_lg; state.lcZone.stock-=_lg; if(state.lcZone.stock<0) state.lcZone.stock=0; } }
+      delete state._offlineDays;
+    }
     if (state.wuxingRoot === undefined) { const r=state.realm||0; const g=r>0?30*(Math.pow(2,r)-1):0; const b=50+g; state.wuxingRoot={jin:b,mu:b,shui:b,huo:b,tu:b}; }
     if (state.gengu === undefined) { const r=state.realm||0; const g=r>0?10*(Math.pow(2,r)-1):0; const b=5+g; state.gengu=b; state.xinxing=b; state.fuyuan=b; state.jiyuan=b; if((state.wuxing||0)<b) state.wuxing=b; }
     if (state.tipo === undefined) { const r=state.realm||0; const g=r>0?10*(Math.pow(2,r)-1):0; const b=5+g; state.tipo=b; state.yanli=b; state.shenxing=b; }

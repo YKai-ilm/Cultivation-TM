@@ -1668,9 +1668,9 @@ const DAOLU = [
   {id:'su', name:'蘇墨衣', sect:'天機閣', talent:'器道宗師', minRealm:4},
 ];
 const STAT_TABLE = [
-  {hp:100,mp:50,lp:10,ep:100},{hp:500,mp:250,lp:50,ep:500},{hp:2500,mp:1250,lp:250,ep:1500},{hp:12500,mp:6250,lp:1250,ep:3000},
-  {hp:62500,mp:31250,lp:6250,ep:5000},{hp:312500,mp:156250,lp:31250,ep:8000},{hp:1562500,mp:781250,lp:156250,ep:12000},{hp:7812500,mp:3906250,lp:781250,ep:17000},
-  {hp:39062500,mp:19531250,lp:3906250,ep:22000},{hp:195312500,mp:97656250,lp:19531250,ep:27000},{hp:976562500,mp:488281250,lp:97656250,ep:32000},
+  {hp:292,mp:146,lp:29,ep:100},{hp:1020,mp:510,lp:102,ep:500},{hp:3571,mp:1786,lp:357,ep:1500},{hp:12500,mp:6250,lp:1250,ep:3000},
+  {hp:43750,mp:21875,lp:4375,ep:5000},{hp:153125,mp:76562,lp:15312,ep:8000},{hp:535938,mp:267969,lp:53594,ep:12000},{hp:1875781,mp:937890,lp:187578,ep:17000},
+  {hp:6565234,mp:3282617,lp:656523,ep:22000},{hp:22978320,mp:11489160,lp:2297832,ep:27000},{hp:80424121,mp:40212060,lp:8042412,ep:32000},
 ];
 const SCROLLS = {
   lianqi: {name:'練氣決', ic:'📖', cat:'xiulian', desc:'新手上路', eff:'修煉效率 +10/秒', bonus:10},
@@ -1737,7 +1737,7 @@ function buyGongfaBook(elemK,r,typeK,i){
   state.scrolls[d.id]=(state.scrolls[d.id]||0)+1; if(_isLow) state.gfBuyRound=(state.gfBuyRound||0)+1;
   addLog('【萬寶閣】購入功法書《'+d.name+'》（至儲物習得）','good'); showToast('購入《'+d.name+'》，至儲物習得'); saveState(); render();
 }
-function _lingliMlOf(id,g){ var base; if(id==='linglijue'){ base=250; } else { var p=(''+id).split('_'); base=(p[0]==='gf'&&p.length>=5)?100*Math.pow(5,parseInt(p[2])):100; } return Math.round(base*gfLvMult((g&&g.level)||1)); }
+function _lingliMlOf(id,g){ var base; if(id==='linglijue'){ base=250; } else { var p=(''+id).split('_'); base=(p[0]==='gf'&&p.length>=5)?Math.round(292*Math.pow(3.5,parseInt(p[2]))):100; } return Math.round(base*gfLvMult((g&&g.level)||1)); }
 function lingliMaxBonus(){ var mp=0; for(var id in state.gongfa){ var g=state.gongfa[id]; if(!g||g.cat!=='lingli') continue; mp+=_lingliMlOf(id,g); } return {mp:mp, lp:mp}; }
 function gfEffOf(id,g){ if(id==='linglijue'){ var _lm0=_lingliMlOf(id,g); return '靈力生成 +'+fmt(gfXlLlNow(id,g))+' / 秒、法力上限 +'+fmt(_lm0)+'、靈力上限 +'+fmt(_lm0); } if(id&&id.indexOf('gf_')===0){ var p=id.split('_'); if(p.length>=5){ var lv=(g&&g.level)||1; var d=gfDesc(p[1],parseInt(p[2]),p[3],parseInt(p[4]),lv); if(d.cat==='xiulian') return '修練效率 +'+fmt(gfXlLlNow(id,g))+' / 秒'; if(d.cat==='lingli'){ var _lm=_lingliMlOf(id,g); return '靈力生成 +'+fmt(gfXlLlNow(id,g))+' / 秒、法力上限 +'+fmt(_lm)+'、靈力上限 +'+fmt(_lm); } return d.eff; } } if(g&&g.cat==='xiulian') return '修練效率 +'+fmt(gfXlLlNow(id,g))+' / 秒'; if(g&&g.cat==='lingli'){ var _lm2=_lingliMlOf(id,g); return '靈力生成 +'+fmt(gfXlLlNow(id,g))+' / 秒、法力上限 +'+fmt(_lm2)+'、靈力上限 +'+fmt(_lm2); } if(g&&g.eff) return g.eff; if(SCROLLS[id]&&SCROLLS[id].eff) return SCROLLS[id].eff; return '此功法'; }
 function learnedCardHTML(id,g){
@@ -2256,10 +2256,10 @@ function gfXlLlNow(id,g){ var b=gfBaseBonus(id,g); var L=(g&&g.level)||1; if(g&&
 function gfHealthCheck(){ if(!state.gongfa) return; for(var id in state.gongfa){ var g=state.gongfa[id]; if(!g) continue; if(typeof g.level!=='number'||!(g.level>=1)) g.level=1; if(g.level>10) g.level=10; if((''+id).indexOf('gf_')===0){ var _pp=(''+id).split('_'); if(_pp.length>=5){ var _rr=parseInt(_pp[2])||0; if(g.realm!==_rr) g.realm=_rr; } } if(g.cat==='xiulian'||g.cat==='lingli'){ var v=gfXlLlNow(id,g); if(g.bonus!==v) g.bonus=v; } } }
 function lpPerSec(){ let s=0; for (const id in state.gongfa){ const g=state.gongfa[id]; if(g.cat==='lingli') s+=gfXlLlNow(id,g); } return s; }
 function speedBonus(){ let s=0; for (const id in state.gongfa){ const g=state.gongfa[id]; if(g.cat==='xiulian') s+=gfXlLlNow(id,g); } return s; }
-function applyRealmStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var asf=1+((vb.allStatPct||0)+reincBonus().allStatPct)/100; var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf*(1+_fb.hpPct/100)*(1+_srb.hpPct/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*asf*(1+_fb.mpPct/100)*(1+_srb.mpPct/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; state.hp=state.hpMax; state.mp=state.mpMax; state.ep=state.epMax; }
+function applyRealmStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var _as=(vb.allStatPct||0)+reincBonus().allStatPct; var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+(eq.hpBoost+_as+_fb.hpPct+_srb.hpPct)/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*(1+(_as+_fb.mpPct+_srb.mpPct)/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; state.hp=state.hpMax; state.mp=state.mpMax; state.ep=state.epMax; }
 function triggerDeath(){ state.dead=true; state.deathInfo={ realm:getRealmName(), years:Math.floor(getDays()/365), totalQi:Math.floor(state.totalQi||0) }; window._btRunning=false; window._btStop=true; window._btAnim=false; MB=null; saveState(); render(); }
 function deathReset(){ state=JSON.parse(JSON.stringify(initialState)); refreshMaxStats(); saveState(); render(); }
-function refreshMaxStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var asf=1+((vb.allStatPct||0)+reincBonus().allStatPct)/100; var fullH=(state.hp>=state.hpMax), fullM=(state.mp>=state.mpMax), fullL=(state.lp>=state.lpMax), fullE=(state.ep>=state.epMax); var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+eq.hpBoost/100)*asf*(1+_fb.hpPct/100)*(1+_srb.hpPct/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*asf*(1+_fb.mpPct/100)*(1+_srb.mpPct/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; if(fullH||state.hp>state.hpMax)state.hp=state.hpMax; if(fullM||state.mp>state.mpMax)state.mp=state.mpMax; if(fullL||state.lp>state.lpMax)state.lp=state.lpMax; if(state.ep>state.epMax)state.ep=state.epMax; }
+function refreshMaxStats(){ const st=STAT_TABLE[state.realm]||STAT_TABLE[0]; var eq=equipBonus(); var vb=vaultBonus(); var _fb=facilityBonus(); var _as=(vb.allStatPct||0)+reincBonus().allStatPct; var fullH=(state.hp>=state.hpMax), fullM=(state.mp>=state.mpMax), fullL=(state.lp>=state.lpMax), fullE=(state.ep>=state.epMax); var _srb=sectRankBonus(); state.hpMax=Math.floor((st.hp+((state.tipo||0)+eq.tipo)*125+eq.hp)*(1+(eq.hpBoost+_as+_fb.hpPct+_srb.hpPct)/100)); var _llb=lingliMaxBonus(); state.mpMax=Math.floor((st.mp+((state.wuxing||0)+eq.wuxing)*6+vb.mpMax)*(1+(_as+_fb.mpPct+_srb.mpPct)/100))+_llb.mp; state.lpMax=st.lp+_llb.lp+fazhenLpBonus(); state.epMax=st.ep; if(fullH||state.hp>state.hpMax)state.hp=state.hpMax; if(fullM||state.mp>state.mpMax)state.mp=state.mpMax; if(fullL||state.lp>state.lpMax)state.lp=state.lpMax; if(state.ep>state.epMax)state.ep=state.epMax; }
 function claimGift(){
   if (state.giftClaimed) return;
   gainLingshi(10000); state.lingcao+=50; state.kuangshi+=50;
@@ -2326,7 +2326,7 @@ function consumeElixir(id){
   saveState(); render();
 }
 function gfRealmOf(id,g){ if(id&&(''+id).indexOf('gf_')===0){ var p=(''+id).split('_'); if(p.length>=5) return parseInt(p[2])||0; } if(g&&g.realm!==undefined&&g.realm!==null) return g.realm; return 0; }
-function gfUpLpCost(id,g){ return Math.round(80 * Math.pow(5, gfRealmOf(id,g)) * Math.pow(1.85, ((g&&g.level)||1)-1)); }
+function gfUpLpCost(id,g){ return Math.round(233 * Math.pow(3.5, gfRealmOf(id,g)) * Math.pow(1.85, ((g&&g.level)||1)-1)); }
 function upgradeGongfa(id){
   const g=state.gongfa[id]; if (!g) return;
   if ((g.level||1)>=10){ showToast('已達升級上限 Lv.10'); return; }
